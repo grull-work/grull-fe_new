@@ -17,8 +17,6 @@ import { Grid} from '@mui/material';
 import toast, { Toaster } from 'react-hot-toast';
 import { IoSend } from "react-icons/io5";
 import { BsCurrencyDollar } from "react-icons/bs";
-import { DatePicker, message} from 'antd';
-import { setDate } from 'rsuite/esm/utils/dateUtils';
 import BAPI from '../helper/variable'
 // import {Cloudinary} from "@cloudinary/url-gen";
 import axios from 'axios';

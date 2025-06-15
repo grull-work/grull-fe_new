@@ -35,7 +35,7 @@ function Section16() {
       sx={{
         minHeight: "100vh",
         width: "100vw",
-        padding: {xs:"24px 0",md:"100px 24px 60px 24px"},
+        padding: {xs:"24px 0",sm:"100px 24px 60px 24px"},
         position: "relative",
       }}
     >

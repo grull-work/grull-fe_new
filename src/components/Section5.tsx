@@ -5,7 +5,7 @@ import section5Freelancer from "../assets/section5Freelancer.png";
 import section5DoubleQuotes from "../assets/section5DoubleQuotes.png";
 
 function Section5() {
-  const isDesktop = useMediaQuery("(min-width:600px)");
+  const isDesktop = useMediaQuery("(min-width:900px)");
 
   return (
     <Grid
