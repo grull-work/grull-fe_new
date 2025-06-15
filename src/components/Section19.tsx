@@ -49,7 +49,7 @@ function Section19() {
   return (
     <Grid
       sx={{
-        minHeight: { xs: "fit-content", md: "70vh" },
+        minHeight: { xs: "fit-content", sm: "70vh" },
         width: "100vw",
         display: "grid",
         placeContent: "center",
@@ -72,8 +72,8 @@ function Section19() {
       <Grid
         sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", md: "3fr 7fr" },
-          width: { xs: "100%", md: "90%" },
+          gridTemplateColumns: { xs: "1fr", sm: "3fr 7fr" },
+          width: { xs: "100%", sm: "90%" },
           margin: "auto",
         }}
       >
@@ -81,9 +81,9 @@ function Section19() {
           <Typography
             sx={{
               color: silverTree,
-              display: { xs: "block", md: "none" },
-              typography: { xs: "font_20_700", md: "font_48_900" },
-              textAlign: { xs: "center", md: "0" },
+              display: { xs: "block", sm: "none" },
+              typography: { xs: "font_20_700", sm: "font_48_900" },
+              textAlign: { xs: "center", sm: "0" },
             }}
           >
             Stay Up-to Date
@@ -107,16 +107,16 @@ function Section19() {
         <Box sx={{ display: "grid", placeContent: "center" }}>
           <Typography
             variant="font_48_900"
-            sx={{ color: silverTree, display: { xs: "none", md: "block" } }}
+            sx={{ color: silverTree, display: { xs: "none", sm: "block" } }}
           >
             Stay Up-to Date
           </Typography>
           <Typography
             sx={{
               color: "black",
-              typography: { xs: "font_12_600", md: "font_32_600" },
-              textAlign: { xs: "center", md: "left" },
-              margin: { xs: "0 24px", md: "0" },
+              typography: { xs: "font_12_600", sm: "font_32_600" },
+              textAlign: { xs: "center", sm: "left" },
+              margin: { xs: "0 24px", sm: "0" },
             }}
           >
             Subscribe to Our Newsletter for the Latest Updates and Exclusive
@@ -127,9 +127,9 @@ function Section19() {
             sx={{
               height: "80px",
               width: "90%",
-              typography: { xs: "font_12_500", md: "font_20_400" },
+              typography: { xs: "font_12_500", sm: "font_20_400" },
               position: "relative",
-              margin: { xs: "16px auto", md: "48px 0 0 0" },
+              margin: { xs: "16px auto", sm: "48px 0 0 0" },
             }}
           >
             <Input
@@ -147,7 +147,7 @@ function Section19() {
             />
             <Box
               sx={{
-                width: { xs: "100px", md: "200px" },
+                width: { xs: "100px", sm: "200px" },
                 padding: "16px 0",
                 height: "min-content",
                 borderRadius: "16px",
