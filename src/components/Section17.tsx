@@ -96,7 +96,7 @@ function Section17() {
   return (
     <Grid
       sx={{
-        minHeight: { xs: "fit-content", sm: "100vh" },
+        minHeight: { xs: "fit-content", sm: "40vh", md:"40vh" },
         width: "100vw",
         padding: "32px",
         display: "grid",

@@ -28,6 +28,11 @@ export default function Header1() {
     const isSmallScreen = useMediaQuery('(max-width:600px)');
     const navigate =useNavigate()
     const [showDropdown, setShowDropdown] = useState(false);
+
+
+    const [showDropdown2, setShowDropdown2] = useState(false);
+
+
     const avatarBackgroundColor = 'Grey';
     const accessToken = localStorage.getItem('accessToken');
     const [profileImage,setProfileImage]=useState(null);
@@ -63,6 +68,15 @@ export default function Header1() {
         // else setShowDropdown(true)
         console.log(showDropdown)
     }
+
+    const clickIcon = () => {
+        // console.log(showDropdown)
+        setShowDropdown(!showDropdown2);
+        // if(showDropdown) setShowDropdown(false)
+        // else setShowDropdown(true)
+        // console.log(showDropdown)
+    }
+
     const clickLogout = () => {
         localStorage.removeItem('accessToken')
         localStorage.removeItem('user')
@@ -214,6 +228,8 @@ export default function Header1() {
                                         
                                         </Box>
                                     )}
+
+                                    
                                 </Box>
                                 <IconButton sx={{display:{xs:'block',md:'none'}, fontSize:{ xs:'24px',sm:'30px'}}} >
                                    <LuMenu style={{ color: '#fff', }} onClick={clickProfileImage}  />

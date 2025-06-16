@@ -12,7 +12,6 @@ import { FiShoppingBag } from "react-icons/fi"
 import Avatar from '@mui/material/Avatar';
 import {useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-import navbarIcon2 from "../assets/navbarIcon2.svg";
 import 'react-toastify/dist/ReactToastify.css';
 import FreelancerHome from './FreelancerHome';
 import Freelancerwallet from './Freelancerwallet';
@@ -22,19 +21,15 @@ import Logo from "../assets/grullLogoPurple.svg";
 import { FiMessageSquare } from "react-icons/fi";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import Header1 from './Header1';
-import { NavLink } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { MdArrowOutward } from "react-icons/md";
 import { useLocation } from 'react-router-dom';
 import BAPI from '../helper/variable'
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
-interface Props {
-  window?: () => Window;
-}
 
-export default function FreelancerDashboard(props: Props) {
+
+export default function FreelancerDashboard(props) {
 
   let { '*' : section } = useParams();
   if(!section){
@@ -247,13 +242,6 @@ export default function FreelancerDashboard(props: Props) {
                                             {fullname?.split(' ').slice(0, 2).map(part => part[0]).join('')}
                                         </Avatar>
                                     )}
-         {/* <Avatar
-        alt={fullname}
-        style={{ backgroundColor: avatarBackgroundColor }}
-        // onClick={() => { navigate('/freelancerprofile') }}
-      >
-        {fullname?.split(' ').slice(0, 2).map(part => part[0]).join('')}
-      </Avatar> */}
              <Grid sx={{display:'flex', flexDirection:'column',gap:'0px'}}>
                <Typography sx={{fontSize:'18px',fontWeight:'500',color:'#fff'}}>{fullname}</Typography>
                <Typography sx={{fontSize:'15px',fontWeight:'500',color:'#fff',opacity:'0.8'}}>{role}</Typography>
@@ -295,6 +283,7 @@ export default function FreelancerDashboard(props: Props) {
         <Toolbar sx={{
           width:'100%',
           padding:"0",
+          // display: 'block'
           display:{xs:'block',md:'none'}
         }} >
            <Header1 />
@@ -322,20 +311,6 @@ export default function FreelancerDashboard(props: Props) {
                 Dashboard </Typography>
             </Box>
             <Box sx={{display:'flex',gap:'40px',alignItems:'center'}} className='dashboard-navbar-buttons'>
-                {/* <Box
-                  sx={{
-                    background: 'linear-gradient(90deg, #ED8335 0%, #B27EE3 100%)',
-                    // display: 'inline-block',
-                    padding: '1px',
-                    borderRadius: '17px',
-                  }}
-                >
-                  <Button 
-                    sx={{width: '160px',height: '40px',padding: '10px',gap: '10px',background: '#FFF',boxShadow: '0px 0px 4px 0px #00000040',border: 'none', borderRadius: '16px',color:'#000',textTransform: 'none',fontSize:'16px',':hover':{background:"#fff"}}}
-                    >Grull Premium
-                  </Button>
-                </Box>
-                 */}
                  <Button
                   sx={{width: '160px',height: '40px',padding: '10px',gap: '10px',background: '#FFF',boxShadow: '0px 0px 4px 0px #00000040',borderRadius: '16px',color:'#000',textTransform: 'none', fontSize:'16px'}} onClick={()=>handleShareProfile()} > 
 
@@ -462,13 +437,6 @@ export default function FreelancerDashboard(props: Props) {
                                                       {fullname?.split(' ').slice(0, 2).map(part => part[0]).join('')}
                                                   </Avatar>
                                               )}
-                                              {/* <Avatar
-                                              alt={fullname}
-                                              style={{ backgroundColor: avatarBackgroundColor }}
-                                              // onClick={() => { navigate('/freelancerprofile') }}
-                                            >
-                                              {fullname?.split(' ').slice(0, 2).map(part => part[0]).join('')}
-                                            </Avatar> */}
                                                 <div style={{ marginRight: '30px', display: 'flex', flexDirection: 'column' }}>
                                                     <Typography style={{ margin: '0', fontWeight:'700',fontSize:'20px',color:'#000000'}}>{fullname}</Typography>
                                                     <Typography style={{ margin: '0',color:'#454545',fontWeight:'500',fontSize:'16px'}}>{role}</Typography>
@@ -496,9 +464,6 @@ export default function FreelancerDashboard(props: Props) {
                                         <Link to='/browsejobs' style={{backgroundColor:'#fff', textDecoration: 'none', color: 'black',fontWeight:'500',padding:{xs:'2px 0'},marginTop:'5px',':hover':{backgroundColor:'transparent'},minHeight:'0' }}>Find Work</Link>
                                         <Link to='/coming-soon' style={{backgroundColor:'#fff', textDecoration: 'none', color: 'black',fontWeight:'500',padding:'2px 0',':hover':{backgroundColor:'transparent'},minHeight:'0' }}>Learn</Link>
                                         <Link to='/coming-soon' style={{backgroundColor:'#fff', textDecoration: 'none', color: 'black',fontWeight:'500',padding:'2px 0',':hover':{backgroundColor:'transparent'},minHeight:'0' }}>Collaborate</Link>
-                                        {/* <Link style={{padding:'0',marginTop:'5px',':hover':{backgroundColor:'transparent',minHeight:'0'},backgroundColor:'#fff',}}>
-                                            <Button endIcon={<MdArrowOutward />} sx={{border: '1px solid #000000',fontWeight:'600',color:'#000000',borderRadius:'16px',padding:'7px 25px'}}>Post a project</Button>
-                                        </Link> */}
                                           </>)
                                         }
                                         </Box>
