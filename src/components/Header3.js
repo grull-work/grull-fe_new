@@ -143,9 +143,6 @@ export default function Header3() {
                                         </Box>
                                     )}
                             </Box>
-                            <Box sx={{display:{xs:'none',md:'flex'},flex: 1}}>
-                                <input style={{color:'#fff',backgroundColor:'transparent',borderRadius:'16px',outline:'none',border:'1px solid #fff',padding:'8px 14px', width: '100%'}} placeholder='Search for Jobs, Projects or company'/>
-                            </Box>
                             <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', gap:{xs:'8px',sm:'30px', md:'25px',lg:'36px'}, alignItems: 'center' }}>
                                 <IconButton sx={{fontSize:{ xs:'24px',sm:'30px'}}}>
                                    <FiMessageSquare style={{ color: '#fff'}} onClick={()=>navigate('/freelancerchat')} />

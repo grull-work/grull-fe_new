@@ -15,30 +15,16 @@ export default function Section16() {
   const isLgUp = useMediaQuery(theme.breakpoints.up("lg"));
 
   return (
-    <Box sx={{ width: "100%", minHeight: "100vh", p: { xs: 2, sm: 4, lg: 0 }, position: "relative" }} margin={"15px"}>
+    <Box sx={{ width: "100%", minHeight: "100vh", p: { xs: 2, sm: 4, lg: 0 }, position: "relative" }}>
       {/* For lg+, absolute character & bottom lines */}
       {isLgUp && (
         <>
-          <Box sx={{ position: "absolute", top: 0, left: "-10%",mt: { lg: "-115px" },
-          [theme.breakpoints.up(1280)]: {
-      left: "-6%",
-    }
-         }} >
-            <Box
-              component="img"
+          <Box sx={{ position: "absolute", top: 0, left: "-4%" }}>
+            <img
               src={section16CharacterSale}
               alt="sale"
-              sx={{
-                width: { xs: 440}, [theme.breakpoints.up(1600)]: {width:600 },
-                objectFit: "contain",
-                display: "block",
-              }}
-              // style={{ width: 440, objectFit: "contain", display: "block" }}
-            // />
-                            >
-                              </Box>
-            {/* > */}
-            
+              style={{ width: 440, objectFit: "contain", display: "block" }}
+            />
           </Box>
           <Box sx={{ position: "absolute", bottom: 0, right: 0 }}>
             <img
@@ -64,14 +50,13 @@ export default function Section16() {
       <Box
         sx={{
           display: { xs: "grid", sm: "grid", lg: "flex" },
-          gridTemplateColumns: { xs:"1fr", sm: "1fr 1fr", lg: "none" },
+          gridTemplateColumns: { sm: "1fr 1fr", lg: "none" },
           gridTemplateRows: { sm: "auto auto", lg: "none" },
           gap: 4,
           justifyContent: "center",
           alignItems: "start",
           width: { xs: "100%", sm: "80%", lg: "80%" },
           mx: "auto",
-          my:"auto"
         }}
       >
         {/* Character Image on xs+ */}
@@ -190,7 +175,7 @@ export default function Section16() {
             <Box />
             <Typography sx={{ color: lavender, typography: { xs: "font_12_500", md: "font_18_500" } }}>
               {section16PremiumPlan.commission}
-            </Typography>
+            }</Typography>
           </Box>
 
           {section16PremiumPlan.feat.map((feature) => (

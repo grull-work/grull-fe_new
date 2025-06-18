@@ -250,6 +250,10 @@ const BrowseJobs = () => {
     setSearchJobs(searchQuery)
   }
   
+  useEffect(() => {
+  handleSearch();
+}, [searchQuery]);
+
   const filteredJobs = jobs
   .filter((job) => {
       if (searchJobs && !(job.title.toLowerCase().includes(searchJobs.toLowerCase()) || job.description.toLowerCase().includes(searchJobs.toLowerCase()))) {
@@ -284,7 +288,7 @@ const BrowseJobs = () => {
       <div className='search-bar'>
         <h1 style={{ color: 'white'}}>Browse</h1>
         <div style={{display:'flex',flexDirection:'column'}}>
-          <Box sx={{display:'flex',flexDirection:{md:'row',xs:'column'},gap:{md:'20px',xs:'7px'},width:'100%'}}>
+          {/* <Box sx={{display:'flex',flexDirection:{md:'row',xs:'column'},gap:{md:'20px',xs:'7px'},width:'100%'}}>
               <div style={{ position: 'relative',flex:1 }}>
                 <input
                   value={searchQuery}
@@ -310,23 +314,71 @@ const BrowseJobs = () => {
                   backgroundColor: '#B27EE3', color: 'white', border: 'none', borderRadius: '16px',
                   fontSize: '16px',padding:'7px 22px'
                 }} onClick={handleSearch} >Search</Button>
-                {/* <Button style={{
-              border: 'none', backgroundColor: 'transparent', color: 'white',
-              cursor: 'pointer', fontSize: '16px',outline:'none',float:'right'
-            }} sx={{display:{md:'none',xs:'block'}}}>   Show Advanced Options</Button> */}
               </div>
-          </Box>
-          {/* <Box sx={{display:{md:'block',xs:'none'}}}>
-            <Button style={{
-              border: 'none', backgroundColor: 'transparent', color: 'white',
-              cursor: 'pointer', fontSize: '16px',outline:'none',float:'right'
-            }}>   Show Advanced Options</Button>
           </Box> */}
+          <Box
+  sx={{
+    display: "flex",
+    width: "100%",
+    // maxWidth: 600,
+    borderRadius: "15px",
+    overflow: "hidden",
+    bgcolor: "#fff",
+    boxShadow: "0 0 0 1px #ccc",
+  }}
+>
+  <div style={{ position: "relative", flex: 1 }}>
+    <input
+      value={searchQuery}
+      onChange={(e) => {setSearchQuery(e.target.value)
+        // handleSearch
+      }}
+      type="text"
+      placeholder="What you are looking for?"
+      style={{
+        border: "none",
+        outline: "none",
+        width: "100%",
+        padding: "12px 45px 12px 40px",
+        fontSize: "16px",
+        color: "#000",
+        backgroundColor: "#fff",
+      }}
+    />
+    <FontAwesomeIcon
+      icon={faSearch}
+      style={{
+        position: "absolute",
+        left: "14px",
+        top: "50%",
+        transform: "translateY(-50%)",
+        color: "#555",
+      }}
+    />
+  </div>
+  <Button
+    onClick={handleSearch}
+    sx={{
+      borderRadius: 0,
+      bgcolor: "#ff5e3a",
+      color: "#fff",
+      px: 3,
+      fontSize: "16px",
+      textTransform: "none",
+      "&:hover": {
+        bgcolor: "#e44e2e",
+      },
+    }}
+  >
+    Search
+  </Button>
+</Box>
+
+
         </div>
         
         <div >
             <Button sx={{color:category==='projects'?'#fff':'#FFFFFFB2',borderBottom:category==='projects'?'1px solid #fff':'1px solid transparent',outline:'none',background:'transparent',borderRadius:'0',fontSize:'16px'}} onClick={()=>setcategory('projects')}>Projects</Button >
-            {/* <Button sx={{color:category==='contests'?'#fff':'#FFFFFFB2',borderBottom:category==='contests'?'1px solid #fff':'1px solid transparent',outline:'none',background:'transparent',borderRadius:'0',marginLeft:'20px',fontSize:'16px'}} onClick={()=>setcategory('contests')}>Contest</Button > */}
         </div>
       </div>
       
