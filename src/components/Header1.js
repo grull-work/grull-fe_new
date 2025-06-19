@@ -19,19 +19,19 @@ import { NavLink } from 'react-router-dom';
 import BAPI from '../helper/variable'
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { RiCloseLine } from "react-icons/ri";
 
 export default function Header1() {
     const [changeopts,setChangeopts]=useState(false);
     const container = useRef();
+    const container2 = useRef();
     const [savedName,setSavedName]=useState('');
     const [category,setcategory]=useState('')
     const isSmallScreen = useMediaQuery('(max-width:600px)');
     const navigate =useNavigate()
     const [showDropdown, setShowDropdown] = useState(false);
 
-
-    const [showDropdown2, setShowDropdown2] = useState(false);
-
+    const [showMobileMenu, setShowMobileMenu] = useState(false);
 
     const avatarBackgroundColor = 'Grey';
     const accessToken = localStorage.getItem('accessToken');
@@ -69,14 +69,6 @@ export default function Header1() {
         console.log(showDropdown)
     }
 
-    const clickIcon = () => {
-        // console.log(showDropdown)
-        setShowDropdown(!showDropdown2);
-        // if(showDropdown) setShowDropdown(false)
-        // else setShowDropdown(true)
-        // console.log(showDropdown)
-    }
-
     const clickLogout = () => {
         localStorage.removeItem('accessToken')
         localStorage.removeItem('user')
@@ -87,6 +79,9 @@ export default function Header1() {
     const handleClickOutside = (e) => {
         if (container.current && !container.current.contains(e.target)) {
             setShowDropdown(false);
+        }
+        if(container2.current && !container2.current.contains(e.target)){
+            setShowMobileMenu(false);
         }
     };
     // attaches an eventListener to listen when componentDidMount
@@ -232,8 +227,75 @@ export default function Header1() {
                                     
                                 </Box>
                                 <IconButton sx={{display:{xs:'block',md:'none'}, fontSize:{ xs:'24px',sm:'30px'}}} >
-                                   <LuMenu style={{ color: '#fff', }} onClick={clickProfileImage}  />
+                                   {!showMobileMenu?  <LuMenu style={{ color: "#fff" }} onClick={()=>setShowMobileMenu(m => !m)} /> : <RiCloseLine style={{ color: "#fff" }} onClick={()=>setShowMobileMenu(m => !m)} />} 
                                 </IconButton>
+                                 {showMobileMenu && (
+                
+  <Box ref = {container2}
+    sx={{
+                    padding: "15px 30px 20px 20px",
+                    display: showMobileMenu ? "block" : "none",
+                    position: "absolute",
+                    background: "#fff",
+                    zIndex: "10",
+                    top: { xs: "58px", sm: "65px" },
+                    right: "10px",
+                    boxShadow: "0px 0px 4px 1px #00000040",
+                    borderRadius: { xs: "10px", sm: "40px" },
+                    width: { xs: "150px", sm: "180px" },
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "5px",
+                  }}
+  >  
+    {/* Close button */}
+    {/* <IconButton
+      sx={{ color: "#fff", position: "absolute", top: 8, right: 8 }}
+      onClick={() => setShowMobileMenu(false)}
+    >
+      <RiCloseLine size={24} />
+    </IconButton> */}
+    
+    {/* Your existing menu items */}
+    <Button
+      sx={{ color: "#000000", justifyContent: "flex-start", mt: 4 }}
+      onClick={() => {
+        navigate("/browsejobs");
+        setShowMobileMenu(false);
+        console.log("Navigating to Browse Jobs");
+      }}
+    >
+      Browse Jobs
+    </Button>
+      <Button
+        sx={{ color: "#000000", justifyContent: "flex-start" }}
+        onClick={() =>{
+            navigate('/browsejobs')
+        }}
+      >
+        Learn
+      </Button>
+
+      <Button
+        sx={{ color: "#000000", justifyContent: "flex-start" }}
+        onClick={() =>{
+            navigate('/coming-soon')
+        }}
+      >
+        Learn
+      </Button>
+
+      <Button
+        sx={{ color: "#000000", justifyContent: "flex-start" }}
+        onClick={() =>{
+            navigate('/coming-soon')
+        }}
+      >
+       Collaborate
+      </Button>
+      {/* { console.log(showMobileManageJobs)} */}
+  </Box>
+)}
                             </Box>
                         </Box>
                 </Grid>
