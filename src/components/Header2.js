@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FiMessageSquare } from "react-icons/fi";
 import { IoMdNotificationsOutline } from "react-icons/io";
-import { MdArrowOutward } from "react-icons/md";
+import { RiArrowDropDownLine } from "react-icons/ri";
 import {
   Button,
   Typography,
@@ -21,10 +21,12 @@ import { NavLink } from 'react-router-dom';
 import BAPI from '../helper/variable'
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { RiCloseLine } from "react-icons/ri";
 
 export default function Header2() {
     const [changeopts,setChangeopts]=useState(false);
     const container = useRef();
+    const container1 = useRef();
     const [savedName,setSavedName]=useState('');
     const [category,setcategory]=useState('')
     const isSmallScreen = useMediaQuery('(max-width:600px)');
@@ -33,6 +35,9 @@ export default function Header2() {
     const avatarBackgroundColor = 'Grey';
     const accessToken = localStorage.getItem('accessToken');
     const [profileImage,setProfileImage]=useState(null);
+
+    const [showMobileMenu, setShowMobileMenu] = useState(false);
+
     useEffect(()=>{
         const infofetch=async()=>{
          try {
@@ -71,6 +76,9 @@ export default function Header2() {
         if (container.current && !container.current.contains(e.target)) {
             setShowDropdown(false);
         }
+        if (container1.current && !container1.current.contains(e.target)) {
+            setShowMobileMenu(false);
+        }
     };
     // attaches an eventListener to listen when componentDidMount
     useEffect(() => {
@@ -106,10 +114,14 @@ export default function Header2() {
                             <Box sx={{display:{xs:'none',md:'block'}}}>
                                 <Button sx={{color:'#fff',fontSize:'16px'}} onClick={()=>navigate('/postjob')}>Post Jobs</Button>
                             </Box>
-                            <Box sx={{display:{xs:'none',md:'flex'},flex: 1}}>
+                            {/* <Box sx={{display:{xs:'none',md:'flex'},flex: 1}}>
                                 <input style={{color:'#fff',backgroundColor:'transparent',borderRadius:'16px',outline:'none',border:'1px solid #fff',padding:'8px 14px', width: '100%'}} placeholder='Search for Jobs, Projects or company'/>
-                            </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', gap:{xs:'8px',sm:'30px', md:'25px',lg:'36px'}, alignItems: 'center' }}>
+                            </Box> */}
+                            <Box sx={{display:"flex",width:"100%",right:0}}>
+                            <Box sx={{ display: 'flex', 
+                                right:0,
+                                flexDirection: 'row', flexWrap: 'nowrap', gap:{xs:'8px',sm:'30px', md:'25px',lg:'36px'}, alignItems: 'center' ,
+                                marginLeft:'auto',}}>
                                 <IconButton sx={{fontSize:{ xs:'24px',sm:'32px'}}} onClick={()=>navigate('/clientchat')} >
                                    <FiMessageSquare style={{ color: '#fff'}} onClick={()=>navigate('/clientchat')} />
                                 </IconButton>
@@ -206,8 +218,53 @@ export default function Header2() {
                                     )}
                                 </Box>
                                 <IconButton sx={{display:{xs:'block',md:'none'}, fontSize:{ xs:'24px',sm:'30px'}}}>
-                                   <LuMenu style={{ color: '#fff', }} onClick={clickProfileImage}/>
-                                </IconButton>
+                                   {!showMobileMenu?  <LuMenu style={{ color: "#fff" }} onClick={()=>setShowMobileMenu(m => !m)} /> : <RiCloseLine style={{ color: "#fff" }} onClick={()=>setShowMobileMenu(m => !m)} />}
+            </IconButton>
+            {showMobileMenu && (
+                
+  <Box ref = {container1}
+    sx={{
+                    padding: "15px 30px 20px 20px",
+                    display: showMobileMenu ? "block" : "none",
+                    position: "absolute",
+                    background: "#fff",
+                    zIndex: "10",
+                    top: { xs: "58px", sm: "65px" },
+                    right: "10px",
+                    boxShadow: "0px 0px 4px 1px #00000040",
+                    borderRadius: { xs: "10px", sm: "40px" },
+                    width: { xs: "150px", sm: "180px" },
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "5px",
+                  }}
+  >  
+   <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+  <Button
+    fullWidth
+    sx={{ color: "#000", justifyContent: "flex-start", textTransform: "none" }}
+    onClick={() => {
+      navigate("/browsefreelancer");
+      setShowMobileMenu(false);
+    }}
+  >
+    Browse Freelancer
+  </Button>
+  <Button
+    fullWidth
+    sx={{ color: "#000", paddingLeft: "35px", justifyContent: "flex-start", textTransform: "none" }}
+    onClick={() => {
+      navigate("/postjob");
+      setShowMobileMenu(false);
+    }}
+  >
+    Post Jobs
+  </Button>
+</Box>
+
+  </Box>
+)}
+                            </Box>
                             </Box>
                         </Box>
                 </Grid>

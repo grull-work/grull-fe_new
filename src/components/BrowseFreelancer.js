@@ -299,9 +299,9 @@ const getFreelancers = async(type) => {
     }
   };
 
-  const handleSearch=()=>{
-    setSearchFreelancers(searchQuery)
-  }
+  // const handleSearch=()=>{
+  //   setSearchFreelancers(searchQuery)
+  // }
 
   const filteredFreelancers = allFreelancers
   .filter((freelancer) => {
@@ -330,6 +330,12 @@ const getFreelancers = async(type) => {
     return 0;
   });
 
+    const handleSearch=()=>{
+    setSearchFreelancers(searchQuery)
+  }  
+  useEffect(() => {
+  handleSearch();
+}, [searchQuery]);
 
   return (
     <div>
@@ -341,38 +347,63 @@ const getFreelancers = async(type) => {
       <div className='search-bar'>
       <h1 style={{ color: 'white'}}>Browse</h1>
       <div style={{display:'flex',flexDirection:'column'}}>
-        <Box sx={{display:'flex',flexDirection:{md:'row',xs:'column'},gap:{md:'20px',xs:'7px'},width:'100%'}}>
-        <div style={{ position: 'relative',flex:1 }}>
-          <input
-          value={searchQuery}
-          onChange={(e)=>setSearchQuery(e.target.value)}
-            type="text"
-            placeholder=" Search for Freelancers"
-            style={{
-              borderRadius: '16px',
-              border: 'none',
-              width:'100%',
-              padding:'10px 45px',
-              fontSize:'16px',
-              color:'#00000080'
-            }}
-          />
-          <FontAwesomeIcon icon={faSearch} style={{
-            color: '#957474',position:'absolute',
-            left:'16px',top:'12px'
-          }} />
-          </div>
-          <div style={{display:'flex',flexDirection:'row',justifyContent:'space-between'}}>
-                <Button style={{
-                  backgroundColor: '#B27EE3', color: 'white', border: 'none', borderRadius: '16px',
-                  fontSize: '16px',padding:'7px 22px'
-              }} onClick={handleSearch}>Search</Button>
-        {/* <Button style={{
-              border: 'none', backgroundColor: 'transparent', color: 'white',
-              cursor: 'pointer', fontSize: '16px',outline:'none',float:'right'
-            }} sx={{display:{md:'none',xs:'block'}}}>   Show Advanced Options</Button> */}
-              </div>
-              </Box>
+                 <Box
+  sx={{
+    display: "flex",
+    width: "100%",
+    // maxWidth: 600,
+    borderRadius: "15px",
+    overflow: "hidden",
+    bgcolor: "#fff",
+    boxShadow: "0 0 0 1px #ccc",
+  }}
+>
+  <div style={{ position: "relative", flex: 1 }}>
+    <input
+      value={searchQuery}
+      onChange={(e) => {setSearchQuery(e.target.value)
+        // handleSearch
+      }}
+      type="text"
+      placeholder="Search for freelancers?"
+      style={{
+        border: "none",
+        outline: "none",
+        width: "100%",
+        padding: "12px 45px 12px 40px",
+        fontSize: "16px",
+        color: "#000",
+        backgroundColor: "#fff",
+      }}
+    />
+    <FontAwesomeIcon
+      icon={faSearch}
+      style={{
+        position: "absolute",
+        left: "14px",
+        top: "50%",
+        transform: "translateY(-50%)",
+        color: "#555",
+      }}
+    />
+  </div>
+  <Button
+    onClick={handleSearch}
+    sx={{
+      borderRadius: 0,
+      bgcolor: "#ff5e3a",
+      color: "#fff",
+      px: 3,
+      fontSize: "16px",
+      textTransform: "none",
+      "&:hover": {
+        bgcolor: "#e44e2e",
+      },
+    }}
+  >
+    Search
+  </Button>
+</Box>
               <Box sx={{display:{md:'block',xs:'none'}}}>
             {/* <Button style={{
               border: 'none', backgroundColor: 'transparent', color: 'white',

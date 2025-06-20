@@ -561,12 +561,13 @@ const FreelancerProfile = () => {
                             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}} className='profilesec-1'>
                                 <div style={{ display: 'flex', flexDirection: 'row', gap: '30px', alignItems: 'center' }} className='profilesec-4'>
                                     <div className='user-picture'>
+                                        <label htmlFor="fileInput" className="user-picture" style={{ cursor: "pointer" }}>
                                     {(profileImage && profileImage!=='') ? (
                                         <img
                                             className='user-picture-img'
                                             alt={savedName.first_name}
                                             src={profileImage}
-                                            style={{ borderRadius:'50%',objectFit: 'cover' }}
+                                            style={{ borderRadius:'50%',objectFit: 'cover'  }}
                                         />
                                     ) : (
                                         <Avatar
@@ -577,18 +578,20 @@ const FreelancerProfile = () => {
                                             {(savedName.first_name + " " + savedName.last_name)?.split(' ').slice(0, 2).map(part => part[0]).join('')}
                                         </Avatar>
                                     )}
-                                        <label htmlFor="fileInput" className='camera-icon-label'>
-                                            <CiCamera className='camera-icon' />
-                                        </label>
-                                        {/* {topBoxEditMode && ( */}
-                                            <input
-                                                type="file"
-                                                id="fileInput"
-                                                accept="image/*"
-                                                style={{ display: 'none' }}
-                                                onChange={handleFileChange}
-                                            />
-                                        {/* )} */}
+
+                                            <div className='camera-icon-label'>
+                                                <CiCamera className='camera-icon' />
+                                            </div>
+                                            
+                                                <input
+                                                    type="file"
+                                                    id="fileInput"
+                                                    accept="image/*"
+                                                    style={{ display: 'none' }}
+                                                    onChange={handleFileChange}
+                                                />
+                                                </label>
+                                           
                                     </div>
                                     <>
                                         {!topBoxEditMode && (

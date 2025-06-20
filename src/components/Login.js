@@ -13,6 +13,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
 import { signInWithGooglePopup } from '../utils/firebase.utils';
+import toast from 'react-hot-toast';
 
 const Login = () => {
   const { REACT_APP_GOOGLE_CLIENT_ID, REACT_APP_GOGGLE_REDIRECT_URL_ENDPOINT } = process.env
@@ -55,15 +56,15 @@ const Login = () => {
             localStorage.setItem('accessToken', accessToken);
             navigate('/loading');
           } else {
-            alert('Unexpected response from the server');
+            toast.error('Unexpected response from the server');
           }
         } else if (response.status === 400) {
-          alert('Wrong credentials or invalid user');
+          toast.error('Wrong credentials or invalid user');
         } else if (response.status === 422) {
           const errorData = await response.json();
           console.error('Validation Error:', errorData);
         } else {
-          alert('Unexpected response from the server');
+          toast.error('Unexpected response from the server');
         }
       
 
@@ -97,7 +98,7 @@ const Login = () => {
         const password = document.querySelector('[name="password"]').value;
     
         if (!email.trim() || !password.trim()) {
-          alert('Email and password cannot be empty');
+          toast.error('Email and password cannot be empty');
           return;
         }
     
@@ -122,15 +123,15 @@ const Login = () => {
             localStorage.setItem('accessToken', accessToken);
             navigate('/loading');
           } else {
-            alert('Unexpected response from the server');
+            toast.error('Unexpected response from the server');
           }
         } else if (response.status === 400) {
-          alert('Wrong credentials or invalid user');
+          toast.error('Wrong credentials or invalid user');
         } else if (response.status === 422) {
           const errorData = await response.json();
           console.error('Validation Error:', errorData);
         } else {
-          alert('Unexpected response from the server');
+          toast.error('Unexpected response from the server');
         }
       } catch (error) {
         console.error('Error during login:', error);

@@ -22,7 +22,7 @@ import { useLocation } from 'react-router-dom';
 import BAPI from '../helper/variable'
 import { useParams } from 'react-router-dom';
 
-import NavDash from './NavDash'; // Import the NavDash component
+import NavDash from './NavDashFreelancer'; // Import the NavDash component
 
 
 

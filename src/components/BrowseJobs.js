@@ -248,8 +248,7 @@ const BrowseJobs = () => {
 
   const handleSearch=()=>{
     setSearchJobs(searchQuery)
-  }
-  
+  }  
   useEffect(() => {
   handleSearch();
 }, [searchQuery]);
@@ -288,34 +287,6 @@ const BrowseJobs = () => {
       <div className='search-bar'>
         <h1 style={{ color: 'white'}}>Browse</h1>
         <div style={{display:'flex',flexDirection:'column'}}>
-          {/* <Box sx={{display:'flex',flexDirection:{md:'row',xs:'column'},gap:{md:'20px',xs:'7px'},width:'100%'}}>
-              <div style={{ position: 'relative',flex:1 }}>
-                <input
-                  value={searchQuery}
-                  onChange={(e)=>setSearchQuery(e.target.value)}
-                  type="text"
-                  placeholder=" Search for Projects"
-                  style={{
-                    borderRadius: '16px',
-                    border: 'none',
-                    width:'100%',
-                    padding:'10px 45px',
-                    fontSize:'16px',
-                    color:'#00000080'
-                  }}
-                />
-                <FontAwesomeIcon icon={faSearch} style={{
-                  color: '#957474',position:'absolute',
-                  left:'16px',top:'12px'
-                }} />
-              </div>
-              <div style={{display:'flex',flexDirection:'row',justifyContent:'space-between'}}>
-                <Button style={{
-                  backgroundColor: '#B27EE3', color: 'white', border: 'none', borderRadius: '16px',
-                  fontSize: '16px',padding:'7px 22px'
-                }} onClick={handleSearch} >Search</Button>
-              </div>
-          </Box> */}
           <Box
   sx={{
     display: "flex",
