@@ -13,6 +13,7 @@ import BAPI from '../helper/variable';
 import { useLocation } from 'react-router-dom';
 import { Typography } from '@mui/material'
 import { RiStarSFill } from "react-icons/ri";
+import { toast } from 'react-hot-toast';
 
 const FreelancerProfile = () => {
     const { pathname } = useLocation();
@@ -79,11 +80,11 @@ const FreelancerProfile = () => {
 
             } else if (response.status === 400) {
                 // Handle error (e.g., show error message)
-                alert('A user with this email already exists');
+                toast.error('A user with this email already exists');
                 console.error('Failed to update user profile');
             }
             else if (response.status === 401) {
-                alert('Missing token or inactive value');
+                toast.error('Missing token or inactive value');
             }
         } catch (error) {
             // Handle network error or other issues
@@ -298,11 +299,11 @@ const FreelancerProfile = () => {
 
                 } else if (response.status === 400) {
                     // Handle error (e.g., show error message)
-                    alert('A user with this email already exists');
+                    toast.error('A user with this email already exists');
                     console.error('Failed to update user profile');
                 }
                 else if (response.status === 401) {
-                    alert('Missing token or inactive value');
+                    toast.error('Missing token or inactive value');
                 }
             } catch (error) {
                 // Handle network error or other issues
@@ -357,11 +358,11 @@ const FreelancerProfile = () => {
 
             } else if (response.status === 400) {
                 // Handle error (e.g., show error message)
-                alert('A user with this email already exists');
+                toast.error('A user with this email already exists');
                 console.error('Failed to update user profile');
             }
             else if (response.status === 401) {
-                alert('Missing token or inactive value');
+                toast.error('Missing token or inactive value');
             }
         } catch (error) {
             // Handle network error or other issues

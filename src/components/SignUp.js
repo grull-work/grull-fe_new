@@ -14,6 +14,7 @@ import { jwtDecode } from "jwt-decode";
 import Box from '@mui/material/Box';
 import LinearProgress from '@mui/material/LinearProgress';
 import { signInWithGooglePopup } from '../utils/firebase.utils';
+import { toast } from 'react-hot-toast'; 
 
 
 const SignUp = () => {
@@ -58,7 +59,7 @@ const SignUp = () => {
             console.log('Registration Response:', response);
     
             if (response.status === 201) {
-                alert('User registered Successfully!');
+                toast.success('User registered Successfully!');
                 // navigate('/login');
     
                 const formData = new URLSearchParams();
@@ -83,22 +84,22 @@ const SignUp = () => {
                         navigate('/loading');
                     } else {
                         setLoading("");
-                        alert('Unexpected response from the server');
+                        toast.error('Unexpected response from the server');
                     }
                 } else if (loginResponse.status === 400) {
                     setLoading("");
-                    alert('Wrong credentials or invalid user');
+                    toast.error('Wrong credentials or invalid user');
                 } else if (loginResponse.status === 422) {
                     setLoading("");
                     const errorData = await loginResponse.json();
                     console.error('Validation Error:', errorData);
                 } else {
                     setLoading("");
-                    alert('Unexpected response from the server');
+                    toast.error('Unexpected response from the server');
                 }
             } else if (response.status === 400) {
                 setLoading("");
-                alert('User Already Exists');
+                toast.error('User Already Exists');
             } else {
                 setLoading("");
                 console.error('Unexpected response:', response);
@@ -119,12 +120,12 @@ const SignUp = () => {
 
         // Check if email and password are not empty
         if (email.trim() === '') {
-            alert('Email field cannot be empty');
+            toast.error('Email field cannot be empty');
             return;
         }
 
         if (password.trim() === '') {
-            alert('Password field cannot be empty');
+            toast.error('Password field cannot be empty');
             return;
         }
         
@@ -145,10 +146,10 @@ const SignUp = () => {
             });
             console.log(response)
             if (response.status === 201) {
-                alert('User registered Successfully!')
+                toast.success('User registered Successfully!')
                 navigate('/login');
             } else if (response.status === 400) {
-                alert('REGISTER USER ALREADY EXISTS');
+                toast.error('REGISTER USER ALREADY EXISTS');
             } else {
                 console.error('Unexpected response:', response);
             }
@@ -156,7 +157,7 @@ const SignUp = () => {
             console.error('Error during registration:', error);
         }
     } else {
-        alert('Please agree to the terms to proceed.')    
+        toast.error('Please agree to the terms to proceed.')    
     }
     };
 
@@ -202,7 +203,7 @@ const SignUp = () => {
     googleSignup(credentialResponse)
   }}
   onError={() => {
-    alert("Signup Failed")
+    toast.error("Signup Failed")
   }}
 />
                 </GoogleOAuthProvider> */}

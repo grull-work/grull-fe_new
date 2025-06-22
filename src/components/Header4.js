@@ -168,7 +168,7 @@ export default function Header3() {
           >
             <Box sx={{ display: { xs: "none", md: "block" } }}>
               <Button
-                sx={{ color: "#fff", fontSize: "16px" }}
+                sx={{ color: "#fff", fontSize: "16px",minWidth:"151px" }}
                 onClick={() => navigate("/browsefreelancer")}
               >
                 Browse Freelancers
@@ -181,7 +181,7 @@ export default function Header3() {
               ref={container1}
             >
               <Button
-                sx={{ color: "#fff", fontSize: "16px" }}
+                sx={{ color: "#fff", fontSize: "16px",minWidth:"140px" }}
                 onClick={dropdownjobs}
                 endIcon={
                   <RiArrowDropDownLine
@@ -396,6 +396,7 @@ export default function Header3() {
                             margin: "0",
                             fontWeight: "700",
                             fontSize: "20px",
+                            color: "#454545"
                           }}
                         >
                           {savedName}

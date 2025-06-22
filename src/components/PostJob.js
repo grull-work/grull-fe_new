@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp, faTimes } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import Header4 from './Header4';
+import { toast } from 'react-hot-toast'; 
 
 const PostJob = () => {
     const accessToken = localStorage.getItem('accessToken');
@@ -108,7 +109,7 @@ const PostJob = () => {
         const company_name = document.querySelector('[name="Company_Name"]').value;
 
         if (!title || !category || !location || !duration || !rate_per_hour || !curropts || !description || !selectedSkills.length || !company_name) {
-            alert('Please fill all required fields.');
+            toast.error('Please fill all required fields.');
             return false;
         }
         return true;

@@ -4,6 +4,7 @@ import BAPI from '../helper/variable';
 import { Box, Button, Typography } from '@mui/material';
 import Select from 'react-select';
 import axios from 'axios'
+import { toast } from 'react-hot-toast';
 
 export default function AddBalance() {
   const user=localStorage.getItem('user');
@@ -71,9 +72,9 @@ export default function AddBalance() {
                 });
 
                 if (verifyResponse.data.status === 'Payment verified successfully') {
-                    alert('Payment Successful');
+                    toast.success('Payment Successful');
                 } else {
-                    alert('Payment verification failed');
+                   toast.error('Payment verification failed');
                 }
             },
             prefill: {

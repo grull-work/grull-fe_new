@@ -1,9 +1,7 @@
-import { Avatar, Box, Button, Divider, Grid, Typography, useMediaQuery } from "@mui/material";
+import { Avatar, Box, Button, Divider, Grid, IconButton, Typography, useMediaQuery, useTheme,Drawer } from "@mui/material";
 import grullLogo from "../assets/grullLogoPurple.svg";
 import redirectArrow from "../assets/redirectArrow.svg";
 import grullPurpleMobileLogo from "../assets/grullPurpuleMobileLogo.svg";
-import navbarIcon1 from "../assets/navbarIcon1.svg";
-import navbarIcon2 from "../assets/navbarIcon2.svg";
 import navbarIcon3 from "../assets/navbarIcon3.svg";
 
 import { shades } from "../helper/shades";
@@ -13,6 +11,10 @@ import useScrollToContactUsHook from "../customHooks/useScrollToContactUsHook";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { NavLink } from "react-router-dom";
+import MenuIcon from "@mui/icons-material/Menu"
+import Logo from "../assets/grullLogoPurple.svg";
+// import { IconButton } from "rsuite";
+
 
 function Navbar() {
   const [accessToken,setAccessToken] = useState(null);
@@ -20,6 +22,9 @@ function Navbar() {
   const container = useRef();
   const [showDropdown, setShowDropdown] = useState(false);
   const [userInfo,setUserinfo]=useState(null);
+  const theme = useTheme();
+  const showNavLinks = useMediaQuery(theme.breakpoints.up("md"));
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     const access = localStorage.getItem('accessToken');
@@ -42,7 +47,7 @@ function Navbar() {
   }, [accessToken]);
 
   const { lavender } = shades;
-  const isDesktop = useMediaQuery("(min-width:500px)");
+  const isDesktop = useMediaQuery("(min-width:700px)");
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const scrollToSection =  useScrollToContactUsHook()
@@ -61,6 +66,13 @@ const handleClickOutside = (e) => {
       setShowDropdown(false);
   }
 };
+
+const navItems = [
+    { text: "Academy", path: "/coming-soon" },
+    { text: "Community", path: "/coming-soon" },
+    { text: "Company", path: "/about-us" },
+  ];
+
 // attaches an eventListener to listen when componentDidMount
 useEffect(() => {
   document.addEventListener("mousedown", handleClickOutside);
@@ -81,7 +93,7 @@ useEffect(() => {
       >
         <Box
           sx={{
-            width: "90%",
+            width: "95%",
             margin: "auto",
             display: "flex",
             justifyContent: "space-between",
@@ -89,75 +101,95 @@ useEffect(() => {
             flexWrap: "wrap",
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center" }}>
+          {!isDesktop &&
+            <IconButton
+              edge="start"
+              color="inherit"
+              onClick={() => setDrawerOpen(true)}
+            >
+              <MenuIcon size={40} sx={{ color: "white" }} />
+            </IconButton>
+          }
+          <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      >
+        <Box sx={{ width: 200, p: 2,backgroundColor: '#000',
+           height: '100vh', }}>
+            <Box sx={{ display: 'flex', padding: '22px 0' }}>
+      <img
+        src={Logo}
+        alt="GRULL"
+        style={{ width: '100px', height: '38px', cursor: 'pointer' }}
+        onClick={() => navigate('/')}
+      />
+    </Box>
+          {navItems.map(({ text, path }) => (
+            <Button
+              key={text}
+              fullWidth
+              sx={{ justifyContent: "flex-start", mb: 1,color:"white" }}
+              onClick={() => {
+                navigate(path);
+                setDrawerOpen(false);
+              }}
+            >
+              <Typography>{text}</Typography>
+            </Button>
+          ))}
+        </Box>
+      </Drawer>
+          <Box sx={{ display: "flex",  }}>
             <img
               src={isDesktop ? grullLogo : grullPurpleMobileLogo}
               alt="grullLogo"
-              style={{ height: "40px", objectFit: "contain", margin: "0 12px",cursor:'pointer'  }}
+              style={{ height: "40px", objectFit: "contain", margin: {sm:"0 4px",md:"0 12px"},cursor:'pointer'  }}
               onClick={() => navigate('/')}
             />
-            {["Academy", "Community", "Company"].map((text) => {
+             {isDesktop && 
+            ["Academy", "Community", "Company"].map((text) => {
               return (
                 <Typography
                   key={text}
                   variant={{md:"font_20_500",xs:'font_14_500'}}
                   sx={{
                     color: "white",
-                    margin: {sm:"0 16px",xs:"0 5px"},
+                    margin: {md:"0 16px",sm:"0 6px",xs:"0 5px"},
                     display: accessToken===null?'block':'none',
                     cursor:'pointer'
-                  }}
+                  }}f
                   onClick={() =>{ return text==='Company'?navigate('/about-us'):navigate('/coming-soon')}}
                 >
                   {text}
                 </Typography>
               );
-            })}
+            })} 
           </Box>
-          {/* <Box
-            sx={{
-              display: { xs: "flex", md: "none" },
-              justifyContent: "center",
-              alignItems: "center",
-              gap: "12px"
-            }}
-          >
-            <img
-              src={navbarIcon1}
-              alt="logo"
-              style={{ height: "20px", width: "20px" }}
-            />
-            <img
-              src={navbarIcon2}
-              alt="logo"
-              style={{ height: "20px", width: "20px" }}
-            />
-            
-          </Box> */}
           
             {
               (accessToken===null)?(<Box
                 sx={{
                   display:'flex',
                   alignItems: "center",
-                  gap: {sm:"24px",xs:"18px"},
+                  gap: {md:"24px",sm:"10px",xs:"6px"},
                   margin:'7px 0'
                 }}
               ><Box
                 sx={{
                   border: "1px solid white",
                   color: "white",
-                  width: {sm:"200px",xs:'160px'},
+                  minWidth: {md:"220px",sm:"165px",xs:'90px'},
                   textAlign: "center",
                   padding: "14px 0",
                   borderRadius: "16px",
-                  fontSize:{sm:"18px",xs:"14px"},
+                  fontSize:{sm:"18px",xs:"15px"},
                   fontWeight:"800",
                   cursor:'pointer'
                 }}
                 onClick={()=>{navigate('/home')}}
               >
-                I’m a Freelancer
+                {isDesktop ? "I’m a Freelancer" : "Freelancer"}
                 <img
                   src={redirectArrow}
                   alt="redirectArrow"
@@ -165,6 +197,7 @@ useEffect(() => {
                     height: "12px",
                     objectFit: "contain",
                     margin: "0 8px",
+                    display : isDesktop ? "inline" : "none",
                   }}
                 />
               </Box>
@@ -172,18 +205,19 @@ useEffect(() => {
                 sx={{
                   border: "1px solid white",
                   color: "white",
-                  width: {sm:"200px",xs:'160px'},
+                  minWidth: {md:"210px",sm:"157px",xs:'80px'},
                   textAlign: "center",
                   padding: "14px 0",
                   borderRadius: "16px",
                   background: lavender,
-                  fontSize:{sm:"18px",xs:"14px"},
+                  fontSize:{sm:"18px",xs:"15px"},
                   fontWeight:"800",
                   cursor:'pointer'
                 }}
                 onClick={()=>{navigate('/home')}}
               >
-                Hire a Designer
+                {isDesktop ? "Hire a Designer" : "Employer"}
+                {/* Hire a Designer */}
                 <img
                   src={redirectArrow}
                   alt="redirectArrow"
@@ -191,6 +225,7 @@ useEffect(() => {
                     height: "12px",
                     objectFit: "contain",
                     margin: "0 8px",
+                    display : isDesktop ? "inline" : "none",
                   }}
                 />
               </Box>

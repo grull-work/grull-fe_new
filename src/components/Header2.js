@@ -109,10 +109,10 @@ export default function Header2() {
                 <Grid item sx={{flex:{xs:'none',md:"1"}}} >
                         <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', gap:{md:'20px',lg:'36px'}, alignItems: 'center' }}>
                             <Box sx={{display:{xs:'none',md:'block'}}}>
-                                <Button sx={{color:'#fff',fontSize:'16px'}} onClick={()=>navigate('/browsefreelancer')}>Browse Freelancer</Button>
+                                <Button sx={{color:'#fff',fontSize:'16px',minWidth:"151px"}} onClick={()=>navigate('/browsefreelancer')}>Browse Freelancer</Button>
                             </Box>
                             <Box sx={{display:{xs:'none',md:'block'}}}>
-                                <Button sx={{color:'#fff',fontSize:'16px'}} onClick={()=>navigate('/postjob')}>Post Jobs</Button>
+                                <Button sx={{color:'#fff',fontSize:'16px',minWidth:"87px"}} onClick={()=>navigate('/postjob')}>Post Jobs</Button>
                             </Box>
                             {/* <Box sx={{display:{xs:'none',md:'flex'},flex: 1}}>
                                 <input style={{color:'#fff',backgroundColor:'transparent',borderRadius:'16px',outline:'none',border:'1px solid #fff',padding:'8px 14px', width: '100%'}} placeholder='Search for Jobs, Projects or company'/>
@@ -188,7 +188,7 @@ export default function Header2() {
                                                 </Avatar>
                                     )}
                                                 <div style={{ marginRight: '30px', display: 'flex', flexDirection: 'column' }}>
-                                                    <Typography style={{ margin: '0', fontWeight:'700',fontSize:'20px'}}>{savedName}</Typography>
+                                                    <Typography style={{ margin: '0', fontWeight:'700',fontSize:'20px',color: "#454545"}}>{savedName}</Typography>
                                                     <Typography style={{ margin: '0',color:'#454545',fontWeight:'500',fontSize:'16px'}}>{category}</Typography>
                                                 </div>
                                             </div>

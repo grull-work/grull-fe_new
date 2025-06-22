@@ -13,6 +13,7 @@ import { Radio, RadioGroup, FormControl, FormControlLabel } from '@mui/material'
 import { FiEdit3 } from "react-icons/fi";
 import { TfiReload } from "react-icons/tfi";
 import '../styles/wallet.css';
+import { toast } from 'react-hot-toast';
 import BAPI from '../helper/variable'
 export default function Freelancerwallet() {
   const [country, setCountry] = useState('india'); 
@@ -48,7 +49,7 @@ export default function Freelancerwallet() {
       setModalPage(1);
     } else if (modalPage === 1) {
       if(paymentway === ''){
-        alert('Please Select the Payment Method')
+        toast.error('Please Select the Payment Method')
       }
       else{
         setSetupmethod(1)

@@ -14,6 +14,7 @@ import Header2 from './Header2';
 import BAPI from '../helper/variable'
 import { RiStarSFill } from "react-icons/ri";
 import { GrFormView } from "react-icons/gr";
+import { toast } from 'react-hot-toast';
 
 const Employerprofile = () => {
     const navigate = useNavigate();
@@ -260,11 +261,11 @@ const Employerprofile = () => {
 
             } else if (response.status === 400) {
                 // Handle error (e.g., show error message)
-                alert('A user with this email already exists');
+                toast.error('A user with this email already exists');
                 console.error('Failed to update user profile');
             }
             else if (response.status === 401) {
-                alert('Missing token or inactive value');
+                toast.error('Missing token or inactive value');
             }
         } catch (error) {
             // Handle network error or other issues
@@ -321,11 +322,11 @@ const Employerprofile = () => {
 
             } else if (response.status === 400) {
                 // Handle error (e.g., show error message)
-                alert('A user with this email already exists');
+                toast.error('A user with this email already exists');
                 console.error('Failed to update user profile');
             }
             else if (response.status === 401) {
-                alert('Missing token or inactive value');
+                toast.error('Missing token or inactive value');
             }
         } catch (error) {
             // Handle network error or other issues

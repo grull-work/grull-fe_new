@@ -9,7 +9,7 @@ function Section5() {
 
   return (
     <Grid
-      sx={{ background: "#111717", padding:{xs:"24px" ,md:"48px 32px"}, position: "relative",margin:{xs:"0 24px",md:"0"},borderRadius:{xs:"16px",md:"0"} }}
+      sx={{ background: "#111717", padding:{xs:"24px" ,md:"48px 32px"}, position: "relative",margin:{xs:"0 24px",md:"2px"},borderRadius:{xs:"16px",md:"5%"} }}
     >
       <Box
         sx={{
@@ -27,11 +27,12 @@ function Section5() {
             width:isDesktop? "200px" : "60px",
             objectFit: "contain",
             position:isDesktop?  "absolute" : "inherit",
-            left: isDesktop ? 0 : "",
+            left: isDesktop ? "-15px":0,
             top: isDesktop ?  -8 : 0,
             zIndex: 2,
-            margin: isDesktop ? "" : '12px auto',
-            display:'block'
+            margin: isDesktop ? "2px" : '12px auto',
+            display:'block',
+
           }}
         />
         <img

@@ -15,7 +15,7 @@ import Navbar from './Navbar';
 import Footer from "./Footer";
 import { Typography } from '@mui/material'
 import { RiStarSFill } from "react-icons/ri";
-
+import { toast } from 'react-hot-toast'; 
 const FreelancerProfileShare = () => {
     const { pathname } = useLocation();
     const {userid}=useParams();
@@ -135,11 +135,11 @@ const FreelancerProfileShare = () => {
 
                 } else if (response.status === 400) {
                     // Handle error (e.g., show error message)
-                    alert('A user with this email already exists');
+                    toast.error('A user with this email already exists');
                     console.error('Failed to update user profile');
                 }
                 else if (response.status === 401) {
-                    alert('Missing token or inactive value');
+                    toast.error('Missing token or inactive value');
                 }
             } catch (error) {
                 // Handle network error or other issues

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/StartPageHeader.css';
 import grullLogo from "../assets/grullLogoPurple.svg"
+import { toast } from 'react-hot-toast'; 
 
 const Start = () => {
   const [usertype,setUsertype]=useState('');
@@ -13,7 +14,7 @@ const Start = () => {
 
   const handleLoginClick2 = () => {
     if (usertype === '') {
-      alert('Select User Type!');
+      toast.error('Select User Type!');
     } else {
       navigate(`/signup/${usertype}`);
     }

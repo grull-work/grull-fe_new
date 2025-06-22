@@ -331,13 +331,13 @@ const BrowseJobs = () => {
     onClick={handleSearch}
     sx={{
       borderRadius: 0,
-      bgcolor: "#ff5e3a",
+      bgcolor: "rgb(178, 126, 227)",
       color: "#fff",
       px: 3,
       fontSize: "16px",
       textTransform: "none",
       "&:hover": {
-        bgcolor: "#e44e2e",
+        bgcolor: "rgb(178, 126, 227)",
       },
     }}
   >

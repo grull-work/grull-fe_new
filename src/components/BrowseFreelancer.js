@@ -19,6 +19,7 @@ import BAPI from '../helper/variable'
 
 import Avatar from '@mui/material/Avatar';
 import Header4 from "./Header4";
+import { toast } from 'react-hot-toast';
 
 const BrowseFreelancer = () => {
   const navigate = useNavigate();
@@ -261,7 +262,7 @@ const getFreelancers = async(type) => {
       // Get the selected job for the freelancer
       const selectedJob = selectedJobs[freelancerId];
       if (!selectedJob) {
-        alert('No job selected for the freelancer');
+        toast.error('No job selected for the freelancer');
         return;
       }
       const correspondingJob = postedJobs.postedJobsVal.find(job => job.id === selectedJob.value);
@@ -286,7 +287,7 @@ const getFreelancers = async(type) => {
   
       if (response.status === 200) {
         // console.log(response.data)
-        alert('Sent Job request to Freelancer successfully');
+        toast.success('Sent Job request to Freelancer successfully');
         setSelectedJobs(prevState => ({
           ...prevState,
           [freelancerId]: null
@@ -391,13 +392,13 @@ const getFreelancers = async(type) => {
     onClick={handleSearch}
     sx={{
       borderRadius: 0,
-      bgcolor: "#ff5e3a",
+      bgcolor: "rgb(178, 126, 227)",
       color: "#fff",
       px: 3,
       fontSize: "16px",
       textTransform: "none",
       "&:hover": {
-        bgcolor: "#e44e2e",
+        bgcolor: "rgb(178, 126, 227)",
       },
     }}
   >

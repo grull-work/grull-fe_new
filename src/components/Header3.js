@@ -166,7 +166,7 @@ export default function Header3() {
               alignItems: "center",
             }}
           >
-            <Box sx={{ display: { xs: "none", md: "block" } }}>
+            <Box sx={{ display: { xs: "none", md: "block",minWidth:"110px" } }}>
               <Button
                 sx={{ color: "#fff", fontSize: "16px" }}
                 onClick={() => navigate("/browsejobs")}
@@ -176,7 +176,7 @@ export default function Header3() {
             </Box>
             <Box
               sx={{
-                display: { xs: "none", md: "block", position: "relative" },
+                display: { xs: "none", md: "block", position: "relative",minWidth:"140px" },
               }}
               ref={container1}
             >
@@ -411,6 +411,7 @@ export default function Header3() {
                             margin: "0",
                             fontWeight: "700",
                             fontSize: "20px",
+                            color: "#454545"
                           }}
                         >
                           {savedName}

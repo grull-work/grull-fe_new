@@ -108,7 +108,7 @@ export default function Header1() {
                             <img src={Logo} alt='GRULL' style={{ width: '100px', height: '38px',cursor:'pointer' }} onClick={()=>navigate('/')} />
                         )}
                         <Box sx={{display:{xs:'none',md:'block'}}}>
-                            <Button  sx={{color:'#fff',fontSize:'16px'}} onClick={()=>{navigate('/browsejobs')}}>Browse Jobs</Button>
+                            <Button  sx={{color:'#fff',fontSize:'16px',minWidth: '110px',whiteSpace:"nowrap"}} onClick={()=>{navigate('/browsejobs')}}>Browse Jobs</Button>
                         </Box>
                         <Box sx={{display:{xs:'none',md:'block'}}}>
                             {/* <Button endIcon={<MdArrowOutward />}  sx={{color:'#fff',border: '1px solid #FFFFFF', borderRadius: '16px',padding: '7px 14px',fontSize:'16px'}}>
@@ -195,7 +195,7 @@ export default function Header1() {
                                     )}
                                                 
                                                 <div style={{ marginRight: '30px', display: 'flex', flexDirection: 'column' }}>
-                                                    <Typography style={{ margin: '0', fontWeight:'700',fontSize:'20px'}}>{savedName}</Typography>
+                                                    <Typography style={{ margin: '0', fontWeight:'700',fontSize:'20px',color: "#454545"}}>{savedName}</Typography>
                                                     <Typography style={{ margin: '0',color:'#454545',fontWeight:'500',fontSize:'16px'}}>{category}</Typography>
                                                 </div>
                                             </div>
@@ -267,15 +267,6 @@ export default function Header1() {
     >
       Browse Jobs
     </Button>
-      <Button
-        sx={{ color: "#000000", justifyContent: "flex-start" }}
-        onClick={() =>{
-            navigate('/browsejobs')
-        }}
-      >
-        Learn
-      </Button>
-
       <Button
         sx={{ color: "#000000", justifyContent: "flex-start" }}
         onClick={() =>{
