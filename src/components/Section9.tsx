@@ -1,23 +1,57 @@
-import { Box, Grid, Typography, useMediaQuery } from "@mui/material";
-import React, { useState } from "react";
+import React, { FC, useState } from "react";
+import { Box, Grid, Typography, useMediaQuery, styled, keyframes } from "@mui/material";
 import { shades } from "../helper/shades";
 import { section9Arr } from "../helper/constant";
 import { useNavigate } from "react-router-dom";
 
-function Section9() {
-  const { lavender} =  shades;
-  const isDesktop = useMediaQuery("(min-width:900px)");
-  const accessToken = localStorage.getItem('accessToken');
+// Keyframes for infinite horizontal scroll
+const scrollText = keyframes`
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+`;
+
+// Styled containers
+const ScrollContainer = styled(Box)(({ theme }) => ({
+  position: 'relative',
+  width: '100vw',
+  overflow: 'hidden',
+  marginTop: theme.spacing(3),
+}));
+
+const Marquee = styled(Box)(({ theme }) => ({
+  display: 'inline-flex',
+  whiteSpace: 'nowrap',
+  animation: `${scrollText} 20s linear infinite`,
+}));
+
+const ScrollItem = styled(Box)(({ theme }) => ({
+  display: 'inline-block',
+  verticalAlign: 'top',
+  minWidth: '300px',
+  margin: theme.spacing(0, 3),
+  padding: theme.spacing(2),
+  borderTop: '1px solid black',
+  // backgroundColor: shades.lavender,
+}));
+
+const Section9: FC = () => {
+  const { lavender } = shades;
+  const isDesktop = useMediaQuery('(min-width:900px)');
   const navigate = useNavigate();
-  const [type,setType]=useState(0);
+  const [type, setType] = useState(0);
+  const cards = section9Arr[type];
+  // Duplicate for seamless loop
+  const loopItems = [...cards, ...cards];
 
   return (
-    <Grid sx={{ padding:{xs:"0", md:"24px"} }}>
+    <Grid container sx={{ p: { xs: 0, md: 3 } }}>
+      {/* Toggle Buttons */}
       <Box
         sx={{
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          width: "100vw",
           gap: { xs: "12px", md: "48px" },
           padding:{xs:"24px",md:"0"}
         }}
@@ -57,62 +91,24 @@ function Section9() {
           );
         })}
       </Box>
-      <Box
-      id="section9Scroll"
-        sx={{
-          // width: "100%",
-          margin:{xs:"0px 0 24px 24px", md:"24px auto 24px 70px"},
-          display: "flex",
-          position: "relative",
-          padding:{xs:"30px 0 12px 0" ,md:"30px 0 24px 0px"},
-          overflow: "scroll",
-        }}
-      >
-        {section9Arr[type].map((card) => {
-          return (
-          <Box sx={{minWidth:{xs:"90%", md:"47%"},borderTop: "1px solid black",}}>
-            <Box
-              sx={{
-                width:'85%',
-                position: "relative",
-                paddingRight: "24px",
-              }}
-              key={card.title}
-            >
-              <Box
-                sx={{
-                  height: { xs: "20px", md: "40px" },
-                  width: { xs: "20px", md: "40px" },
-                  typography: { xs: "font_10_700", md: "font_20_700" },
-                  background: lavender,
-                  borderRadius: "50%",
-                  display: "grid",
-                  placeContent: "center",
-                  position: "absolute",
-                  top:isDesktop ? "-70px" : "-30px",
-                  left: 0,
-                  border: "1px solid black",
-                }}
-              >
-                {card.step}
-              </Box>
-              <Typography
-                variant="font_32_700"
-                sx={{ display: "block", margin: {xs:"20px 0 12px 0",md:"48px 0 24px 0"},typography:{xs:"font_14_700",md:"font_32_700"} }}
-              >
+
+      {/* Infinite Scroll Section */}
+      <ScrollContainer>
+        <Marquee>
+          {loopItems.map((card, i) => (
+            <ScrollItem key={i}>
+              <Typography variant={isDesktop ? 'h5' : 'subtitle1'}>
                 {card.title}
               </Typography>
-              <Typography sx={{ display: "block",typography:{xs:"font_12_500",md:"font_20_500"} }}>
+              <Typography variant={isDesktop ? 'body1' : 'body2'}>
                 {card.text}
               </Typography>
-              
-            </Box>
-          </Box>
-          );
-        })}
-      </Box>
+            </ScrollItem>
+          ))}
+        </Marquee>
+      </ScrollContainer>
     </Grid>
   );
-}
+};
 
 export default Section9;

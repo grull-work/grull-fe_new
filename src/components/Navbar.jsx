@@ -47,7 +47,7 @@ function Navbar() {
   }, [accessToken]);
 
   const { lavender } = shades;
-  const isDesktop = useMediaQuery("(min-width:700px)");
+  const isDesktop = useMediaQuery("(min-width:800px)");
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const scrollToSection =  useScrollToContactUsHook()
@@ -155,10 +155,10 @@ useEffect(() => {
                   variant={{md:"font_20_500",xs:'font_14_500'}}
                   sx={{
                     color: "white",
-                    margin: {md:"0 16px",sm:"0 6px",xs:"0 5px"},
-                    display: accessToken===null?'block':'none',
+                    margin: {md:"10px 16px",sm:"10px 6px",xs:"8px 5px"},
+                    display: 'block',
                     cursor:'pointer'
-                  }}f
+                  }}
                   onClick={() =>{ return text==='Company'?navigate('/about-us'):navigate('/coming-soon')}}
                 >
                   {text}
@@ -236,15 +236,22 @@ useEffect(() => {
                                             alt={userInfo?.full_name[0]}
                                             src={userInfo?.photo_url}
                                             style={{ borderRadius:'50%',cursor:'pointer',width:'40px',height:'40px',objectFit: 'cover'  }}
-                                            onClick={()=>{navigate(userInfo?.list_as_freelancer?"/freelancer":"/client")}}
+                                            onClick={()=>{clickProfileImage()
+                                                        if (changeopts) {
+                                                            handlesettings();
+                                                          }
+                                                    }}
                                         />
                                     ) : (
                                       <Avatar
                                       alt={userInfo?.full_name[0]}
                                       sx={{ backgroundColor: 'Grey',cursor:'pointer' }}
                                       // className='dashboardavatar profile'
-                                      onClick={()=>{navigate(userInfo?.list_as_freelancer?"/freelancer":"/client")
-                                    }}
+                                      onClick={()=>{clickProfileImage()
+                                                        if (changeopts) {
+                                                            handlesettings();
+                                                          }
+                                                    }}
                                   >
                                   {userInfo?.full_name.split(' ').slice(0, 2).map(part => part[0]).join('').toUpperCase()}</Avatar>
                                   
@@ -252,7 +259,7 @@ useEffect(() => {
                                     
                                     <Box ref={container} sx={{position:'relative'}}>
                                     
-                                    <img
+                                    {/* <img
                                                     src={navbarIcon3}
                                                     alt="logo"
                                                     style={{ height: "20px", width: "20px",cursor:'pointer' }}
@@ -261,7 +268,7 @@ useEffect(() => {
                                                             handlesettings();
                                                           }
                                                     }}
-                                                  />
+                                                  /> */}
                                     {showDropdown && (
                                         <Box
                                         sx={{
@@ -271,7 +278,7 @@ useEffect(() => {
                                               backgroundColor:'#fff',
                                               zIndex:'1',
                                               top:{xs:'40px',sm:'48px'},
-                                              right:'-20px',
+                                              right:'10px',
                                               boxShadow: '0px 0px 4px 1px #00000040',
                                               borderRadius:{xs:'10px',sm:'40px'},
                                               width:{xs:'250px',sm:'280px'},

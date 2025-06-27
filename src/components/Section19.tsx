@@ -49,7 +49,7 @@ function Section19() {
   return (
     <Grid
       sx={{
-        minHeight: { xs: "fit-content", sm: "40vh" },
+        minHeight: { xs: "fit-content", sm: "40vh",md: "100vh" },
         width: "100vw",
         display: "grid",
         placeContent: "center",

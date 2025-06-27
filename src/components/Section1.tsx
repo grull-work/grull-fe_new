@@ -162,7 +162,7 @@ function Section1() {
             src={section1Landing}
             alt="hero image"
             style={{
-              width: "100%",
+              width: "90%",
               objectFit: "contain",
               margin: "auto",
               display: "blohttps://github.com/grull-work/grull-fe_new.gitck",

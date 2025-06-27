@@ -376,6 +376,31 @@ export const section15ImgArr = [
     img: section15Img6,
   },
   {
+    img: section15Img1,
+  },
+  {
+    img: section15Img2,
+  },
+  {
+    img: section15Img4,
+  }
+];
+
+
+export const section15ImgArr2 = [
+  {
+    img: section15Img4,
+  },
+  {
+    img: section15Img5,
+  },
+  {
+    img: section15Img6,
+  },
+  {
+    img: section15Img1,
+  },
+  {
     img: section15Img2,
   },
   {
@@ -383,5 +408,8 @@ export const section15ImgArr = [
   },
   {
     img: section15Img4,
+  },
+  {
+    img: section15Img6,
   }
 ];
