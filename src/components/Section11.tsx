@@ -17,7 +17,7 @@ function Section11() {
     <Grid
       sx={{
         background: "#121717",
-        minHeight: { xs: "fit-content", md: "100vh" },
+        minHeight: { xs: "fit-content", md: "50vh" },
         width: "100vw",
         padding: { xs: "40px 8px 24px 8px", md: "78px 24px" },
       }}

@@ -92,9 +92,9 @@
     
 }
 .css-1nmdiq5-menu{
-    width: 200px !important;
+    /* width: 200px !important; */
     /* float:  left !important; */
-    right: 0 !important;
+    /* right: 0 !important; */
 }
 .css-1fdsijx-ValueContainer{
     padding: 0 !important;
@@ -117,7 +117,8 @@
     }
     .browseJobs{
         height: auto;
-        margin-top: 10px !important;
+        max-height: 800px;
+        /* margin-top: 10px !important; */
     }
     .sortingjobs{
         margin-bottom: 0px !important;
@@ -132,6 +133,7 @@
     }
     .browseJobs{
         width: 90%;
+        margin-top: 10px !important;
     }
    }
    @media only screen and (max-width:600px){
@@ -163,7 +165,7 @@
         font-size: 14px !important;
     }
     .css-1nmdiq5-menu{
-        width: 180px !important;
+        /* width: 180px !important; */
     }
     .sortingjobs .form-group{
         width: 165px !important;

@@ -30,6 +30,9 @@
    }
  }
  @media only screen and (max-width:900px){
+   .dashboard-drawer{
+      padding:10px 10px!important;
+   }
    .resdash{
       display: none !important;
    }
@@ -49,6 +52,9 @@
    }
  }
  @media only screen and (max-width:600px){
+   .dashboard-drawer{
+      padding:10px 0px!important;
+   }
    .dashboard-navbar{
      height: 95px !important;
      justify-content: left !important;

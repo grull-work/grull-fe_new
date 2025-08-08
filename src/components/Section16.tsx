@@ -1,4 +1,4 @@
-import { Box, Grid, Typography, useMediaQuery } from "@mui/material";
+import { Box, Grid, Typography, useMediaQuery, useTheme } from "@mui/material";
 import React from "react";
 import section16BottomLines from "../assets/section16BottomLines.svg";
 import section16CharacterSale from "../assets/section16CharacterSale.webp";
@@ -6,318 +6,234 @@ import { shades } from "../helper/shades";
 import { section16BasicPlan, section16PremiumPlan } from "../helper/constant";
 import crossIcon from "../assets/crossIcon.svg";
 import section6GreenTicks from "../assets/section6GreenTicks.svg";
-import Lottie from "react-lottie";
-import * as animationData from "../jsonAnimations/section16Animation.json";
 import useScrollToContactUsHook from "../customHooks/useScrollToContactUsHook";
-import { useNavigate } from "react-router-dom";
 
-function Section16() {
-  const {
-    dustyOrange,
-    lavender,
-    black,
-    royalBlue,
-  } = shades;
-
-  const isDesktop = useMediaQuery("(min-width:600px)");
+export default function Section16() {
+  const { dustyOrange, lavender, black, royalBlue } = shades;
   const scrollToSection = useScrollToContactUsHook();
-  const navigate=useNavigate()
-
-  const defaultOptions = {
-    loop: true,
-    autoplay: true,
-    animationData: animationData,
-  };
-
+  const theme = useTheme();
+  const isLgUp = useMediaQuery(theme.breakpoints.up("lg"));
 
   return (
-    <Grid
-      sx={{
-        minHeight: "100vh",
-        width: "100vw",
-        padding: {xs:"24px 0",md:"100px 24px 60px 24px"},
-        position: "relative",
-      }}
-    >
-      {/* <Box sx={{width:{xs:"256px",md:"440px"},objectFit:'contain',position:{xs:"static",md:"absolute"},top:0,left:'-4%',margin:{xs:"0 auto 24px auto",md:"0"}}}>
-      <Lottie options={defaultOptions} height={"100%"} width={"100%"}  />
-      </Box> */}
-      <img
-        src={section16CharacterSale}
-        alt="section16CharacterSale"
-        style={{
-          width:isDesktop?  "440px" : "256px",
-          objectFit: "contain",
-          position:isDesktop? "absolute" : "static",
-          top: "0",
-          left: 0,
-          margin:isDesktop ? "" : "0 auto 24px auto",
-          display:"block"
-        }}
-      />
-      <img
-        src={section16BottomLines}
-        alt="section16BottomLines"
-        style={{
-          width: "280px",
-          objectFit: "contain",
-          position:isDesktop ?  "absolute" : "static",
-          bottom:isDesktop ?  "0" : "",
-          right: isDesktop ? 0 : "",  
-          display:isDesktop ? "block" : "none"
-        }}
-      />
-      <Box sx={{ width:{xs:"100%", md:"80%"}, margin: "auto", textAlign: "center" }}>
-        <Typography
-          sx={{ textAlign: "center", display: "block",typography:{xs:"font_12_700",md:"font_24_700"} }}
-        >
+    <Box sx={{ width: "100%", minHeight: "100vh", p: { xs: 2, sm: 4, lg: 0 }, position: "relative" }} margin={"15px"}>
+      {/* For lg+, absolute character & bottom lines */}
+      {isLgUp && (
+        <>
+          <Box sx={{ position: "absolute", top: 0, left: "-10%",mt: { lg: "-115px" },
+          [theme.breakpoints.up(1280)]: {
+      left: "-6%",
+    }
+         }} >
+            <Box
+              component="img"
+              src={section16CharacterSale}
+              alt="sale"
+              sx={{
+                width: { xs: 440}, [theme.breakpoints.up(1600)]: {width:600 },
+                objectFit: "contain",
+                display: "block",
+              }}
+              // style={{ width: 440, objectFit: "contain", display: "block" }}
+            // />
+                            >
+                              </Box>
+            {/* > */}
+            
+          </Box>
+          <Box sx={{ position: "absolute", bottom: 0, right: 0 }}>
+            <img
+              src={section16BottomLines}
+              alt="lines"
+              style={{ width: 280, objectFit: "contain", display: "block" }}
+            />
+          </Box>
+        </>
+      )}
+
+      {/* Heading for sm+; hidden under sm to avoid duplication */}
+      <Box sx={{ textAlign: "center", mb: 4, display: { xs: "none", sm: "block" } }}>
+        <Typography sx={{ typography: { xs: "font_12_700", md: "font_24_700" } }}>
           CHOOSE YOUR PLAN
         </Typography>
-        <Typography
-          sx={{ textAlign: "center", color: lavender,typography:{xs:"font_24_800",md:"font_48_800"} }}
-        >
+        <Typography sx={{ color: lavender, typography: { xs: "font_24_800", md: "font_48_800" } }}>
           Flexible Pricing for Every Freelancer
         </Typography>
       </Box>
+
+      {/* Responsive layout */}
       <Box
         sx={{
-          width:{xs:"100%", md:"80%"},
-          margin: "36px auto",
-          display:{xs:"block" ,md:"flex"},
+          display: { xs: "grid", sm: "grid", lg: "flex" },
+          gridTemplateColumns: { xs:"1fr", sm: "1fr 1fr", lg: "none" },
+          gridTemplateRows: { sm: "auto auto", lg: "none" },
+          gap: 4,
           justifyContent: "center",
-          alignItems: "center",
+          alignItems: "start",
+          width: { xs: "100%", sm: "80%", lg: "80%" },
+          mx: "auto",
+          my:"auto"
         }}
       >
+        {/* Character Image on xs+ */}
+        {!isLgUp && (
+          <Box sx={{ gridRow: 1, gridColumn: 1, gridColumnEnd: { xs: "span 2", sm: 1 } }}>
+            <img
+              src={section16CharacterSale}
+              alt="sale"
+              style={{ width: "100%", objectFit: "contain", display: "block" }}
+            />
+          </Box>
+        )}
+
+        {/* Basic Plan Box */}
         <Box
           sx={{
+            gridRow: { xs: 2, sm: 1, lg: "auto" },
+            gridColumn: { xs: 1, sm: 2, lg: "auto" },
             border: "2px solid #00000040",
             borderRadius: "24px",
-            padding:{xs:"20px", md:"24px 36px"},
+            p: { xs: 2, md: 3 },
             textAlign: "center",
-            width:{xs:"80%", md:"40%"},
-            margin:{xs:"24px auto",md:"0"}
+            width: { xs: "100%", sm: "100%", lg: "40%" },
+            mx: { xs: 0, sm: 0, lg: 0 },
           }}
         >
-          <Typography
-            variant="font_28_700"
-            sx={{ color: dustyOrange, display: "block" }}
-          >
+          <Typography variant="font_28_700" sx={{ color: dustyOrange }}>
             {section16BasicPlan.title}
           </Typography>
-          <Typography
-            sx={{ margin:{xs:"12px 0", md:"24px 0 12px 0"}, display: "block",typography:{xs:"font_24_800",md:"font_44_800"} }}
-          >
+          <Typography sx={{ my: { xs: 1.5, md: 3 }, typography: { xs: "font_24_800", md: "font_44_800" } }}>
             {section16BasicPlan.price}
           </Typography>
 
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: "1fr 11fr",
-            }}
-          >
-            <Box></Box>
-            <Typography sx={{ display: "block",typography:{xs:"font_12_500",md:"font_18_500"} }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: "1fr 11fr", mb: 1 }}>
+            <Box />
+            <Typography sx={{ typography: { xs: "font_12_500", md: "font_18_500" } }}>
               {section16BasicPlan.for}
             </Typography>
           </Box>
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: "2fr 10fr",
-            }}
-          >
-            <Box></Box>
-            <Typography
-              sx={{
-                display: "block",
-                color: lavender,
-                textAlign: "left",
-                margin:{xs:"8px 0", md:"12px 0"},
-                typography:{xs:"font_12_500",md:"font_18_500"}
-              }}
-            >
+
+          <Box sx={{ display: "grid", gridTemplateColumns: "2fr 10fr", mb: 2 }}>
+            <Box />
+            <Typography sx={{ color: lavender, typography: { xs: "font_12_500", md: "font_18_500" } }}>
               {section16BasicPlan.commission}
             </Typography>
           </Box>
-          {section16BasicPlan.feat.map((feature) => {
-            return (
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: "2fr 10fr",
 
-                }}
-                key={feature.text}
-              >
-                <Box sx={{ display: "grid", placeContent: "center" }}>
-                  <img
-                    src={feature.isAvailable ? section6GreenTicks : crossIcon}
-                    alt="section6GreenTicks"
-                    style={{
-                      height:isDesktop ? "24px" :"20px", 
-                      width:isDesktop ? "24px" :"20px",
-                      margin: "auto",
-                      display: "block",
-                    }}
-                  />
-                </Box>
-                <Typography
-                  variant="font_18_500"
-                  sx={{
-                    display: "block",
-                    color: black,
-                    textAlign: "left",
-                    margin:{xs:"8px 0", md:"12px 0"},
-                    typography:{xs:"font_12_500",md:"font_18_500"}
-                  }}
-                >
-                  {feature.text}
-                </Typography>
+          {section16BasicPlan.feat.map((feature) => (
+            <Box key={feature.text} sx={{ display: "grid", gridTemplateColumns: "2fr 10fr", mb: { xs: 1, md: 1.5 } }}>
+              <Box sx={{ display: "grid", placeContent: "center" }}>
+                <img
+                  src={feature.isAvailable ? section6GreenTicks : crossIcon}
+                  alt="tick"
+                  style={{ width: isLgUp ? 24 : 20, height: isLgUp ? 24 : 20, display: "block", margin: "auto" }}
+                />
               </Box>
-            );
-          })}
+              <Typography sx={{ typography: { xs: "font_12_500", md: "font_18_500" } }}>
+                {feature.text}
+              </Typography>
+            </Box>
+          ))}
 
           <Box
             sx={{
-              width:{xs:"200px", md:"300px"},
+              width: { xs: "100%", md: 300 },
               border: "1px solid black",
               borderRadius: "20px",
-              padding:{xs:"12px 0", md:"20px 0"},
-              margin: "24px auto",
-              typography:{xs:"font_12_600", md:"font_18_600"},
-              cursor:'pointer'
+              py: { xs: 1.5, md: 2.5 },
+              mx: "auto",
+              typography: { xs: "font_12_600", md: "font_18_600" },
+              cursor: "pointer",
             }}
-            onClick={()=>navigate('/home')}
+            onClick={scrollToSection}
           >
             Choose Plan
           </Box>
         </Box>
+
+        {/* Premium Plan Box */}
         <Box
           sx={{
+            gridRow: { xs: 3, sm: 2, lg: "auto" },
+            gridColumn: { xs: 1, sm: 1, lg: "auto" },
             border: `2px solid ${lavender}`,
             borderRadius: "24px",
-            padding: "12px 36px",
+            p: { xs: 2, md: 3 },
             textAlign: "center",
-            width:{xs:"80%", md:"40%"},
-            margin:{xs:"12px auto",md:"0"}
+            width: { xs: "100%", sm: "100%", lg: "40%" },
+            mx: { xs: 0, sm: 0, lg: 0 },
           }}
         >
-          <Typography variant="font_16_600" sx={{ color: royalBlue }}>
+          <Typography variant="font_16_600" sx={{ color: royalBlue, mb: 1 }}>
             (PAID YEARLY)
           </Typography>
-          <Typography
-            variant="font_28_700"
-            sx={{ color: royalBlue, display: "block", margin: "0 auto" }}
-          >
+          <Typography variant="font_28_700" sx={{ color: royalBlue, mb: 2 }}>
             {section16PremiumPlan.title}
           </Typography>
-          <Box sx={{ margin: "12px 0",display:{xs:"flex",md:""},alignItems:"center",justifyContent:"center"}}>
-            <Typography
-              sx={{ margin:{xs:"0 4px", md:"24px 12px"}, textDecoration: "line-through",typography:{xs:"font_20_700",md:"font_28_700"} }}
-            >
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mb: 2 }}> 
+            <Typography sx={{ textDecoration: "line-through", typography: { xs: "font_20_700", md: "font_28_700" } }}>
               {section16PremiumPlan.prevPrice}
             </Typography>
-            <Typography  sx={{ margin:{xs:"0 4px", md:"24px 12px"},typography:{xs:"font_24_800",md:"font_44_800"} }}>
+            <Typography sx={{ mx: { xs: 1, md: 3 }, typography: { xs: "font_24_800", md: "font_44_800" } }}>
               {section16PremiumPlan.price}
             </Typography>
-            <Typography variant="font_24_600" sx={{ margin: {xs:"0 4px",md:"24px 8px"} }}>
-              /month
-            </Typography>
+            <Typography variant="font_24_600">/month</Typography>
           </Box>
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: "1fr 11fr",
-            }}
-          >
-            <Box></Box>
 
-            <Typography
-              sx={{ display: "block",typography:{xs:"font_12_500",md:"font_18_500"} }}
-            >
+          <Box sx={{ display: "grid", gridTemplateColumns: "1fr 11fr", mb: 1 }}>
+            <Box />
+            <Typography sx={{ typography: { xs: "font_12_500", md: "font_18_500" } }}>
               {section16PremiumPlan.for}
             </Typography>
           </Box>
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: "2fr 10fr",
-              margin: "12px 0",
-            }}
-          >
-            <Box></Box>
-            <Typography
-              sx={{ display: "block", color: lavender, textAlign: "left",typography:{xs:"font_12_500",md:"font_18_500"} }}
-            >
+
+          <Box sx={{ display: "grid", gridTemplateColumns: "2fr 10fr", mb: 2 }}>  
+            <Box />
+            <Typography sx={{ color: lavender, typography: { xs: "font_12_500", md: "font_18_500" } }}>
               {section16PremiumPlan.commission}
             </Typography>
           </Box>
-          {section16PremiumPlan.feat.map((feature) => {
-            return (
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: "2fr 10fr",
-                }}
-                key={feature.text}
-              >
-                <Box sx={{ display: "grid", placeContent: "center" }}>
-                  <img
-                    src={feature.isAvailable ? section6GreenTicks : crossIcon}
-                    alt="section6GreenTicks"
-                    style={{
-                      height:isDesktop ? "24px" : "20px",
-                      width: isDesktop ? "24px" : "20px",
-                      margin: "auto",
-                      display: "block",
-                    }}
-                  />
-                </Box>
-                <Typography
-                  variant="font_18_500"
-                  sx={{
-                    display: "block",
-                    color: black,
-                    textAlign: "left",
-                    margin:{xs:"8px 0" ,md:"12px 0"},
-                    typography:{xs:"font_12_500",md:"font_18_500"}
-                  }}
-                >
-                  {feature.text}
-                </Typography>
+
+          {section16PremiumPlan.feat.map((feature) => (
+            <Box key={feature.text} sx={{ display: "grid", gridTemplateColumns: "2fr 10fr", mb: { xs: 1, md: 1.5 } }}>
+              <Box sx={{ display: "grid", placeContent: "center" }}>
+                <img
+                  src={feature.isAvailable ? section6GreenTicks : crossIcon}
+                  alt="tick"
+                  style={{ width: isLgUp ? 24 : 20, height: isLgUp ? 24 : 20, display: "block", margin: "auto" }}
+                />
               </Box>
-            );
-          })}
+              <Typography sx={{ typography: { xs: "font_12_500", md: "font_18_500" } }}>
+                {feature.text}
+              </Typography>
+            </Box>
+          ))}
+
           <Box
             sx={{
-              width:{xs:"200px", md:"300px"},
+              width: { xs: "100%", md: 300 },
               background: lavender,
               border: "1px solid black",
               borderRadius: "20px",
-              padding:{xs:"12px 0", md:"20px 0"},
-              margin: "24px auto",
-              typography:{xs:"font_12_600", md:"font_18_600"},
-              cursor:'pointer'
+              py: { xs: 1.5, md: 2.5 },
+              mx: "auto",
+              typography: { xs: "font_12_600", md: "font_18_600" },
+              cursor: "pointer",
             }}
-            onClick={()=>navigate('/home')}
+            onClick={scrollToSection}
           >
             Choose Plan
           </Box>
         </Box>
+
+        {/* Bottom lines for sm/md */}
+        <Box sx={{ display: { xs: "none", sm: "block", lg: "none" }, gridRow: 2, gridColumn: 2 }}>
+          <img
+            src={section16BottomLines}
+            alt="lines"
+            style={{ width: "100%", objectFit: "contain", display: "block" }}
+          />
+        </Box>
       </Box>
-      <Box sx={{display:{xs:"flex",md:"none"},justifyContent:"right"}}>
-      <img
-        src={section16BottomLines}
-        alt="section16BottomLines"
-        style={{
-          width: "108px",
-          objectFit: "contain",
-        }}
-      />
-      </Box>
-    </Grid>
+    </Box>
   );
 }
-
-export default Section16;

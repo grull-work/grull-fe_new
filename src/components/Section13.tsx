@@ -15,7 +15,7 @@ function Section13() {
   };
 
   return (
-    <Grid sx={{ minHeight: "100vh", width: "100vw" }}>
+    <Grid sx={{ minHeight: "40vh", width: "100vw" }}>
       <Box
         sx={{
           width: { xs: "100%", md: "90%" },

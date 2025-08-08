@@ -80,9 +80,9 @@
     
 }
 .css-1nmdiq5-menu{
-    width: 200px !important;
+    /* width: 200px !important; */
     /* float:  left !important; */
-    right: 0 !important;
+    /* right: 0 !important; */
 }
 .css-1fdsijx-ValueContainer{
     padding: 0 !important;
@@ -151,7 +151,7 @@
         font-size: 14px !important;
     }
     .css-1nmdiq5-menu{
-        width: 180px !important;
+        /* width: 180px !important; */
     }
     .sortingjobs .form-group{
         width: 165px !important;

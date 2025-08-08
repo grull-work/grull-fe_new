@@ -12,6 +12,8 @@ import BAPI from '../helper/variable';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
+import { signInWithGooglePopup } from '../utils/firebase.utils';
+import toast from 'react-hot-toast';
 
 const Login = () => {
   const { REACT_APP_GOOGLE_CLIENT_ID, REACT_APP_GOGGLE_REDIRECT_URL_ENDPOINT } = process.env
@@ -27,7 +29,9 @@ const Login = () => {
     };
 
     const googleLogin=async(credentialResponse)=>{
-      const data =jwtDecode(credentialResponse.credential)
+      const data =(credentialResponse.user)
+      console.log(data.email);
+      // return
 
       // const formData = new URLSearchParams();
       //   formData.append("email", data.email);
@@ -52,15 +56,15 @@ const Login = () => {
             localStorage.setItem('accessToken', accessToken);
             navigate('/loading');
           } else {
-            alert('Unexpected response from the server');
+            toast.error('Unexpected response from the server');
           }
         } else if (response.status === 400) {
-          alert('Wrong credentials or invalid user');
+          toast.error('Wrong credentials or invalid user');
         } else if (response.status === 422) {
           const errorData = await response.json();
           console.error('Validation Error:', errorData);
         } else {
-          alert('Unexpected response from the server');
+          toast.error('Unexpected response from the server');
         }
       
 
@@ -94,7 +98,7 @@ const Login = () => {
         const password = document.querySelector('[name="password"]').value;
     
         if (!email.trim() || !password.trim()) {
-          alert('Email and password cannot be empty');
+          toast.error('Email and password cannot be empty');
           return;
         }
     
@@ -119,21 +123,27 @@ const Login = () => {
             localStorage.setItem('accessToken', accessToken);
             navigate('/loading');
           } else {
-            alert('Unexpected response from the server');
+            toast.error('Unexpected response from the server');
           }
         } else if (response.status === 400) {
-          alert('Wrong credentials or invalid user');
+          toast.error('Wrong credentials or invalid user');
         } else if (response.status === 422) {
           const errorData = await response.json();
           console.error('Validation Error:', errorData);
         } else {
-          alert('Unexpected response from the server');
+          toast.error('Unexpected response from the server');
         }
       } catch (error) {
         console.error('Error during login:', error);
       }
     };
-    
+
+    const logGoogleUser = async () => {
+      const response = await signInWithGooglePopup();
+      // console.log(response);
+      await googleLogin(response)
+  }
+
     return (
       <div>
       <div className='headerStyle'>
@@ -146,11 +156,12 @@ const Login = () => {
       <div className='outer-most'>
           <div className='content'>
           <h2>Login to your Grull profile</h2>
+          {/* <button onClick={logGoogleUser}>Sign In With Google</button> */}
               {/* <div>
                   <Button className='apple-button' startIcon={<FaApple style={{fontSize:'23px',}}/>}>Continue with Apple</Button>
               </div> */}
-              {/* <div>
-                  <Button className='google-button' onClick={openGoogleLoginPage} startIcon={<FcGoogle style={{backgroundColor:'#fff',borderRadius:'50%',fontSize:'25px'}}/>}>Continue with Google</Button>
+              <div>
+                  <Button className='google-button' onClick={logGoogleUser} startIcon={<FcGoogle style={{backgroundColor:'#fff',borderRadius:'50%',fontSize:'25px'}}/>}>Continue with Google</Button>
               </div>
 
 
@@ -158,8 +169,8 @@ const Login = () => {
                   <hr className='hr-line' />
                   <h3 style={{ color: '#a3a3a3', fontWeight: 'normal', margin: '0 10px' }}>OR</h3>
                   <hr className='hr-line' />
-              </div> */}
-              <GoogleOAuthProvider clientId="493236703003-bigdauplfj2os7cahbp2903m7ug1inve.apps.googleusercontent.com">
+              </div>
+              {/* <GoogleOAuthProvider clientId="493236703003-bigdauplfj2os7cahbp2903m7ug1inve.apps.googleusercontent.com">
               <GoogleLogin
               buttonText="Sign in with Google"
   onSuccess={credentialResponse => {
@@ -168,8 +179,8 @@ const Login = () => {
   onError={() => {
     console.log('Login Failed');
   }}
-/>;
-                </GoogleOAuthProvider>;
+/>
+                </GoogleOAuthProvider> */}
               <Form>
                   
 

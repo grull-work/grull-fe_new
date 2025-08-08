@@ -16,7 +16,7 @@ function Section10() {
         backgroundImage: `url(${section10Bg})`,
         backgroundSize:{xs:"cover", md:"cover"},
         backgroundRepeat: "no-repeat",
-        minHeight:{xs:"fit-content", md:"100vh"},
+        minHeight:{xs:"fit-content", md:"75vh"},
         width: "100vw",
         marginTop: { xs: "0", md: "48px" },
         paddingBottom:{xs:"0", md:"48px"},

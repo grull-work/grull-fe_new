@@ -1,9 +1,7 @@
-import { Avatar, Box, Button, Divider, Grid, Typography, useMediaQuery } from "@mui/material";
+import { Avatar, Box, Button, Divider, Grid, IconButton, Typography, useMediaQuery, useTheme,Drawer } from "@mui/material";
 import grullLogo from "../assets/grullLogoPurple.svg";
 import redirectArrow from "../assets/redirectArrow.svg";
 import grullPurpleMobileLogo from "../assets/grullPurpuleMobileLogo.svg";
-import navbarIcon1 from "../assets/navbarIcon1.svg";
-import navbarIcon2 from "../assets/navbarIcon2.svg";
 import navbarIcon3 from "../assets/navbarIcon3.svg";
 
 import { shades } from "../helper/shades";
@@ -13,6 +11,10 @@ import useScrollToContactUsHook from "../customHooks/useScrollToContactUsHook";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { NavLink } from "react-router-dom";
+import MenuIcon from "@mui/icons-material/Menu"
+import Logo from "../assets/grullLogoPurple.svg";
+// import { IconButton } from "rsuite";
+
 
 function Navbar() {
   const [accessToken,setAccessToken] = useState(null);
@@ -20,6 +22,9 @@ function Navbar() {
   const container = useRef();
   const [showDropdown, setShowDropdown] = useState(false);
   const [userInfo,setUserinfo]=useState(null);
+  const theme = useTheme();
+  const showNavLinks = useMediaQuery(theme.breakpoints.up("md"));
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     const access = localStorage.getItem('accessToken');
@@ -41,12 +46,8 @@ function Navbar() {
     }
   }, [accessToken]);
 
-  if (userInfo !== null) {
-    console.log(userInfo.full_name);
-  }
-  
   const { lavender } = shades;
-  const isDesktop = useMediaQuery("(min-width:500px)");
+  const isDesktop = useMediaQuery("(min-width:800px)");
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const scrollToSection =  useScrollToContactUsHook()
@@ -65,6 +66,13 @@ const handleClickOutside = (e) => {
       setShowDropdown(false);
   }
 };
+
+const navItems = [
+    { text: "Academy", path: "/coming-soon" },
+    { text: "Community", path: "/coming-soon" },
+    { text: "Company", path: "/about-us" },
+  ];
+
 // attaches an eventListener to listen when componentDidMount
 useEffect(() => {
   document.addEventListener("mousedown", handleClickOutside);
@@ -81,11 +89,11 @@ useEffect(() => {
   return (
     <>
       <Grid
-        sx={{ background: "#121717", padding: { xs: "8px 0", md: "16px 0" } }}
+        sx={{ background: "#121717", padding: { xs: "8px 0", md: "14px 0" } }}
       >
         <Box
           sx={{
-            width: "90%",
+            width: "95%",
             margin: "auto",
             display: "flex",
             justifyContent: "space-between",
@@ -93,22 +101,62 @@ useEffect(() => {
             flexWrap: "wrap",
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center" }}>
+          {!isDesktop &&
+            <IconButton
+              edge="start"
+              color="inherit"
+              onClick={() => setDrawerOpen(true)}
+            >
+              <MenuIcon size={40} sx={{ color: "white" }} />
+            </IconButton>
+          }
+          <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      >
+        <Box sx={{ width: 200, p: 2,backgroundColor: '#000',
+           height: '100vh', }}>
+            <Box sx={{ display: 'flex', padding: '22px 0' }}>
+      <img
+        src={Logo}
+        alt="GRULL"
+        style={{ width: '100px', height: '38px', cursor: 'pointer' }}
+        onClick={() => navigate('/')}
+      />
+    </Box>
+          {navItems.map(({ text, path }) => (
+            <Button
+              key={text}
+              fullWidth
+              sx={{ justifyContent: "flex-start", mb: 1,color:"white" }}
+              onClick={() => {
+                navigate(path);
+                setDrawerOpen(false);
+              }}
+            >
+              <Typography>{text}</Typography>
+            </Button>
+          ))}
+        </Box>
+      </Drawer>
+          <Box sx={{ display: "flex",  }}>
             <img
               src={isDesktop ? grullLogo : grullPurpleMobileLogo}
               alt="grullLogo"
-              style={{ height: "40px", objectFit: "contain", margin: "0 12px",cursor:'pointer' }}
+              style={{ height: "40px", objectFit: "contain", margin: {sm:"0 4px",md:"0 12px"},cursor:'pointer'  }}
               onClick={() => navigate('/')}
             />
-            {["Academy", "Community", "Company"].map((text) => {
+             {isDesktop && 
+            ["Academy", "Community", "Company"].map((text) => {
               return (
                 <Typography
                   key={text}
-                  variant="font_20_500"
+                  variant={{md:"font_20_500",xs:'font_14_500'}}
                   sx={{
                     color: "white",
-                    margin: "0 16px",
-                    display: { xs: "none", md: "block" },
+                    margin: {md:"10px 16px",sm:"10px 6px",xs:"8px 5px"},
+                    display: 'block',
                     cursor:'pointer'
                   }}
                   onClick={() =>{ return text==='Company'?navigate('/about-us'):navigate('/coming-soon')}}
@@ -116,54 +164,32 @@ useEffect(() => {
                   {text}
                 </Typography>
               );
-            })}
+            })} 
           </Box>
-          <Box
-            sx={{
-              display: { xs: "flex", md: "none" },
-              justifyContent: "center",
-              alignItems: "center",
-              gap: "12px",
-            }}
-          >
-            <img
-              src={navbarIcon1}
-              alt="logo"
-              style={{ height: "20px", width: "20px" }}
-            />
-            <img
-              src={navbarIcon2}
-              alt="logo"
-              style={{ height: "20px", width: "20px" }}
-            />
-            <img
-              src={navbarIcon3}
-              alt="logo"
-              style={{ height: "20px", width: "20px" }}
-            />
-          </Box>
-          <Box
-            sx={{
-              display: { xs: "none", md: "flex" },
-              alignItems: "center",
-              gap: "24px",
-            }}
-          >
+          
             {
-              (accessToken===null)?(<><Box
+              (accessToken===null)?(<Box
+                sx={{
+                  display:'flex',
+                  alignItems: "center",
+                  gap: {md:"24px",sm:"10px",xs:"6px"},
+                  margin:'7px 0'
+                }}
+              ><Box
                 sx={{
                   border: "1px solid white",
                   color: "white",
-                  width: "200px",
+                  minWidth: {md:"220px",sm:"165px",xs:'90px'},
                   textAlign: "center",
-                  padding: "12px 0",
+                  padding: "14px 0",
                   borderRadius: "16px",
-                  typography: "font_18_800",
+                  fontSize:{sm:"18px",xs:"15px"},
+                  fontWeight:"800",
                   cursor:'pointer'
                 }}
                 onClick={()=>{navigate('/home')}}
               >
-                I’m a Freelancer
+                {isDesktop ? "I’m a Freelancer" : "Freelancer"}
                 <img
                   src={redirectArrow}
                   alt="redirectArrow"
@@ -171,6 +197,7 @@ useEffect(() => {
                     height: "12px",
                     objectFit: "contain",
                     margin: "0 8px",
+                    display : isDesktop ? "inline" : "none",
                   }}
                 />
               </Box>
@@ -178,17 +205,19 @@ useEffect(() => {
                 sx={{
                   border: "1px solid white",
                   color: "white",
-                  width: "200px",
+                  minWidth: {md:"210px",sm:"157px",xs:'80px'},
                   textAlign: "center",
-                  padding: "12px 0",
+                  padding: "14px 0",
                   borderRadius: "16px",
                   background: lavender,
-                  typography: "font_18_800",
+                  fontSize:{sm:"18px",xs:"15px"},
+                  fontWeight:"800",
                   cursor:'pointer'
                 }}
                 onClick={()=>{navigate('/home')}}
               >
-                Hire a Designer
+                {isDesktop ? "Hire a Designer" : "Employer"}
+                {/* Hire a Designer */}
                 <img
                   src={redirectArrow}
                   alt="redirectArrow"
@@ -196,22 +225,50 @@ useEffect(() => {
                     height: "12px",
                     objectFit: "contain",
                     margin: "0 8px",
+                    display : isDesktop ? "inline" : "none",
                   }}
                 />
-              </Box></>):(<>
-                <Box ref={container} sx={{position:'relative'}}>
-                                    <Avatar
-                                        alt={userInfo?.full_name[0]}
-                                        sx={{ backgroundColor: 'Grey',cursor:'pointer' }}
-                                        // className='dashboardavatar profile'
-                                        onClick={()=>{clickProfileImage()
-                                            if (changeopts) {
-                                                handlesettings();
-                                              }
-                                        }}
-                                    >
-                                       {userInfo?.full_name.split(' ').slice(0, 2).map(part => part[0]).join('').toUpperCase()}
-                                    </Avatar>
+              </Box>
+          </Box>):(<Box sx={{display:"flex",flexDirection:"row",gap:"24px",alignItems:'center'}}>
+          {(userInfo?.photo_url && userInfo?.photo_url!=='') ? (
+                                        <img
+                                            // className='user-picture-img'
+                                            alt={userInfo?.full_name[0]}
+                                            src={userInfo?.photo_url}
+                                            style={{ borderRadius:'50%',cursor:'pointer',width:'40px',height:'40px',objectFit: 'cover'  }}
+                                            onClick={()=>{clickProfileImage()
+                                                        if (changeopts) {
+                                                            handlesettings();
+                                                          }
+                                                    }}
+                                        />
+                                    ) : (
+                                      <Avatar
+                                      alt={userInfo?.full_name[0]}
+                                      sx={{ backgroundColor: 'Grey',cursor:'pointer' }}
+                                      // className='dashboardavatar profile'
+                                      onClick={()=>{clickProfileImage()
+                                                        if (changeopts) {
+                                                            handlesettings();
+                                                          }
+                                                    }}
+                                  >
+                                  {userInfo?.full_name.split(' ').slice(0, 2).map(part => part[0]).join('').toUpperCase()}</Avatar>
+                                  
+                                    )}
+                                    
+                                    <Box ref={container} sx={{position:'relative'}}>
+                                    
+                                    {/* <img
+                                                    src={navbarIcon3}
+                                                    alt="logo"
+                                                    style={{ height: "20px", width: "20px",cursor:'pointer' }}
+                                                    onClick={()=>{clickProfileImage()
+                                                        if (changeopts) {
+                                                            handlesettings();
+                                                          }
+                                                    }}
+                                                  /> */}
                                     {showDropdown && (
                                         <Box
                                         sx={{
@@ -220,8 +277,8 @@ useEffect(() => {
                                               position:'absolute',
                                               backgroundColor:'#fff',
                                               zIndex:'1',
-                                              top:{xs:'58px',sm:'65px'},
-                                              right:{xs:'-55px',sm:'-80px',md:'-20px'},
+                                              top:{xs:'40px',sm:'48px'},
+                                              right:'10px',
                                               boxShadow: '0px 0px 4px 1px #00000040',
                                               borderRadius:{xs:'10px',sm:'40px'},
                                               width:{xs:'250px',sm:'280px'},
@@ -232,14 +289,23 @@ useEffect(() => {
                                         >
                                         <Box sx={{padding:'2px 0',':hover':{backgroundColor:'transparent'},backgroundColor:'#fff',}}>
                                             <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                <Avatar
-                                                    alt={userInfo?.full_name}
-                                                    style={{ backgroundColor:'Grey',width:'80px',height:'80px',marginRight:'10px' }}                    
-                                                >
-                                                   {userInfo?.full_name?.split(' ').slice(0, 2).map(part => part[0]).join('').toUpperCase()}
+                                            {(userInfo?.photo_url && userInfo?.photo_url!=='') ? (
+                                        <img
+                                            // className='user-picture-img'
+                                            alt={userInfo?.full_name[0]}
+                                            src={userInfo?.photo_url}
+                                            style={{ borderRadius:'50%',cursor:'pointer',width:'80px',height:'80px',marginRight:'10px',objectFit: 'cover'  }}
+                                        />
+                                    ) : (
+                                         
+                                      <Avatar
+                                      alt={userInfo?.full_name[0]}
+                                      style={{ backgroundColor:'Grey',width:'80px',height:'80px',marginRight:'10px' }}                    
+                                  >
+                                     {userInfo?.full_name?.split(' ').slice(0, 2).map(part => part[0]).join('').toUpperCase()}
 
-                                                </Avatar>
-                                                <div style={{ marginRight: '30px', display: 'flex', flexDirection: 'column' }}>
+                                  </Avatar>
+                                    )}                                                <div style={{ marginRight: '30px', display: 'flex', flexDirection: 'column' }}>
                                                     <Typography style={{ margin: '0', fontWeight:'700',fontSize:'20px'}}>{userInfo?.full_name}</Typography>
                                                     <Typography style={{ margin: '0',color:'#454545',fontWeight:'500',fontSize:'16px'}}>{userInfo?.role}</Typography>
                                                 </div>
@@ -270,9 +336,8 @@ useEffect(() => {
                                         </Box>
                                     )}
                                 </Box>
-              </>)
+              </Box>)
             }
-          </Box>
         </Box>
       </Grid>
     </>

@@ -45,7 +45,7 @@ function Footer() {
           <Box sx={{ width: { xs: "100%", md: "60%" }, margin: "24px 0" }}>
             <Typography variant="font_16_600">
             #423 A 9th main 1st cross - 
-            Iti layout main road , Bangalore
+            Iti layout main road
             </Typography>
             <Typography variant="font_16_600" sx={{ margin: "12px 0" }}>
             BENGALURU, KARNATAKA 560068 

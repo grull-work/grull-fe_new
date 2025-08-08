@@ -74,7 +74,9 @@
 .chat-container_client_Name {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    /* justify-content: space-between; */
+    justify-content: center;
+    gap:15px;
     margin-left: 15px;
     height: 100%;
 }
@@ -100,7 +102,7 @@
     width: 100%;
     resize: none;
     outline: none;
-    overflow: hidden;
+    /* overflow: hidden; */
     border: none;
     font-size: 18px;
     border-radius: 16px;
@@ -155,10 +157,10 @@
 .message-send {
     flex-direction: row-reverse !important;
 }
-
+/* 
 .message-receive {
     margin-right: auto !important;
-}
+} */
 
 @media screen and (max-width: 900px){
     .image_deliverable{

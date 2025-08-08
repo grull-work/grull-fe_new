@@ -92,26 +92,46 @@ export const section8FeatureArr = [
 ];
 
 export const section9Arr = [
-  {
+  [{
     step: "1",
     title: "Craft Your Professional Showcase",
     text: "Build a profile that becomes your digital portfolio, highlighting your skills and stellar works to attract potential clients.",
   },
   {
     step: "2",
-    title: "Craft Your Professional Showcase",
-    text: "Build a profile that becomes your digital portfolio, highlighting your skills and stellar works to attract potential clients.",
+    title: "Navigate Through Diverse Projects",
+    text: "Explore and select from a wide array of opportunities that align with your skills and career aspirations.",
   },
   {
     step: "3",
+    title: "Seamless Project Collaboration",
+    text: "Engage in smooth project workflows, ensuring efficient collaborations and timely deliveries through Grull’s robust management tools.",
+  },
+  {
+    step: "4",
+    title: "Secure Payments and Constructive Reviews",
+    text: "Enjoy timely remunerations and share your project experiences, contributing to the continuous enhancement of the Grull community.",
+  },],
+  [{
+    step: "1",
     title: "Craft Your Professional Showcase",
     text: "Build a profile that becomes your digital portfolio, highlighting your skills and stellar works to attract potential clients.",
   },
   {
-    step: "4",
-    title: "Craft Your Professional Showcase",
-    text: "Build a profile that becomes your digital portfolio, highlighting your skills and stellar works to attract potential clients.",
+    step: "2",
+    title: "Navigate Through Diverse Projects",
+    text: "Explore and select from a wide array of opportunities that align with your skills and career aspirations.",
   },
+  {
+    step: "3",
+    title: "Seamless Project Collaboration",
+    text: "Engage in smooth project workflows, ensuring efficient collaborations and timely deliveries through Grull’s robust management tools.",
+  },
+  {
+    step: "4",
+    title: "Secure Payments and Constructive Reviews",
+    text: "Enjoy timely remunerations and share your project experiences, contributing to the continuous enhancement of the Grull community.",
+  },]
 ];
 
 export const section11FeatureArr = [
@@ -270,10 +290,10 @@ export const footerLinks = {
       link: "/cancellation-policies",
       text: "Cancellation Policy",
     },
-    // {
-    //   link: "",
-    //   text: "Fraud Disclaimer",
-    // },
+    {
+      link: "https://496gf0lz.r.ap-south-1.awstrack.me/L0/https:%2F%2Fmerchant.razorpay.com%2Fpolicy%2FOBw0C848KRuqes%2Fshipping/1/0109018f8f8f2386-1627329f-60fa-460e-9df6-b09ffd93888c-000000/55TaY7dR3TR-XVE2P-9XbFp-brg=155",
+      text: "Shipping and Delivery Policy",
+    },
   ],
   PRODUCTS: [
     {
@@ -356,6 +376,31 @@ export const section15ImgArr = [
     img: section15Img6,
   },
   {
+    img: section15Img1,
+  },
+  {
+    img: section15Img2,
+  },
+  {
+    img: section15Img4,
+  }
+];
+
+
+export const section15ImgArr2 = [
+  {
+    img: section15Img4,
+  },
+  {
+    img: section15Img5,
+  },
+  {
+    img: section15Img6,
+  },
+  {
+    img: section15Img1,
+  },
+  {
     img: section15Img2,
   },
   {
@@ -363,5 +408,8 @@ export const section15ImgArr = [
   },
   {
     img: section15Img4,
+  },
+  {
+    img: section15Img6,
   }
 ];

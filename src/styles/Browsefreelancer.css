@@ -92,12 +92,23 @@
     
 }
 .css-1nmdiq5-menu{
-    width: 200px !important;
+    /* width: 200px !important; */
     /* float:  left !important; */
-    right: 0 !important;
+    /* right: 0 !important; */
 }
 .css-1fdsijx-ValueContainer{
     padding: 0 !important;
+}
+
+.form-val-two_brfre{
+    border-radius: 16px;
+    box-shadow: 0px 0px 4px 0px #00000040;
+    color: #000000B2;
+    font-weight: 400;
+    padding: 8px 12px;
+    border: none;
+    font-size: 18px;
+    width: 150px;
 }
 @media only screen and (max-width:1250px){
     .browseFreelancers-left-box{
@@ -163,7 +174,7 @@
         font-size: 14px !important;
     }
     .css-1nmdiq5-menu{
-        width: 180px !important;
+        /* width: 180px !important; */
     }
     .sortingjobs .form-group{
         width: 165px !important;

@@ -9,8 +9,11 @@ import { Button } from '@mui/material';
 import { FaArrowUp } from "react-icons/fa6";
 import BAPI from '../helper/variable'
 const ApplyProposal = () => {
-    const navigate = useNavigate();
     const accessToken = localStorage.getItem('accessToken');
+    const { jobid } = useParams();
+    const fileInputRef = useRef(null);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const navigate = useNavigate();
 
     const CurrencyOptions = [
         { value: 'INDIA', label: 'INR' },
@@ -21,12 +24,9 @@ const ApplyProposal = () => {
         { value: 'RUSSIA', label: 'RUB' },
     ];
 
-    const fileInputRef = useRef(null);
-    const [selectedFile, setSelectedFile] = useState(null);
-
     const handleFileChange = (event) => {
         const file = event.target.files[0];
-        console.log('Selected File:', file);
+        // console.log('Selected File:', file);
         setSelectedFile(file);
     };
 
@@ -34,13 +34,33 @@ const ApplyProposal = () => {
         fileInputRef.current.click();
     };
 
-    const handleReviewProfile = () => {
-        // navigate('/employerprofile');
-    }
+    const handleReviewProfile = async (e) => {
+        e.preventDefault();
+        try {
+          const jobDetailsResponse = await axios.get(`${BAPI}/api/v0/jobs/${jobid}`, {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${accessToken}`,
+            },
+          });
+      
+          if (jobDetailsResponse.status === 200) {
+            const jobDetails = jobDetailsResponse.data;
+            const url = `https://grull.work/client/profile/${jobDetails?.posted_by?.id}`;
+            window.open(url, "_blank");
+          }
+        } catch (error) {
+          console.error('Error fetching job details:', error);
+        }
+      };
 
-    const { jobid } = useParams();
-    const handleViewJobRequirements = () => {
-        navigate(`/jobdetails/${jobid}`); 
+    const handleViewJobRequirements = (e) => {
+        e.preventDefault();
+        const blankLink = document.createElement('a');
+        blankLink.href = `/jobdetails/${jobid}`;
+        blankLink.target = '_blank';
+        blankLink.click();
+        // navigate(`/jobdetails/${jobid}`); 
     }
 
     const updateTextareaHeight = (element) => {
@@ -63,9 +83,8 @@ const ApplyProposal = () => {
                       'Authorization': `Bearer ${accessToken}`,
                   },
               });
-              console.log(response);
               if (response.status===200) {
-                  console.log('Applied Proposal successfully');
+                //   console.log('Applied Proposal successfully');
                   navigate('/managejobs/applied');
               }
           }
@@ -76,10 +95,10 @@ const ApplyProposal = () => {
 
     return (
         <div>
-            {/* div 1 for header */}
+            {/* section - 1 */}
             <Header3 />
 
-            {/* div 2 for making the input form */}
+            {/* section 2 for making the input form */}
             <div className='input-form'>
                 <Form className='proposal-form'>
                 <h2 >Proposal</h2>
@@ -92,7 +111,7 @@ const ApplyProposal = () => {
                         className='form-val proposaldesc' 
                         type="text" name='proposal' placeholder="Enter answer here" />
                 </Form.Group>
-                <div>
+                {/* <div>
                     <h4>Any files to support your proposal</h4>
                     <div>
                         <Button onClick={handleArrowClick} endIcon={<FaArrowUp />}
@@ -108,13 +127,13 @@ const ApplyProposal = () => {
                             multiple
                         />
                     </div>
-                </div>
+                </div> */}
 
                 <div>
                     <h4 >What is your Proposed rate?</h4>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }} className='bud-form'>
                         <Form.Group className="form-group" controlId="formBudget">
-                            <Form.Control className='form-val-5' type="text" name='proposed_rate' placeholder="" />
+                            <Form.Control className='form-val-5' type="text" name='proposed_rate' placeholder="Price" />
                         </Form.Group>
 
                         <Form.Group className="form-group" controlId="formCurrency">
@@ -130,7 +149,7 @@ const ApplyProposal = () => {
                 
                 <div style={{marginTop:'10px',marginBottom:'5px'}}>
                     <div>
-                        <a href="" style={{ color: '#b27ee3',fontSize:'17px' }} onClick={handleReviewProfile}>Review Profile</a>
+                        <a href="" style={{ color: '#b27ee3',fontSize:'17px' }} onClick={(e)=>handleReviewProfile(e)}>Review Profile</a>
                     </div>
                     <div style={{ marginTop: '12px' }}>
                         <a href="" style={{ color: '#b27ee3',fontSize:'17px' }} onClick={handleViewJobRequirements}>View Job Requirements</a>

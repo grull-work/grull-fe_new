@@ -19,17 +19,23 @@ import { NavLink } from 'react-router-dom';
 import BAPI from '../helper/variable'
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { RiCloseLine } from "react-icons/ri";
 
 export default function Header1() {
     const [changeopts,setChangeopts]=useState(false);
     const container = useRef();
+    const container2 = useRef();
     const [savedName,setSavedName]=useState('');
     const [category,setcategory]=useState('')
     const isSmallScreen = useMediaQuery('(max-width:600px)');
     const navigate =useNavigate()
     const [showDropdown, setShowDropdown] = useState(false);
+
+    const [showMobileMenu, setShowMobileMenu] = useState(false);
+
     const avatarBackgroundColor = 'Grey';
     const accessToken = localStorage.getItem('accessToken');
+    const [profileImage,setProfileImage]=useState(null);
     useEffect(()=>{
         const infofetch=async()=>{
          try {
@@ -45,7 +51,10 @@ export default function Header1() {
            );
            const responseData = await response.json();
            setSavedName(responseData.full_name)
-           setcategory(responseData.role)
+           setcategory(responseData.role);
+           if(responseData.photo_url && responseData.photo_url!==''){
+             setProfileImage(responseData.photo_url);
+           }
          } catch (error) {
            console.error('Error during fetching data:', error);
          }
@@ -59,6 +68,7 @@ export default function Header1() {
         // else setShowDropdown(true)
         console.log(showDropdown)
     }
+
     const clickLogout = () => {
         localStorage.removeItem('accessToken')
         localStorage.removeItem('user')
@@ -69,6 +79,9 @@ export default function Header1() {
     const handleClickOutside = (e) => {
         if (container.current && !container.current.contains(e.target)) {
             setShowDropdown(false);
+        }
+        if(container2.current && !container2.current.contains(e.target)){
+            setShowMobileMenu(false);
         }
     };
     // attaches an eventListener to listen when componentDidMount
@@ -95,7 +108,7 @@ export default function Header1() {
                             <img src={Logo} alt='GRULL' style={{ width: '100px', height: '38px',cursor:'pointer' }} onClick={()=>navigate('/')} />
                         )}
                         <Box sx={{display:{xs:'none',md:'block'}}}>
-                            <Button  sx={{color:'#fff',fontSize:'16px'}} onClick={()=>{navigate('/browsejobs')}}>Browse Jobs</Button>
+                            <Button  sx={{color:'#fff',fontSize:'16px',minWidth: '110px',whiteSpace:"nowrap"}} onClick={()=>{navigate('/browsejobs')}}>Browse Jobs</Button>
                         </Box>
                         <Box sx={{display:{xs:'none',md:'block'}}}>
                             {/* <Button endIcon={<MdArrowOutward />}  sx={{color:'#fff',border: '1px solid #FFFFFF', borderRadius: '16px',padding: '7px 14px',fontSize:'16px'}}>
@@ -121,19 +134,30 @@ export default function Header1() {
                                    <IoMdNotificationsOutline style={{ color: '#fff'}} />
                                 </IconButton> */}
                                 <Box ref={container} sx={{position:'relative'}}>
-                                    <Avatar
-                                        alt={savedName}
-                                        sx={{ backgroundColor: avatarBackgroundColor,cursor:'pointer' }}
-                                        // className='dashboardavatar profile'
+                                {(profileImage && profileImage!=='') ? (
+                                        <img
+                                            alt={savedName}
+                                            src={profileImage}
+                                            style={{ borderRadius:'50%',cursor:'pointer',height:'45px',width:'45px',objectFit: 'cover'  }}
+                                            onClick={()=>{clickProfileImage()
+                                                if (changeopts) {
+                                                    handlesettings();
+                                                  }
+                                            }}
+                                        />
+                                    ) : (
+                                        <Avatar
                                         onClick={()=>{clickProfileImage()
                                             if (changeopts) {
                                                 handlesettings();
                                               }
                                         }}
-                                    >
-                                      {typeof savedName === 'string' && savedName.split(' ').slice(0, 2).map(part => part[0]).join('').toUpperCase()}
-
-                                    </Avatar>
+                                            alt={savedName}
+                                            style={{ backgroundColor: avatarBackgroundColor,cursor:'pointer' }}
+                                        >
+                                            {typeof savedName === 'string' && savedName.split(' ').slice(0, 2).map(part => part[0]).join('').toUpperCase()}
+                                         </Avatar>
+                                    )}
                                     {showDropdown && (
                                         <Box
                                         sx={{
@@ -154,14 +178,24 @@ export default function Header1() {
                                         >
                                         <Box sx={{padding:'2px 0',':hover':{backgroundColor:'transparent'},backgroundColor:'#fff',}}>
                                             <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                <Avatar
+                                            {(profileImage && profileImage!=='') ? (
+                                        <img
+                                            alt={savedName}
+                                            src={profileImage}
+                                            style={{ borderRadius:'50%',width:'80px',height:'80px',marginRight:'10px',objectFit: 'cover'   }}
+                                            
+                                        />
+                                    ) : (
+                                        <Avatar
                                                     alt={savedName}
                                                     style={{ backgroundColor: avatarBackgroundColor,width:'80px',height:'80px',marginRight:'10px' }}                    
                                                 >
                                                    {typeof savedName === 'string' && savedName.split(' ').slice(0, 2).map(part => part[0]).join('').toUpperCase()}
                                                 </Avatar>
+                                    )}
+                                                
                                                 <div style={{ marginRight: '30px', display: 'flex', flexDirection: 'column' }}>
-                                                    <Typography style={{ margin: '0', fontWeight:'700',fontSize:'20px'}}>{savedName}</Typography>
+                                                    <Typography style={{ margin: '0', fontWeight:'700',fontSize:'20px',color: "#454545"}}>{savedName}</Typography>
                                                     <Typography style={{ margin: '0',color:'#454545',fontWeight:'500',fontSize:'16px'}}>{category}</Typography>
                                                 </div>
                                             </div>
@@ -171,7 +205,7 @@ export default function Header1() {
                                         </Link>
                                         {
                                             !changeopts?(<><Link component={NavLink} to="/freelancer" style={{backgroundColor:'#fff', textDecoration: 'none', color: 'black',fontWeight:'500',padding:{xs:'2px 0'},marginTop:'5px',':hover':{backgroundColor:'transparent'},minHeight:'0' }}>Dashboard</Link>
-                                            <Link component={NavLink} to="/freelancer" style={{backgroundColor:'#fff', textDecoration: 'none', color: 'black',fontWeight:'500',padding:'2px 0',':hover':{backgroundColor:'transparent'},minHeight:'0' }}>Wallet</Link>
+                                            <Link component={NavLink} to="/freelancer/wallet" style={{backgroundColor:'#fff', textDecoration: 'none', color: 'black',fontWeight:'500',padding:'2px 0',':hover':{backgroundColor:'transparent'},minHeight:'0' }}>Wallet</Link>
                                             <Link onClick={()=>setChangeopts(!changeopts)}  style={{backgroundColor:'#fff', textDecoration: 'none', color: 'black',fontWeight:'500',padding:'2px 0',':hover':{backgroundColor:'transparent'},minHeight:'0' }}>Settings</Link>
                                             <Divider style={{ width: '100%',height:'2px',backgroundColor:'#0000004D' }} />
                                             <Link
@@ -189,10 +223,70 @@ export default function Header1() {
                                         
                                         </Box>
                                     )}
+
+                                    
                                 </Box>
                                 <IconButton sx={{display:{xs:'block',md:'none'}, fontSize:{ xs:'24px',sm:'30px'}}} >
-                                   <LuMenu style={{ color: '#fff', }} onClick={clickProfileImage}  />
+                                   {!showMobileMenu?  <LuMenu style={{ color: "#fff" }} onClick={()=>setShowMobileMenu(m => !m)} /> : <RiCloseLine style={{ color: "#fff" }} onClick={()=>setShowMobileMenu(m => !m)} />} 
                                 </IconButton>
+                                 {showMobileMenu && (
+                
+  <Box ref = {container2}
+    sx={{
+                   padding: "15px 0px 20px 0px",
+                    display: showMobileMenu ? "block" : "none",
+                    position: "absolute",
+                    background: "#fff",
+                    zIndex: "10",
+                    top: { xs: "58px", sm: "65px" },
+                    right: "10px",
+                    boxShadow: "0px 0px 4px 1px #00000040",
+                    borderRadius: { xs: "10px", sm: "40px" },
+                    width: { xs: "150px", sm: "180px" },
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "5px",
+                  }}
+  >  
+    {/* Close button */}
+    {/* <IconButton
+      sx={{ color: "#fff", position: "absolute", top: 8, right: 8 }}
+      onClick={() => setShowMobileMenu(false)}
+    >
+      <RiCloseLine size={24} />
+    </IconButton> */}
+    
+    {/* Your existing menu items */}
+    <Button
+      sx={{ color: "#000000", justifyContent: "flex-start", mt: 4 }}
+      onClick={() => {
+        navigate("/browsejobs");
+        setShowMobileMenu(false);
+        console.log("Navigating to Browse Jobs");
+      }}
+    >
+      Browse Jobs
+    </Button>
+      <Button
+        sx={{ color: "#000000", justifyContent: "flex-start" }}
+        onClick={() =>{
+            navigate('/coming-soon')
+        }}
+      >
+        Learn
+      </Button>
+
+      <Button
+        sx={{ color: "#000000", justifyContent: "flex-start" }}
+        onClick={() =>{
+            navigate('/coming-soon')
+        }}
+      >
+       Collaborate
+      </Button>
+      {/* { console.log(showMobileManageJobs)} */}
+  </Box>
+)}
                             </Box>
                         </Box>
                 </Grid>

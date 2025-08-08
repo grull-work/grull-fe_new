@@ -48,10 +48,12 @@ const ManageJobs = () => {
           //   const newApplications = response.data.results.filter(newApp => !prevApplications.some(existingApp => existingApp.id === newApp.id));
           //   return [...prevApplications, ...newApplications];
           // });
-          setApplications(response.data.results)
-          if (response.data.next) {
-            await getApplications(page + 1);
-          }
+          setApplications(response.data.results);
+          console.log("applications: ",response.data.results)
+          // console.log(response.data.results)
+          // if (response.data.next) {
+          //   await getApplications(page + 1);
+          // }
         }
       } catch (error) {
         console.error('Error occurred:', error);
@@ -64,6 +66,7 @@ const ManageJobs = () => {
   useEffect(() => {
     const fetchJobDetails = async () => {
       const jobDetails = await getJobDetails(applications);
+      console.log("job details: ",jobDetails)
       setJobs(jobDetails);
     };
 
@@ -79,7 +82,11 @@ const ManageJobs = () => {
             'Authorization': `Bearer ${accessToken}`,
           },
         });
+        // console.log(response.data)
         response.data['applied_on']=application.modified_at;
+        if(application.status==="REJECTED"){
+          response.data['status']="REJECTED";
+        }
         return response.data;
       });
 
@@ -89,6 +96,109 @@ const ManageJobs = () => {
     }
   };
   const [savedJobs,setSavedJobs]=useState([]);
+
+  const handleSavedjobs = async(saved_j) => {
+    const updatedSavedJobs = [];
+    for (let i = 0; i < saved_j.length; i++) {
+      const savedJob = saved_j[i];
+      const jobId = savedJob.job_id;
+      const matchingJob = jobData.find((job) => job.id === jobId);
+      if (matchingJob) {
+        savedJob.status = 'APPLIED';
+        updatedSavedJobs.push(savedJob);
+      } else {
+        try {
+          const jobDetailsResponse = await axios.get(`${BAPI}/api/v0/jobs/${jobId}`, {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${accessToken}`,
+            },
+          });
+  
+          if (jobDetailsResponse.status === 200) {
+            const jobDetails = jobDetailsResponse.data;
+            if (!jobDetails.employee) {
+              savedJob.status = 'SAVED';
+            } else {
+              savedJob.status = 'CLOSED';
+            }
+            updatedSavedJobs.push(savedJob);
+          }
+        } catch (error) {
+          console.error('Error fetching job details:', error);
+        }
+      }
+    }
+    console.log("up: ",updatedSavedJobs)
+    setSavedJobs(updatedSavedJobs);
+  };
+  
+  const [requestJobs,setRequestJobs]=useState([]);
+
+  const handleRequestedjobs = async(req_j) => {
+    const updatedReqJobs = [];
+    for (let i = 0; i < req_j.length; i++) {
+      const ReqJob = req_j[i];
+      const jobId = ReqJob.job_id;
+      const matchingJob = jobData.find((job) => job.id === jobId);
+      if (matchingJob) {
+        ReqJob.status = 'APPLIED';
+        updatedReqJobs.push(ReqJob);
+      } else {
+        try {
+          const jobDetailsResponse = await axios.get(`${BAPI}/api/v0/jobs/${jobId}`, {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${accessToken}`,
+            },
+          });
+  
+          if (jobDetailsResponse.status === 200) {
+            const jobDetails = jobDetailsResponse.data;
+            console.log(jobDetails)
+            if (!jobDetails.employee) {
+              ReqJob.status = 'SAVED';
+            } else {
+              ReqJob.status = 'CLOSED';
+            }
+            updatedReqJobs.push(ReqJob);
+          }
+        } catch (error) {
+          console.error('Error fetching job details:', error);
+        }
+      }
+    }
+    console.log("requested: ",updatedReqJobs)
+    setRequestJobs(updatedReqJobs);
+  };
+  useEffect(() => {
+    const getRequestedjobs = async (page = 1) => {
+      try {
+        const response = await axios.get(`${BAPI}/api/v0/jobs/hired-jobs/freelancer`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+          },
+          // params: {
+          //   page: page,
+          //   per_page: 8,
+          // },
+        });
+
+        if (response.status === 200) {
+          // await handleSavedjobs(response.data)
+          // setRequestJobs(response.data)
+          // console.log(response.data)
+          await handleRequestedjobs(response.data)
+        }
+      } catch (error) {
+        console.error('Error occurred:', error);
+      }
+    };
+
+    getRequestedjobs();
+  }, [jobData]);
+
 
   useEffect(() => {
     const getsavedjobs = async (page = 1) => {
@@ -105,8 +215,7 @@ const ManageJobs = () => {
         });
 
         if (response.status === 200) {
-          console.log("saved jobs : ",response.data)
-          setSavedJobs(response.data)
+          await handleSavedjobs(response.data)
         }
       } catch (error) {
         console.error('Error occurred:', error);
@@ -114,7 +223,7 @@ const ManageJobs = () => {
     };
 
     getsavedjobs();
-  }, []);
+  }, [jobData]);
 
   return (
     <Box>
@@ -136,6 +245,8 @@ const ManageJobs = () => {
                onClick={()=>{handleButtonClick('ongoing')}}>Ongoing Jobs</Button>
                <Button sx={{fontSize:'17px',backgroundColor:section==='completed'?'#d7d7d7':'#e3e3e3',color:section!=='completed'?'rgba(0,0,0,0.5)':'#000',borderRadius:'16px',padding:'9px 12px',textTransform:'none',':hover':{backgroundColor:section==='completed'?'#d7d7d7':'#e3e3e3',color:section!=='completed'?'rgba(0,0,0,0.5)':'#000',}}}
                onClick={()=>{handleButtonClick('completed')}}>Completed Jobs</Button>
+               <Button sx={{fontSize:'17px',backgroundColor:section==='hired'?'#d7d7d7':'#e3e3e3',color:section!=='hired'?'rgba(0,0,0,0.5)':'#000',borderRadius:'16px',padding:'9px 12px',textTransform:'none',':hover':{backgroundColor:section==='hired'?'#d7d7d7':'#e3e3e3',color:section!=='hired'?'rgba(0,0,0,0.5)':'#000',}}}
+               onClick={()=>{handleButtonClick('hired')}}>Requested Jobs</Button>
             </Box>
             <Box sx={{  width: '850px',padding:'0 0px 0 90px' }} className='managejobs-display'>
                {selectedSection==='applied' && (
@@ -145,10 +256,10 @@ const ManageJobs = () => {
                         <Link style={{color:'#ED8335',marginLeft:'10px',fontSize:'24px',fontWeight:'600'}} className='manageprofilelink' to='/freelancerprofile'>Manage Profile</Link>
                     </Box>
                     <Box sx={{marginTop:'25px',boxShadow: '0px 0px 4px 0.5px #00000040',borderRadius:'16px'}}>
-                    {jobData.filter((job) => ['PENDING'].includes(job.status)).length === 0 ? (
+                    {jobData.filter((job) => ['PENDING',"REJECTED"].includes(job.status)).length === 0 ? (
                         <Typography sx={{ fontSize: '18px', padding: '20px', textAlign: 'center' }}>No applied jobs found.</Typography>
                       ) : (jobData
-                          .filter((job) => ['PENDING'].includes(job.status))
+                          .filter((job) => ['PENDING',"REJECTED"].includes(job.status))
                           .map((job, index) => (
                             <Job
                             passed_from={0}
@@ -253,6 +364,38 @@ const ManageJobs = () => {
                           startDate={job.created_at}
                           isLast={index === savedJobs.length - 1}
                           status="SAVED"
+                          status_saved={job.status}
+                          job_id={job.job_id}
+                          total_deliverables={0}
+                          completed_deliverables={0}
+                        />
+                      )))}
+                      
+                    </Box>
+                  </Box>
+               )
+               }
+                {selectedSection==='hired' && (
+                  <Box>
+                    <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+                        <Typography className='jobs-category' sx={{fontSize:'28px',fontWeight:'600',letterSpacing:'-1px'}}>Requested Jobs</Typography>
+                        <Link style={{color:'#ED8335',marginLeft:'10px',fontSize:'24px',fontWeight:'600'}} className='manageprofilelink' to='/freelancerprofile'>Manage Profile</Link>
+                    </Box>
+                    <Box sx={{marginTop:'25px',boxShadow: '0px 0px 4px 0.5px #00000040',borderRadius:'16px'}}>
+                    {requestJobs.length === 0 ? (
+                        <Typography sx={{ fontSize: '18px', padding: '20px', textAlign: 'center' }}>No requested jobs found.</Typography>
+                      ) : (requestJobs.map((job, index) => (
+                        <Job
+                          passed_from={0}
+                          key={index}
+                          position={job.title}
+                          companyName={job.company_name}
+                          companyLogoUrl={job.companyLogoUrl}
+                          location={job.location}
+                          startDate={job.created_at}
+                          isLast={index === savedJobs.length - 1}
+                          status="SAVED"
+                          status_saved={job.status}
                           job_id={job.job_id}
                           total_deliverables={0}
                           completed_deliverables={0}

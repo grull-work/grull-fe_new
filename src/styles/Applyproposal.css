@@ -6,7 +6,7 @@
 .proposal-form{
     display: flex;
     flex-direction: column;
-    gap:50px
+    gap:40px
 }
 .proposal-form h2{
     font-size: 30px;

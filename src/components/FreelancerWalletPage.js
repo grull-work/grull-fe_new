@@ -29,18 +29,18 @@ interface Props {
   window?: () => Window;
 }
 
-export default function FreelancerDashboard(props: Props) {
+export default function FreelancerWalletPage(props: Props) {
 
   const { windows } = props;
   const [fullname,setFullname]=useState('');
   const [role,setRole]=useState('');
-  const [activeButton, setActiveButton] = useState('home');
   const [showDropdown, setShowDropdown] = useState(false);
   const [changeopts,setChangeopts]=useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [mobileOpen, setMobileOpen] = useState(false);
   const accessToken = localStorage.getItem('accessToken');
   const avatarBackgroundColor = 'Grey';
+  const [activeButton, setActiveButton] = useState('wallet');
   const container = windows !== undefined ? () => windows().document.body : undefined;
   const container1 = useRef();
   const navigate = useNavigate(); 
@@ -82,17 +82,17 @@ export default function FreelancerDashboard(props: Props) {
     return name[0]?.toUpperCase();
   };
 
-  const handleButtonClick = (button) => {
-    setActiveButton(button);
-    let route = '/';
+  const handleButtonClick = (e,button) => {
+    e.preventDefault()
+    let route = '/freelancer';
     if (button === 'wallet') {
       route = '/wallet';
     } else if (button === 'manageJobs') {
       route = '/managejobs/applied';
     }
-  
     navigate(route);
   };
+
 
   const clickProfileImage = () => {
     setShowDropdown(!showDropdown);
@@ -166,19 +166,16 @@ export default function FreelancerDashboard(props: Props) {
             }}
           />
          <Box sx={{padding:'30px 7px 0',display:'flex',flexDirection:'column',gap:'14px'}}>
-            <Link to="/" onClick={() => handleButtonClick('home')}>
               <Button 
                 sx={{color:'#fff',textTransform:'none',fontSize:'17px',fontWeight:'500',borderRadius:'16px',justifyContent:'left',paddingLeft:'16px',backgroundColor: activeButton === 'home' ? '#7C7C7C' : 'transparent','&:hover': {backgroundColor: activeButton === 'home' ? '#7C7C7C' : 'transparent',},}} 
-                startIcon={<FiHome />}>Home</Button>
-            </Link>
-            <Link to="/wallet" onClick={() => handleButtonClick('wallet')}>
+                startIcon={<FiHome />} onClick={(e) => handleButtonClick(e,'home')}>Home</Button>
               <Button 
                 sx={{color:'#fff',textTransform:'none',fontSize:'17px',fontWeight:'500',borderRadius:'16px',justifyContent:'left',paddingLeft:'16px',backgroundColor: activeButton === 'wallet' ? '#7C7C7C' : 'transparent','&:hover': {backgroundColor: activeButton === 'wallet' ? '#7C7C7C' : 'transparent',},}} 
-                startIcon={<IoWalletOutline />} onClick={() => handleButtonClick('wallet')} >Wallet</Button>
-            </Link>
+                startIcon={<IoWalletOutline />} onClick={(e) => handleButtonClick(e,'wallet')} >Wallet</Button>
+
              <Button
                 sx={{color:'#fff',textTransform:'none',fontSize:'17px',fontWeight:'500',borderRadius:'16px',justifyContent:'left',paddingLeft:'16px',backgroundColor: activeButton === 'manageJobs' ? '#7C7C7C' : 'transparent','&:hover': {backgroundColor: activeButton === 'manageJobs' ? '#7C7C7C' : 'transparent',},}} 
-                startIcon={<FiShoppingBag />} onClick={() => handleButtonClick('manageJobs')} >Manage Jobs</Button>
+                startIcon={<FiShoppingBag />} onClick={(e) => handleButtonClick(e,'manageJobs')} >Manage Jobs</Button>
          </Box>
       </Box>
     </div>
@@ -359,12 +356,7 @@ export default function FreelancerDashboard(props: Props) {
         sx={{ py:3, width: { sm: `calc(100% - ${getDrawerWidth()}px)` } }}
       >
         <Toolbar />
-        {activeButton === 'home' && (
-          <FreelancerHome />
-        )}
-        {activeButton === 'wallet' && (
-          <Freelancerwallet />
-        )}
+        <Freelancerwallet />
       </Box>
     </Box>
   );

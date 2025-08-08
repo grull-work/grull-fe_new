@@ -16,7 +16,7 @@
 
 @media only screen and (max-width:900px){
     .home-container{
-        padding:150px 60px 60px !important;
+        padding:50px 60px 60px !important;
     }
  }
  @media only screen and (max-width:850px){
@@ -27,7 +27,7 @@
  }
  @media only screen and (max-width:600px){
     .home-container{
-        padding:120px 30px 30px !important;
+        padding:20px 30px 30px !important;
     }
     .home-heading{
         font-size: 21px !important;
@@ -41,7 +41,7 @@
  }
  @media only screen and (max-width:400px){
     .home-container{
-        padding:110px 20px 20px !important;
+        padding:10px 20px 20px !important;
     }
     .homeongoingjobslider{
         width: 150px !important;

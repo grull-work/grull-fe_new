@@ -89,7 +89,7 @@ function Section18() {
     <Grid
       id="contactus"
       sx={{
-        minHeight: { xs: "fit-content", md: "100vh" },
+        minHeight: { xs: "fit-content", md: "70vh" },
         width: "100vw",
         padding: "24px",
         display: "grid",

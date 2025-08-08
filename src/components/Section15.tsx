@@ -83,12 +83,16 @@ function Section15() {
         >
           {section15ImgArr.map((obj) => {
             return (
+              <>
+              {console.log(obj.img)}
               <img
                 key={obj.img}
                 src={obj.img}
                 alt={obj.img}
+                
                 style={{ height:isDesktop ? "300px" : "92px", objectFit: "contain" }}
               />
+              </>
             );
           })}
         </Box>
@@ -102,7 +106,7 @@ function Section15() {
           }}
           id="lower-slider"
         >
-          {section15ImgArr.map((obj) => {
+          {section15ImgArr.reverse().map((obj) => {
             return (
               <img
                 key={obj.img}

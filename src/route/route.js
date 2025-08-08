@@ -29,9 +29,13 @@ import ComingSoon from "../comingSoonPage/ComingSoon.tsx";
 import AboutUs from "../components/AboutUs.js";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
-import GoogleAuth from "../components/GoogleAuth.js";
+// import GoogleAuth from "../components/GoogleAuth.js";
 import FreelancerProfileShare from "../components/FreelancerProfileShare.js";
 import EmployerprofileShare from "../components/ClientProfileShare.js";
+import Freelancerwallet from "../components/Freelancerwallet.js";
+import FreelancerWalletPage from "../components/FreelancerWalletPage.js";
+import AddBalance from "../components/AddBalance.js";
+// import PaymentRazorpay from "../components/PaymentRazorpay.js";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -59,10 +63,9 @@ export default function PageRoute() {
             <Route path="/browsefreelancer" element={<BrowseFreelancer/>}/>
             <Route path="/browsejobs" element={<BrowseJobs/>}/>
             <Route path="/jobdetails/:jobid" element={<JobDetails/>}/>
-            <Route path="/paymentbyclient" element={<PaymentByClient/>}/>
-            <Route path="/freelancer" element={<FreelancerDashboard/>}/>
+            <Route path="/freelancer/*" element={<FreelancerDashboard/>}/>
             <Route path="/managejobs/:section" element={<FreelancerManagerJobs/>}/>
-            <Route path="/client" element={<ClientDashboard />} />
+            <Route path="/client/*" element={<ClientDashboard />} />
             <Route path="/clientmanagejobs/:section" element={<ClientManageJobs />} />
             <Route path="/jobapplications/:jobid" element={<JobApplications />} />
             <Route path="/transactions" element={<Transactions />} />
@@ -75,9 +78,12 @@ export default function PageRoute() {
             <Route path='/cancellation-policies' element={<CancellationPolicy/>}/>
             <Route path='/coming-soon' element={<ComingSoon/>}/>
             <Route path='/about-us' element={<AboutUs/>}/>
-            <Route path="/google" element={<GoogleAuth />} />
-            <Route path="/freelancer/:userid" element={<FreelancerProfileShare />}/>
-            <Route path="/client/:userid" element={<EmployerprofileShare />}/>
+            {/* <Route path="/google" element={<GoogleAuth />} /> */}
+            <Route path="/freelancer/profile/:userid" element={<FreelancerProfileShare />}/>
+            <Route path="/client/profile/:userid" element={<EmployerprofileShare />}/>
+            <Route path="/client-transactions" element={<PaymentByClient />} />
+            <Route path="/addbalance" element={<AddBalance />} />
+            {/* <Route path="/payment/razorpay" element={<PaymentRazorpay />} /> */}
          </Routes>
  
        </BrowserRouter>

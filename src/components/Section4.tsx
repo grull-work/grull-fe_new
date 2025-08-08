@@ -329,7 +329,7 @@ function Section4() {
                 display: { xs: "none", md: "block" },
                 cursor:'pointer'
               }}
-              onClick={scrollToSection}
+              onClick={()=>navigate("/home")} 
             >
               Start Your Journey
             </Box>
