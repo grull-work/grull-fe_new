@@ -10,6 +10,12 @@ import BAPI from '../helper/variable';
 import axios from 'axios';
 import Job from './Job';
 
+import Modal from '@mui/material/Modal';
+import { IoLocationOutline } from "react-icons/io5";
+import { BsBank } from "react-icons/bs";
+import { FaRegCreditCard } from "react-icons/fa6";
+import { toast } from 'react-hot-toast';
+
 export default function FreelancerHome() {
     
     const navigate=useNavigate();
@@ -40,6 +46,75 @@ export default function FreelancerHome() {
     const [firstname,setFirstname]=useState('');
     const [walletbalance,setwalletbalance]=useState('')
     const accessToken = localStorage.getItem('accessToken');
+
+    const [open, setOpen] = useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+    const [paymentway,setpaymentway]=useState('');
+    const [modalPage, setModalPage] = useState(0);
+    const [country, setCountry] = useState('india'); 
+    const [setuppaymethod,setSetupmethod]=useState(0);
+    const previousAccounts = [
+    { id: 1, type: 'Bank Account', details: 'XXXX1234 (HDFC)' },
+    { id: 2, type: 'UPI', details: 'user@upi' },
+  ];
+
+    const [upidetails,setupidetails]=useState({name:'',email:'',upiid:''})
+  const [bankdetails,setbankdetails]=useState({name:'',email:'',holdername:'',ifsc:'',accno:'',confaccno:''})
+
+    const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    bgcolor: 'background.paper',
+    borderRadius: '16px',
+    maxWidth: '850px',
+    p: 4 ,
+  };
+
+    const handlepaymentmethod =(method)=>{
+    setpaymentway(method)
+    }
+      const handleCountryChange = (event) => {
+    setCountry(event.target.value);
+  };
+  const handleBack = () => {
+    if (modalPage === 0) {
+      handleClose();
+    } else {
+      setModalPage(modalPage - 1);
+    }
+  };
+  const handleContinue = () => {
+    if (modalPage === 0) {
+      setModalPage(1);
+    } else if (modalPage === 1) {
+      if(paymentway === ''){
+        toast.error('Please Select the Payment Method')
+      }
+      else{
+        setSetupmethod(1)
+        // handleClose();
+        setModalPage(2);
+      }
+    }
+  };
+
+  const handleBankdetails = (name, event) => {
+    setbankdetails((prevBankdetails) => ({
+      ...prevBankdetails,
+      [name]: event.target.value,
+    }));
+  }
+
+    const handleUpidetails = (name, event) => {
+    setupidetails((prevUpidetails) => ({
+      ...prevUpidetails,
+      [name]: event.target.value,
+    }));
+  };
+
     useEffect(() => {
       const infofetch = async () => {
           try {
@@ -176,11 +251,133 @@ export default function FreelancerHome() {
                    <Link style={{color:'#B27EE3',marginLeft:'10px'}}>Hide Balance</Link>
                 </Box>
                 <Typography sx={{color:"#656565",fontSize:'20px'}} className='home-subheading'>Current Balance</Typography>
-                <Button sx={{width:'fit-content',boxShadow:' 0px 0px 4px 0px #00000040',backgroundColor:'#B27EE3',borderRadius:'16px',padding:'10px 30px',color:'#fff',textTransform:'none',marginTop:'10px',':hover':{backgroundColor:'#B27EE3'}}}>Withdraw Balance</Button>
+                <Button onClick={handleOpen} sx={{width:'fit-content',boxShadow:' 0px 0px 4px 0px #00000040',backgroundColor:'#B27EE3',borderRadius:'16px',padding:'10px 30px',color:'#fff',textTransform:'none',marginTop:'10px',':hover':{backgroundColor:'#B27EE3'}}}>Withdraw Balance</Button>
             </Box>
          </Grid>
        </Box>
-
+       <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description" >
+            <Box sx={style} className='modalcon1'>
+             {modalPage === 0 && (
+          <>
+            <Typography sx={{fontSize: '24px',fontWeight: '700',letterSpacing: '-0.005em',lineHeight:'24px',}}>
+              Your saved payout methods
+            </Typography>
+            <Box sx={{display:'flex',flexDirection:'row',gap:'30px',padding:'40px 50px'}} className='modalcon2'>
+              {previousAccounts.map(acc => {
+                const icon = <BsBank size={26} />;
+                return (
+                  <Box
+                    key={acc.id}
+                    onClick={() => {/* maybe select existing */}}
+                    sx={{
+                      flex: 1,
+                      borderRadius: '16px',
+                      boxShadow: '0px 0px 4px rgba(0,0,0,0.25)',
+                      p: 2,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: 1,
+                      cursor: 'pointer',
+                      // border: paymentWay === acc.id ? '2px solid #000' : 'none',
+                    }}
+                  >
+                    {icon}
+                    <Typography sx={{ fontSize: 20, fontWeight: 500 }}>{acc.type}</Typography>
+                    <Typography sx={{ fontSize: 16, color: '#676767' }}>{acc.details}</Typography>
+                  </Box>
+                );
+              })}
+            </Box>
+          </>
+        )}
+                {
+                    modalPage===1 &&
+                    <>
+                   <Typography sx={{fontSize: '24px',fontWeight: '700',letterSpacing: '-0.005em',}} className='modaltxt1'>Add an account</Typography>
+                   <Box sx={{display:'flex',flexDirection:'row',gap:'30px',padding:'40px 50px'}} className='modalcon2'>
+                    <Box onClick={()=>{handlepaymentmethod('bank')}} sx={{cursor:'pointer',width:'180px',padding:'20px',display:'flex',flexDirection:'column',alignItems:'center',gap:'10px',boxShadow: '0px 0px 4px 0.5px #00000040',borderRadius:'16px',border:paymentway==='bank'?'1px solid #000':'none'}}>
+                           <BsBank style={{fontSize:'26px'}}/>
+                           <Typography 
+                            sx={{fontSize: '20px',fontWeight: '500',letterSpacing: '-0.005em',color:'#000',lineHeight:'24px',marginTop:'15px'}}>
+                            Bank Account
+                            </Typography>
+                    </Box>
+                    <Box onClick={()=>{handlepaymentmethod('upi')}} sx={{cursor:'pointer',width:'180px',padding:'20px',display:'flex',flexDirection:'column',alignItems:'center',gap:'10px',boxShadow: '0px 0px 4px 0.5px #00000040',borderRadius:'16px',border:paymentway==='upi'?'1px solid #000':'none'}}>
+                           <BsBank style={{fontSize:'26px'}}/>
+                           <Typography  
+                           sx={{fontSize: '20px',fontWeight: '500',letterSpacing: '-0.005em',color:'#000',lineHeight:'24px',marginTop:'15px'}}>
+                            UPI
+                            </Typography>
+                    </Box>
+                   </Box>
+                    </>
+                }
+                {
+                  modalPage===2 && <>
+                   <Box sx={{marginTop:'30px',display:'flex',flexDirection:'column',gap:'18px',}}>
+                                <Typography sx={{fontSize: '24px',fontWeight: '700',letterSpacing: '-0.005em',lineHeight:'28px',}} >Your Legal Name</Typography>
+                                <input
+                                        value={bankdetails.name}
+                                        onChange={(e) => handleBankdetails('name', e)}
+                                        placeholder='Name'
+                                        style={{color:'#676767',boxShadow: '0px 0px 4px 0.5px #00000040',borderRadius:'16px',padding:'20px 30px',border:'none',fontSize:'20px',fontWeight:'300'}}
+                                    />
+                            </Box>
+                            <Box sx={{marginTop:'30px',display:'flex',flexDirection:'column',gap:'18px'}} className='walletcon4'>
+                                <Typography sx={{fontSize: '24px',fontWeight: '700',letterSpacing: '-0.005em',lineHeight:'28px',}} className='walletlabel1'>Email</Typography>
+                                <input
+                                        value={bankdetails.email}
+                                        onChange={(e) => handleBankdetails('email', e)}
+                                        placeholder='astlebenjamin@gmail.com'
+                                        type='email'
+                                        style={{color:'#090909',boxShadow: '0px 0px 4px 0.5px #00000040',borderRadius:'16px',padding:'20px 30px',border:'none',fontSize:'20px',fontWeight:'300'}}
+                                    />
+                            </Box>
+                            {paymentway === 'bank' && (<>
+                               <Box sx={{marginTop:'30px',display:'flex',flexDirection:'column',gap:'18px'}} className='walletcon4'>
+                                <Typography sx={{fontSize: '24px',fontWeight: '700',letterSpacing: '-0.005em',lineHeight:'28px',}} className='walletlabel1'>Account No</Typography>
+                                <input
+                                        value={bankdetails.accno}
+                                        onChange={(e) => handleBankdetails('accno', e)}
+                                        placeholder='123456789'
+                                        type='text'
+                                        style={{color:'#090909',boxShadow: '0px 0px 4px 0.5px #00000040',borderRadius:'16px',padding:'20px 30px',border:'none',fontSize:'20px',fontWeight:'300'}}
+                                    />
+                                    <Typography sx={{fontSize: '24px',fontWeight: '700',letterSpacing: '-0.005em',lineHeight:'28px',}} className='walletlabel1'>IFSC Code</Typography>
+                                    <input
+                                        value={bankdetails.ifsc}
+                                        onChange={(e) => handleBankdetails('ifsc', e)}
+                                        placeholder='IFSC Code'
+                                        type='text'
+                                        style={{color:'#090909',boxShadow: '0px 0px 4px 0.5px #00000040',borderRadius:'16px',padding:'20px 30px',border:'none',fontSize:'20px',fontWeight:'300'}}
+                                    />
+                            </Box>
+                            </>
+                            )}
+                            {paymentway === 'upi' && (
+                              <>
+                              <Box sx={{marginTop:'30px',display:'flex',flexDirection:'column',gap:'18px',}}>
+                                <Typography sx={{fontSize: '24px',fontWeight: '700',letterSpacing: '-0.005em',lineHeight:'28px',}} >Upi Id</Typography>
+                                <input
+                                        value={upidetails.upiid}
+                                        onChange={(e) => handleUpidetails('upiid', e)}
+                                        placeholder='Upi Id'
+                                        style={{color:'#676767',boxShadow: '0px 0px 4px 0.5px #00000040',borderRadius:'16px',padding:'20px 30px',border:'none',fontSize:'20px',fontWeight:'300'}}
+                                    />
+                            </Box>
+                              </>
+                            )}
+                  </>
+                }
+                <Box sx={{display:'flex',flexDirection:'row',justifyContent:'right',gap:'12px',marginTop:'20px'}} className='modalbuts'>
+                    <Button onClick={handleBack} className='modalbut'
+                    sx={{backgroundColor:'#E3E3E3',color:'#000',textAlign:'center',fontSize:'20px',borderRadius:'16px',padding:'8px',width:'120px',textTransform:'none',':hover':{backgroundColor:'#E3E3E3',color:'#000'}}}>Back</Button>
+                    <Button onClick={()=>handleContinue()} className='modalbut'
+                    sx={{backgroundColor:'#B27EE3',color:'#fff',textAlign:'center',fontSize:'20px',borderRadius:'16px',padding:'8px',width:'120px',textTransform:'none',':hover':{backgroundColor:'#B27EE3',color:'#fff'}}}>{modalPage===0?"Add new":"Continue"}</Button>
+                </Box>
+            </Box>
+        </Modal>
        <Box sx={{marginTop:windowWidth>=600?'80px':'50px'}}>
          <Box sx={{display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
                 <Typography sx={{fontSize:'32px',fontWeight:'600',letterSpacing:'-1px'}} className='home-heading'>Ongoing Jobs</Typography>

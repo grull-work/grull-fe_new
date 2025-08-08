@@ -168,7 +168,7 @@ export default function Header3() {
           >
             <Box sx={{ display: { xs: "none", md: "block" } }}>
               <Button
-                sx={{ color: "#fff", fontSize: "16px",minWidth:"151px" }}
+                sx={{ color: "#fff", fontSize: "16px",minWidth:"161px" }}
                 onClick={() => navigate("/browsefreelancer")}
               >
                 Browse Freelancers
@@ -570,7 +570,7 @@ export default function Header3() {
                 
   <Box ref = {container2}
     sx={{
-                    padding: "15px 30px 20px 20px",
+                   padding: "15px 0px 20px 0px",
                     display: showMobileMenu ? "block" : "none",
                     position: "absolute",
                     background: "#fff",

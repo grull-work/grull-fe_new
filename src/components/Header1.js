@@ -233,7 +233,7 @@ export default function Header1() {
                 
   <Box ref = {container2}
     sx={{
-                    padding: "15px 30px 20px 20px",
+                   padding: "15px 0px 20px 0px",
                     display: showMobileMenu ? "block" : "none",
                     position: "absolute",
                     background: "#fff",

@@ -109,7 +109,7 @@ export default function Header2() {
                 <Grid item sx={{flex:{xs:'none',md:"1"}}} >
                         <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', gap:{md:'20px',lg:'36px'}, alignItems: 'center' }}>
                             <Box sx={{display:{xs:'none',md:'block'}}}>
-                                <Button sx={{color:'#fff',fontSize:'16px',minWidth:"151px"}} onClick={()=>navigate('/browsefreelancer')}>Browse Freelancer</Button>
+                                <Button sx={{color:'#fff',fontSize:'16px',minWidth:"161px"}} onClick={()=>navigate('/browsefreelancer')}>Browse Freelancer</Button>
                             </Box>
                             <Box sx={{display:{xs:'none',md:'block'}}}>
                                 <Button sx={{color:'#fff',fontSize:'16px',minWidth:"87px"}} onClick={()=>navigate('/postjob')}>Post Jobs</Button>

@@ -50,7 +50,7 @@ export default function AddBalance() {
         const { amount, id: order_id, currency } = orderResponse.data;
 
         const options = {
-            key: 'rzp_test_vDtp35HbZSgmy3',  // Enter the Key ID generated from the Dashboard
+            key: 'rzp_test_vDtp35HbZSgmy3', // Replace with your Razorpay key ID
             amount: amount,
             currency: currency,
             name: 'Acme Corp',

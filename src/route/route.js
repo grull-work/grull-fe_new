@@ -29,7 +29,7 @@ import ComingSoon from "../comingSoonPage/ComingSoon.tsx";
 import AboutUs from "../components/AboutUs.js";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
-import GoogleAuth from "../components/GoogleAuth.js";
+// import GoogleAuth from "../components/GoogleAuth.js";
 import FreelancerProfileShare from "../components/FreelancerProfileShare.js";
 import EmployerprofileShare from "../components/ClientProfileShare.js";
 import Freelancerwallet from "../components/Freelancerwallet.js";
@@ -78,7 +78,7 @@ export default function PageRoute() {
             <Route path='/cancellation-policies' element={<CancellationPolicy/>}/>
             <Route path='/coming-soon' element={<ComingSoon/>}/>
             <Route path='/about-us' element={<AboutUs/>}/>
-            <Route path="/google" element={<GoogleAuth />} />
+            {/* <Route path="/google" element={<GoogleAuth />} /> */}
             <Route path="/freelancer/profile/:userid" element={<FreelancerProfileShare />}/>
             <Route path="/client/profile/:userid" element={<EmployerprofileShare />}/>
             <Route path="/client-transactions" element={<PaymentByClient />} />

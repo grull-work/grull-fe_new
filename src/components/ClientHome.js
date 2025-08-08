@@ -1,7 +1,6 @@
 import React,{useEffect, useState} from 'react'
 import Typography from '@mui/material/Typography';
 import { Box, Button, Grid } from '@mui/material';
-import { Radio, RadioGroup, FormControl, FormControlLabel } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import BAPI from '../helper/variable';
 import '../styles/freelancerhome.css';
@@ -31,10 +30,6 @@ export default function ClientHome() {
     const clickpostjobs =()=>{
       navigate('/postjob')
     }
-
-    const handleChange = (event) => {
-      setAvailability(event.target.value);
-    };
 
     // to get user details
     useEffect(() => {
@@ -167,30 +162,6 @@ export default function ClientHome() {
          </Box>
          <Grid sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '30px', marginTop: '10px', }} className='home-container-grid'>
               No Completed Jobs yet.
-            {/* <Box sx={{ backgroundColor: '#B27EE31A', padding: '20px 30px 35px',borderRadius:'16px',display:'flex',flexDirection:'row',}}>
-                <Box sx={{display:'flex',alignItems:'center'}}>
-                    <img style={{width:'50px',height:'50px'}} alt="elula"
-                    src="https://media.licdn.com/dms/image/C510BAQEsvVxzwMgdIw/company-logo_200_200/0/1631404454753/elula_tech_logo?e=2147483647&v=beta&t=5LL6mvKtNqrsx91XKdfj_LoxHiXkfbp_6wmf5-LXDH0"/>
-                </Box>
-                <Box sx={{paddingLeft:'20px',display:'flex',flexDirection:'column',gap:'2px'}}>
-                    <Typography sx={{color:"#000",fontSize:'22px'}} className='home-subheading'>UI/UX Designer</Typography>
-                    <Typography sx={{color:"#656565",fontSize:'18px'}} className='home-content'>Elula Tech Pvt Ltd</Typography>
-                    <Typography sx={{color:"#656565",fontSize:'18px'}} className='home-content'>Bengaluru, Karnataka</Typography>
-                    <Typography sx={{color:"#656565",fontSize:'15px'}} className='home-content'>Completed on Tue</Typography>
-                </Box>
-            </Box>
-            <Box sx={{ backgroundColor: '#B27EE31A', padding: '20px 30px 35px',borderRadius:'16px',display:'flex',flexDirection:'row',}}>
-                <Box sx={{display:'flex',alignItems:'center'}}>
-                    <img style={{width:'50px',height:'50px'}} alt="elula"
-                    src="https://media.licdn.com/dms/image/C510BAQEsvVxzwMgdIw/company-logo_200_200/0/1631404454753/elula_tech_logo?e=2147483647&v=beta&t=5LL6mvKtNqrsx91XKdfj_LoxHiXkfbp_6wmf5-LXDH0"/>
-                </Box>
-                <Box sx={{paddingLeft:'20px',display:'flex',flexDirection:'column',gap:'2px'}}>
-                    <Typography sx={{color:"#000",fontSize:'20px'}} className='home-subheading'>UI/UX Designer</Typography>
-                    <Typography sx={{color:"#656565",fontSize:'17px'}} className='home-content'>Elula Tech Pvt Ltd</Typography>
-                    <Typography sx={{color:"#656565",fontSize:'17px'}} className='home-content'>Bengaluru, Karnataka</Typography>
-                    <Typography sx={{color:"#656565",fontSize:'15px'}} className='home-content'>Completed on Tue</Typography>
-                </Box>
-            </Box> */}
          </Grid>
        </Box>
     </Box>

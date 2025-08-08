@@ -141,7 +141,7 @@ const drawer = (
       backgroundColor: '#000',
       paddingLeft: '40px',
       paddingRight: '40px',
-      height: '100vh',
+      height: '105vh',
       width: '100%',
       maxWidth: '339px'
     }}

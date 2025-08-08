@@ -585,7 +585,7 @@ export default function Header3() {
                 
   <Box ref = {container2}
     sx={{
-                    padding: "15px 30px 20px 20px",
+                   padding:{ xs:"15px 0px 20px 0px", md:"15px 30px 20px 20px"},
                     display: showMobileMenu ? "block" : "none",
                     position: "absolute",
                     background: "#fff",

@@ -591,24 +591,6 @@ const createnotification=async(title, content)=>{
     }
 }
 
-
-  const checkcompleted=async()=>{
-    let total=0;
-    let completed=0;
-    messages.forEach((message)=>{
-        if(message.status==="DELIVERABLE_IMAGE_ACCEPTED"){
-            completed++;
-        }
-        if(message.status==="DELIVERABLES_ACCEPTED"){
-            total++;
-        }
-    })
-
-    if(total!==0 && total===completed){
-        setChatCompleted(true);
-    }
-}
-
   useEffect(()=>{
     const getChat=async()=>{
         try{
@@ -645,10 +627,6 @@ const createnotification=async(title, content)=>{
     setSelectedChat(chat);}
   };
   
-  const updateTextareaHeight = (element) => {
-    element.style.height = 'auto';
-    element.style.height = `${element.scrollHeight}px`;
-  };
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -1257,25 +1235,7 @@ useEffect(() => {
                                                 />
                                         </Box>
                                     </Box>
-                                    {/* <Box sx={{position:'relative'}}>
-                                        <BsCurrencyDollar style={{fontSize: '20px',cursor:'pointer'}} onClick={()=>handleOpenPrice()} />
-                                        <Box sx={{position:'absolute',display:priceInputOpen?'flex':'none',top:'-100px',left:'-20px',backgroundColor:'#ffffff',boxShadow:'0px 0px 4px 1px #00000040',borderRadius:'16px',padding:'15px',flexDirection:'column',gap:'10px'}}>
-                                            <Box sx={{width:'100%',display:'flex',flexDirection:'row',justifyContent:'space-between'}} >
-                                               <Typography>Enter Price :</Typography>
-                                               <RxCrossCircled style={{fontSize:'20px',cursor:'pointer'}} onClick={handleClosePriceInput} />
-                                            </Box>
-                                            <Box sx={{width:'100%',display:'flex',flexDirection:'row',alignItems:'center',gap:'10px'}}>
-                                                <input 
-                                                    autoFocus
-                                                    type="text"
-                                                    value={priceValue}
-                                                    onChange={(e)=>setPriceValue(e.target.value)}
-                                                    style={{border:'none',outline:'none',boxShadow:'0px 0px 4px 1px #00000040',borderRadius:'8px',padding:'5px 10px',width:'120px'}}
-                                                />
-                                                <IoSend style={{fontSize:'20px',cursor:'pointer',color:'#B27EE3'}} onClick={handleSendPrice} />
-                                            </Box>
-                                        </Box>
-                                    </Box> */}
+                                    
                                     <Box sx={{position:'relative'}} ref={container2}>
                                     <i class="fa-regular fa-calendar" onClick={()=>handleOpenDeliverable()} ></i>
                                     <Box sx={{position:'absolute',display:deliverableInputOpen?'flex':'none',top:'-180px',left:'-20px',backgroundColor:'#ffffff',boxShadow:'0px 0px 4px 1px #00000040',borderRadius:'16px',padding:'15px',flexDirection:'column',gap:'10px'}}>
