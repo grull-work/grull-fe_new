@@ -61,6 +61,7 @@ function App() {
         <Section17 />
         <Section18 />
         <Section19 />
+        {/* bgyv */}
         <Footer />
       </Grid>
   );
