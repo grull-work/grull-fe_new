@@ -18,7 +18,7 @@ import Modal from '@mui/material/Modal';
 import { IoSend } from "react-icons/io5";
 import { BsCurrencyDollar } from "react-icons/bs";
 import { DatePicker} from 'antd';
-import BAPI from '../helper/variable'
+import BAPI, { getWebSocketUrl } from '../helper/variable'
 // import {Cloudinary} from "@cloudinary/url-gen";
 import moment from 'moment';
 import axios from 'axios';
@@ -58,7 +58,7 @@ export default function Clientchat() {
   let submittedacceptDeliverables=0;
   let priceAcceptId=null;
   const [receivedMessage, setReceivedMessage] = useState(true);
-  const [connected, setConnected] = useState(false);
+  const [connectionAttempts, setConnectionAttempts] = useState(0);
   const [clientId, setClientId] = useState(
     Math.floor(new Date().getTime() / 1000)
   );
@@ -111,21 +111,152 @@ useEffect(() => {
     // setClientId(newClientId);
     
 
-    const url = `wss://api.dev.grull.tech/ws/${newClientId}`;
-    // const url = `wss://localhost:8000/ws/${newClientId}`;
+    // Use environment-based WebSocket URL
+    const url = getWebSocketUrl(newClientId);
+    console.log("=== WebSocket Connection Setup ===");
+    console.log("Client ID:", newClientId);
+    console.log("WebSocket URL:", url);
+    console.log("Environment:", process.env.NODE_ENV);
     const ws = new WebSocket(url);
 
     ws.onopen = () => {
-        console.log("WebSocket connection opened");
+        console.log("WebSocket connection opened successfully");
         // Send a connection message to the server
-        ws.send("Connect");
+        ws.send(JSON.stringify({
+            type: "connect",
+            client_id: newClientId
+        }));
+        
+        // If we already have a selected chat, join it now that WebSocket is ready
+        if (selectedChat) {
+            console.log("WebSocket ready, joining existing chat:", selectedChat);
+            setTimeout(() => {
+                try {
+                    const user = JSON.parse(localStorage.getItem('user'));
+                    const joinMessage = {
+                        type: "join_chat",
+                        chat_id: selectedChat,
+                        user_id: user.id
+                    };
+                    ws.send(JSON.stringify(joinMessage));
+                    console.log("✅ Joined chat room after WebSocket ready:", selectedChat);
+                } catch (error) {
+                    console.error("❌ Error joining chat room after WebSocket ready:", error);
+                }
+            }, 100); // Small delay to ensure connection is stable
+        }
     };
 
     ws.onmessage = (event) => {
-        console.log("Message received from server:", event.data);
-        // Handle incoming messages from the server
-        setReceivedMessage(Math.floor(Math.random() * 1000000));
-
+        console.log("=== WebSocket Message Received ===");
+        console.log("Raw message:", event.data);
+        console.log("Current selectedChat:", selectedChat);
+        console.log("Current messages count:", messages.length);
+        
+        try {
+            const data = JSON.parse(event.data);
+            console.log("Parsed data:", data);
+            console.log("Message type:", data.type);
+            console.log("Chat ID in message:", data.chat_id);
+            console.log("Selected chat:", selectedChat);
+            console.log("Chat ID match:", data.chat_id === selectedChat);
+            
+            // Handle different types of messages
+            if (data.type === "new_message" && data.chat_id === selectedChat) {
+                // New message received for current chat
+                console.log("✅ New message received for current chat:", data.data);
+                console.log("Message content:", data.data?.message);
+                console.log("Message sender:", data.data?.sent_by);
+                console.log("Message status:", data.data?.status);
+                
+                // Add new message directly to messages array
+                if (data.data && data.data.message) {
+                    console.log("Adding new message to state:", data.data.message.substring(0, 50) + "...");
+                    setMessages(prevMessages => {
+                        console.log("Previous messages count:", prevMessages.length);
+                        // Check if message already exists to avoid duplicates
+                        const messageExists = prevMessages.some(msg => msg.id === data.data.id);
+                        if (messageExists) {
+                            console.log("⚠️ Message already exists, skipping duplicate");
+                            return prevMessages;
+                        }
+                        // Limit message history to prevent memory issues (keep last 100 messages)
+                        const limitedMessages = prevMessages.slice(-99);
+                        const newMessages = [...limitedMessages, data.data];
+                        console.log("✅ Updated messages count:", newMessages.length);
+                        console.log("New message added:", newMessages[newMessages.length - 1]);
+                        return newMessages;
+                    });
+                } else {
+                    // Fallback: trigger message refresh
+                    console.log("⚠️ Fallback: triggering message refresh - no message content");
+                    setReceivedMessage(prev => prev + 1);
+                }
+            } else if (data.type === "new_message") {
+                // New message received but for different chat - still log it
+                console.log("📨 New message received for different chat:", data.chat_id, "Current chat:", selectedChat);
+                console.log("Message data:", data.data);
+            } else if (data.type === "message_update" && data.chat_id === selectedChat) {
+                // Message update received for current chat
+                console.log("✅ Message update received:", data.data);
+                // Update specific message in the array
+                if (data.data && data.data.id) {
+                    setMessages(prevMessages => {
+                        console.log("Updating message with ID:", data.data.id);
+                        const updatedMessages = prevMessages.map(msg => 
+                            msg.id === data.data.id ? { ...msg, ...data.data } : msg
+                        );
+                        console.log("✅ Message updated successfully");
+                        return updatedMessages;
+                    });
+                } else {
+                    // Fallback: trigger message refresh
+                    console.log("⚠️ Fallback: triggering message refresh - no message ID");
+                    setReceivedMessage(prev => prev + 1);
+                }
+            } else if (data.type === "joined_chat") {
+                console.log("✅ Joined chat:", data.chat_id);
+            } else if (data.type === "left_chat") {
+                console.log("✅ Left chat:", data.chat_id);
+            } else if (data.type === "acknowledgment") {
+                // Acknowledgment message received
+                console.log("✅ Acknowledgment received:", data.message);
+            } else if (data.type === "message_sent") {
+                // Message sent confirmation
+                console.log("✅ Message sent confirmation received:", data);
+            } else if (data.type === "chat_message") {
+                // Alternative message format
+                console.log("📨 Chat message received (alternative format):", data);
+                if (data.chat_id === selectedChat && data.message) {
+                    console.log("✅ Processing alternative format message");
+                    setMessages(prevMessages => {
+                        const limitedMessages = prevMessages.slice(-99);
+                        const newMessages = [...limitedMessages, data];
+                        console.log("✅ Updated messages count:", newMessages.length);
+                        return newMessages;
+                    });
+                }
+            } else if (data.type === "message") {
+                // Direct message format
+                console.log("📨 Direct message received:", data);
+                if (data.chat_id === selectedChat && data.message) {
+                    console.log("✅ Processing direct message format");
+                    setMessages(prevMessages => {
+                        const limitedMessages = prevMessages.slice(-99);
+                        const newMessages = [...limitedMessages, data];
+                        console.log("✅ Updated messages count:", newMessages.length);
+                        return newMessages;
+                    });
+                }
+            } else {
+                console.log("❌ Unhandled message type:", data.type);
+                console.log("Full message data:", data);
+            }
+        } catch (error) {
+            console.error("❌ Error parsing WebSocket message:", error);
+            console.error("Raw message that failed to parse:", event.data);
+        }
+        console.log("=== End WebSocket Message Processing ===");
     };
 
     ws.onerror = (error) => {
@@ -135,7 +266,12 @@ useEffect(() => {
 
     ws.onclose = () => {
         console.log("WebSocket connection closed");
-        // Perform cleanup tasks if needed
+        
+        // Attempt to reconnect after a delay
+        setTimeout(() => {
+            console.log("Attempting to reconnect WebSocket...");
+            setConnectionAttempts(prev => prev + 1);
+        }, 3000);
     };
 
     // Set the WebSocket object to state
@@ -147,16 +283,36 @@ useEffect(() => {
             ws.close();
         }
     };
-}, [selectedChatInfo]); // Include clientId as a dependency is unnecessary
+}, [connectionAttempts]); // Re-run when connection attempts change
+
+// Join chat room when selectedChat changes
+useEffect(() => {
+    if (websckt && websckt.readyState === WebSocket.OPEN && selectedChat) {
+        try {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const joinMessage = {
+                type: "join_chat",
+                chat_id: selectedChat,
+                user_id: user.id
+            };
+            websckt.send(JSON.stringify(joinMessage));
+        } catch (error) {
+            console.error("Error joining chat room:", error);
+        }
+    }
+}, [selectedChat, websckt]);
 
 const sendMessageSocket = () => {
     if (websckt && websckt.readyState === WebSocket.OPEN) {
-        websckt.send("Sent Message");
-        setReceivedMessage(Math.floor(Math.random() * 1000000));
-
-    } else {
-        console.error("WebSocket is not open or not initialized");
-        setReceivedMessage(Math.floor(Math.random() * 1000000));
+        try {
+            const messageToSend = {
+                type: "message_sent",
+                chat_id: selectedChat
+            };
+            websckt.send(JSON.stringify(messageToSend));
+        } catch (error) {
+            console.error("Error sending WebSocket message:", error);
+        }
     }
 };
 
@@ -171,11 +327,25 @@ const handleCancel=async(messageId)=>{
             }
         })
         console.log(negres);
-    }
-    catch(err){
-        console.log("Error while Cancelling deliverables : ",err)
-    }
-    sendMessageSocket()
+        
+        // Update the message status in local state immediately for instant feedback
+        setMessages(prevMessages => 
+          prevMessages.map(msg => 
+            msg.id === messageId ? {
+              ...msg,
+              status: 'NORMAL'
+            } : msg
+          )
+        );
+        
+            }
+        catch(err){
+            console.log("Error while Cancelling deliverables : ",err)
+            toast.error('Failed to cancel deliverable. Please try again.');
+        }
+        sendMessageSocket();
+        
+        // WebSocket will handle real-time updates, no need to fetch manually
   }
    
   useEffect(()=>{
@@ -225,23 +395,45 @@ if(document.getElementsByClassName('ant-picker-clear') && document.getElementsBy
     if (deliverableValue.trim() !== '' && selectedDate) {
       const newDeliverableMessage = {message: deliverableValue,  message_id:editmessageId ,status:'DELIVERABLES',deadline:selectedDate};
       
-    setEditMode(false);
-    setEditmessageId(null);
+      // Store values for immediate display
+      const deliverableToSend = deliverableValue;
+      const dateToSend = selectedDate;
+      
       try{
         const response=await axios.post(`${BAPI}/api/v0/chats/update-deliverable`,newDeliverableMessage,{
            headers:{
                Authorization:`Bearer ${accessToken}`,
            }
         })
+        
+        // Update the specific message in local state immediately for instant feedback
+        setMessages(prevMessages => 
+          prevMessages.map(msg => 
+            msg.id === editmessageId ? {
+              ...msg,
+              message: deliverableToSend,
+              deadline: dateToSend,
+              status: 'DELIVERABLES'
+            } : msg
+          )
+        );
+        
         }
         catch(err){
             console.log("Error in sending chat : ",err)
+            toast.error('Failed to update deliverable. Please try again.');
+            return; // Don't proceed if there's an error
         }
+      
+      setEditMode(false);
+      setEditmessageId(null);
       handleCloseDeliverableInput();
     } else {
       toast.error('Please enter a valid deliverable and select a date');
     }
-    sendMessageSocket()
+    sendMessageSocket();
+    
+    // WebSocket will handle real-time updates, no need to fetch manually
   };
 
   const handleSendDeliverable = async() => {
@@ -252,22 +444,46 @@ if(document.getElementsByClassName('ant-picker-clear') && document.getElementsBy
     }
     if (deliverableValue.trim() !== '' && selectedDate) {
       const newDeliverableMessage = {message: deliverableValue, sent_by: selectedChatInfo.manager_id, chat_id:selectedChatInfo.id ,status:'DELIVERABLES',deadline:selectedDate};
+      
+      // Store values for immediate display
+      const deliverableToSend = deliverableValue;
+      const dateToSend = selectedDate;
+      
       try{
         const response=await axios.post(`${BAPI}/api/v0/chats/send-message`,newDeliverableMessage,{
            headers:{
                Authorization:`Bearer ${accessToken}`,
            }
         })
+        
+        // Add the sent deliverable to local state immediately for instant feedback
+        const sentDeliverable = {
+          ...response.data, // Use the response data which includes the message ID and timestamp
+          message: deliverableToSend,
+          sent_by: selectedChatInfo.manager_id,
+          status: 'DELIVERABLES',
+          deadline: dateToSend
+        };
+        
+        setMessages(prevMessages => {
+          const limitedMessages = prevMessages.slice(-99); // Keep last 99 messages
+          return [...limitedMessages, sentDeliverable];
+        });
+        
         await createnotification("Deliverable added", `${clientname} has added a new deliverable for ${job_title} job.`)
         }
         catch(err){
             console.log("Error in sending chat : ",err)
+            toast.error('Failed to send deliverable. Please try again.');
+            return; // Don't close input or proceed if there's an error
         }
       handleCloseDeliverableInput();
     } else {
       toast.error('Please enter a valid deliverable and select a date');
     }
-    sendMessageSocket()
+    sendMessageSocket();
+    
+    // WebSocket will handle real-time updates, no need to fetch manually
   };
 
   const handleEditDeliverable=async(message)=>{
@@ -308,12 +524,26 @@ const createnotification=async(title, content)=>{
                     Authorization:`Bearer ${accessToken}`,
                 }
             })
+            
+            // Update the message status in local state immediately for instant feedback
+            setMessages(prevMessages => 
+              prevMessages.map(msg => 
+                msg.id === messaegId ? {
+                  ...msg,
+                  status: 'NEGOTIATION_REJECTED'
+                } : msg
+              )
+            );
+            
             await createnotification("Price Negotiation", `${clientname} has negotiated the price of ${job_title} job.`)
         }
         catch(err){
             console.log("Error while Negotiating price : ",err)
+            toast.error('Failed to negotiate price. Please try again.');
         }
-        sendMessageSocket()
+        sendMessageSocket();
+        
+        // WebSocket will handle real-time updates, no need to fetch manually
     }
 
     const handleAcceptPrice=async(messaegId)=>{
@@ -326,13 +556,26 @@ const createnotification=async(title, content)=>{
                     Authorization:`Bearer ${accessToken}`,
                 }
             })
-            // console.log(negres);
+            
+            // Update the message status in local state immediately for instant feedback
+            setMessages(prevMessages => 
+              prevMessages.map(msg => 
+                msg.id === messaegId ? {
+                  ...msg,
+                  status: 'NEGOTIATION_ACCEPTED'
+                } : msg
+              )
+            );
+            
             await createnotification("Price Accepted", `${clientname} has accepted the price negotiation of ${job_title} job.`)
         }
         catch(err){
             console.log("Error while Accepting price : ",err)
+            toast.error('Failed to accept price. Please try again.');
         }
-        sendMessageSocket()
+        sendMessageSocket();
+        
+        // WebSocket will handle real-time updates, no need to fetch manually
     }
 
     const handleAcceptSubmission = async(messageId)=>{
@@ -345,12 +588,26 @@ const createnotification=async(title, content)=>{
                     Authorization:`Bearer ${accessToken}`,
                 }
             })
+            
+            // Update the message status in local state immediately for instant feedback
+            setMessages(prevMessages => 
+              prevMessages.map(msg => 
+                msg.id === messageId ? {
+                  ...msg,
+                  status: 'DELIVERABLE_IMAGE_ACCEPTED'
+                } : msg
+              )
+            );
+            
             await createnotification("Accepted Submission", `${clientname} has accepted the submission of ${job_title} job.`)
         }
         catch(err){
             console.log("Error while Accepting deliverable : ",err)
+            toast.error('Failed to accept submission. Please try again.');
         }
-        sendMessageSocket()
+        sendMessageSocket();
+        
+        // WebSocket will handle real-time updates, no need to fetch manually
     }
 
     const handleRejectSubmission = async(messageId)=>{
@@ -363,12 +620,26 @@ const createnotification=async(title, content)=>{
                     Authorization:`Bearer ${accessToken}`,
                 }
             })
+            
+            // Update the message status in local state immediately for instant feedback
+            setMessages(prevMessages => 
+              prevMessages.map(msg => 
+                msg.id === messageId ? {
+                  ...msg,
+                  status: 'DELIVERABLE_IMAGE_REJECTED'
+                } : msg
+              )
+            );
+            
             await createnotification("Submission declined", `${clientname} has declined the submission of ${job_title} job.`)
         }
         catch(err){
             console.log("Error while Rejecting deliverable : ",err)
+            toast.error('Failed to reject submission. Please try again.');
         }
-        sendMessageSocket()
+        sendMessageSocket();
+        
+        // WebSocket will handle real-time updates, no need to fetch manually
     }
 
     useEffect(()=>{ 
@@ -405,17 +676,36 @@ const createnotification=async(title, content)=>{
                       );
                 
                       console.log(sendMessageResponse);
+                      
+                      // Add the sent image message to local state immediately for instant feedback
+                      const sentImageMessage = {
+                        ...sendMessageResponse.data, // Use the response data which includes the message ID and timestamp
+                        message: imageUrl,
+                        sent_by: selectedChatInfo.manager_id,
+                        status: 'IMAGE',
+                        deadline: ''
+                      };
+                      
+                      setMessages(prevMessages => {
+                        const limitedMessages = prevMessages.slice(-99); // Keep last 99 messages
+                        return [...limitedMessages, sentImageMessage];
+                      });
+                      
                   }
                   catch(err){
                       console.log("error while sending Image : ", err)
+                      toast.error('Failed to send image. Please try again.');
                   }
                 }
             })
             .catch((err) => {
               console.log(err);
+              toast.error('Failed to upload image. Please try again.');
             });
             setImage(null);
             sendMessageSocket();
+            
+            // WebSocket will handle real-time updates, no need to fetch manually
         }
     
         const uploadVideo = async () => {
@@ -451,17 +741,36 @@ const createnotification=async(title, content)=>{
                         );
                   
                         console.log(sendMessageResponse);
+                        
+                        // Add the sent video message to local state immediately for instant feedback
+                        const sentVideoMessage = {
+                          ...sendMessageResponse.data, // Use the response data which includes the message ID and timestamp
+                          message: videoUrl,
+                          sent_by: selectedChatInfo.manager_id,
+                          status: 'VIDEO',
+                          deadline: ''
+                        };
+                        
+                        setMessages(prevMessages => {
+                          const limitedMessages = prevMessages.slice(-99); // Keep last 99 messages
+                          return [...limitedMessages, sentVideoMessage];
+                        });
+                        
                     }
                     catch(err){
-                        console.log("error while sending Image : ", err)
+                        console.log("error while sending Video : ", err)
+                        toast.error('Failed to send video. Please try again.');
                     }
                   }
               })
               .catch((err) => {
                 console.log(err);
+                toast.error('Failed to upload video. Please try again.');
               });
               setSelectedVideo(null)
-              sendMessageSocket()
+              sendMessageSocket();
+              
+              // WebSocket will handle real-time updates, no need to fetch manually
           }
     
         if(image){
@@ -516,19 +825,44 @@ const createnotification=async(title, content)=>{
       return toast.error('Please write a message');
     }
     const newMessage = {message: userMessage, sent_by: selectedChatInfo.manager_id, chat_id:selectedChatInfo.id ,status:'NORMAL',deadline:''};
+    console.log("Sending message:", newMessage);
+    
+    // Store the current message for immediate display
+    const messageToSend = userMessage;
+    
     try{
          const response=await axios.post(`${BAPI}/api/v0/chats/send-message`,newMessage,{
             headers:{
                 Authorization:`Bearer ${accessToken}`,
             }
          })
-         console.log(response);
+         console.log("Message sent successfully:", response.data);
+         
+         // Add the sent message to local state immediately for instant feedback
+         const sentMessage = {
+           ...response.data, // Use the response data which includes the message ID and timestamp
+           message: messageToSend,
+           sent_by: selectedChatInfo.manager_id,
+           status: 'NORMAL',
+           deadline: ''
+         };
+         
+         setMessages(prevMessages => {
+           const limitedMessages = prevMessages.slice(-99); // Keep last 99 messages
+           return [...limitedMessages, sentMessage];
+         });
+         
     }
     catch(err){
         console.log("Error in sending chat : ",err)
+        // Show error toast if message fails to send
+        toast.error('Failed to send message. Please try again.');
+        return; // Don't clear input or proceed if there's an error
     }
     setuserMessage('');
     sendMessageSocket();
+    
+    // WebSocket will handle real-time updates, no need to fetch manually
   };
 
   const getFreelancerDetails=async(freelancer_id)=>{
@@ -591,29 +925,47 @@ const createnotification=async(title, content)=>{
     }
 }
 
-  useEffect(()=>{
-    const getChat=async()=>{
-        try{
-           const response=await axios.get(`${BAPI}/api/v0/chats/get-chat-message-by_id/${selectedChat}`,{
-            headers:{
-                Authorization:`Bearer ${accessToken}`
-            }
-           });
-        //    console.log(response.data);
-        //    const newmessage={
-        //          status :  "REVIEW"
-        //    }
-          setMessages(response.data);
-        //   await checkcompleted();
+  // Function to fetch messages
+  const fetchMessages = async () => {
+    if (!selectedChat) return; // Don't fetch if no chat is selected
+    
+    try {
+      const response = await axios.get(`${BAPI}/api/v0/chats/get-chat-message-by_id/${selectedChat}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
         }
-        catch(err){
-            console.log("Error while fetching chat : ", err)
-        }
+      });
+      
+      // Limit message history to prevent memory issues
+      const limitedMessages = response.data.slice(-100);
+      setMessages(limitedMessages);
+    } catch (err) {
+      console.log("Error while fetching chat : ", err);
     }
-    // if(selectedChat!==null){
-         getChat();
-    // }
-  },[selectedChat,receivedMessage]);
+  };
+
+  // Fetch messages when selectedChat changes
+  useEffect(() => {
+    fetchMessages();
+  }, [selectedChat]);
+
+  // Poll for new messages every 10 seconds when chat is selected (fallback only)
+  useEffect(() => {
+    if (!selectedChat) return;
+
+    const interval = setInterval(() => {
+      fetchMessages();
+    }, 10000); // Poll every 10 seconds as fallback
+
+    return () => clearInterval(interval);
+  }, [selectedChat]);
+
+  // Fetch messages when receivedMessage changes (manual refresh)
+  useEffect(() => {
+    if (selectedChat) {
+      fetchMessages();
+    }
+  }, [receivedMessage]);
   
   const handleChatSelect = (chat,title) => {
     if(selectedChat!=chat){
@@ -738,6 +1090,7 @@ useEffect(() => {
                             <h3>{clientname}</h3>
                             <p>Online</p>
                         </div>
+
                         <div className='chat_profile_settings'>
                             {/* <div className='chat_profile_settings_menu'>
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
@@ -792,7 +1145,7 @@ useEffect(() => {
                              return (
                              <>
                              { (index===0 || handleConvertDate(messages[index-1]?.created_at)!==convertedDate) && (
-                                        <Box key={index}
+                                        <Box key={`date-${index}`}
                                         sx={{
                                            display:'flex',
                                            flexDirection:'row',
@@ -806,7 +1159,7 @@ useEffect(() => {
                                         </Box>
                                     )
                                 }
-                             <Grid  key={index}  className={message.sent_by!==selectedChatInfo?.manager_id ? 'message-receive' : 'message-send'}
+                             <Grid  key={`message-${message.id || index}`}  className={message.sent_by!==selectedChatInfo?.manager_id ? 'message-receive' : 'message-send'}
                                     sx={{
                                         display: 'flex',
                                         flexDirection:'row',

@@ -17,7 +17,7 @@ import { Grid} from '@mui/material';
 import toast, { Toaster } from 'react-hot-toast';
 import { IoSend } from "react-icons/io5";
 import { BsCurrencyDollar } from "react-icons/bs";
-import BAPI from '../helper/variable'
+import BAPI, { getWebSocketUrl } from '../helper/variable'
 // import {Cloudinary} from "@cloudinary/url-gen";
 import axios from 'axios';
 import io from 'socket.io-client';
@@ -69,6 +69,9 @@ export default function Freelancerchat() {
   const container3 = useRef();
   const [filteredClients, setFilteredClients] = useState(null);
 
+  // New state for deliverable payment system
+  const [deliverablePayments, setDeliverablePayments] = useState([]);
+
   const handleClickOutside = (e) => {
     if (container1.current && !container1.current.contains(e.target)) {
         setOpen(false);
@@ -104,33 +107,113 @@ useEffect(() => {
   useEffect(() => {
     // Generate a unique client ID
     const newClientId = Date.now().toString();
-    // setClientId(newClientId);
 
-    const url = `wss://api.dev.grull.tech/ws/${newClientId}`;
-    // const url = `wss://localhost:8000/ws/${newClientId}`;
+    // Use environment-based WebSocket URL
+    const url = getWebSocketUrl(newClientId);
     const ws = new WebSocket(url);
 
     ws.onopen = () => {
-        console.log("WebSocket connection opened");
+        console.log("WebSocket connected");
         // Send a connection message to the server
-        ws.send("Connect");
+        ws.send(JSON.stringify({
+            type: "connect",
+            client_id: newClientId
+        }));
+        
+        // If we already have a selected chat, join it now that WebSocket is ready
+        if (selectedChat) {
+            setTimeout(() => {
+                try {
+                    const user = JSON.parse(localStorage.getItem('user'));
+                    const joinMessage = {
+                        type: "join_chat",
+                        chat_id: selectedChat,
+                        user_id: user.id
+                    };
+                    ws.send(JSON.stringify(joinMessage));
+                } catch (error) {
+                    console.error("Error joining chat room:", error);
+                }
+            }, 100);
+        }
     };
 
     ws.onmessage = (event) => {
-        console.log("Message received from server:", event.data);
-        // Handle incoming messages from the server
-        setReceivedMessage(Math.floor(Math.random() * 1000000));
-
+        try {
+            const data = JSON.parse(event.data);
+            
+            // Handle different types of messages
+            if (data.type === "new_message" && data.chat_id === selectedChat) {
+                // New message received for current chat
+                if (data.data && data.data.message) {
+                    setMessages(prevMessages => {
+                        // Check if message already exists to avoid duplicates
+                        const messageExists = prevMessages.some(msg => msg.id === data.data.id);
+                        if (messageExists) {
+                            return prevMessages;
+                        }
+                        // Limit message history to prevent memory issues (keep last 100 messages)
+                        const limitedMessages = prevMessages.slice(-99);
+                        const newMessages = [...limitedMessages, data.data];
+                        return newMessages;
+                    });
+                } else {
+                    // Fallback: trigger message refresh
+                    setReceivedMessage(prev => prev + 1);
+                }
+            } else if (data.type === "new_message") {
+                // New message received but for different chat - ignore
+            } else if (data.type === "message_update" && data.chat_id === selectedChat) {
+                // Message update received for current chat
+                if (data.data && data.data.id) {
+                    setMessages(prevMessages => {
+                        const updatedMessages = prevMessages.map(msg => 
+                            msg.id === data.data.id ? { ...msg, ...data.data } : msg
+                        );
+                        return updatedMessages;
+                    });
+                } else {
+                    // Fallback: trigger message refresh
+                    setReceivedMessage(prev => prev + 1);
+                }
+            } else if (data.type === "joined_chat") {
+                console.log("Joined chat:", data.chat_id);
+            } else if (data.type === "left_chat") {
+                console.log("Left chat:", data.chat_id);
+            } else if (data.type === "acknowledgment") {
+                // Acknowledgment message received - ignore
+            } else if (data.type === "message_sent") {
+                // Message sent confirmation - ignore
+            } else if (data.type === "chat_message") {
+                // Alternative message format
+                if (data.chat_id === selectedChat && data.message) {
+                    setMessages(prevMessages => {
+                        const limitedMessages = prevMessages.slice(-99);
+                        const newMessages = [...limitedMessages, data];
+                        return newMessages;
+                    });
+                }
+            } else if (data.type === "message") {
+                // Direct message format
+                if (data.chat_id === selectedChat && data.message) {
+                    setMessages(prevMessages => {
+                        const limitedMessages = prevMessages.slice(-99);
+                        const newMessages = [...limitedMessages, data];
+                        return newMessages;
+                    });
+                }
+            }
+        } catch (error) {
+            console.error("Error parsing WebSocket message:", error);
+        }
     };
 
     ws.onerror = (error) => {
         console.error("WebSocket error:", error);
-        // Handle WebSocket errors
     };
 
     ws.onclose = () => {
-        console.log("WebSocket connection closed");
-        // Perform cleanup tasks if needed
+        console.log("WebSocket disconnected");
     };
 
     // Set the WebSocket object to state
@@ -142,16 +225,49 @@ useEffect(() => {
             ws.close();
         }
     };
-}, [selectedChatInfo]); // Include clientId as a dependency is unnecessary
+}, []); // Only run once on component mount
+
+// Join chat room when selectedChat changes
+useEffect(() => {
+    console.log("=== Attempting to Join Chat Room ===");
+    console.log("WebSocket state:", websckt?.readyState);
+    console.log("Selected chat:", selectedChat);
+    console.log("WebSocket object exists:", !!websckt);
+    
+    if (websckt && websckt.readyState === WebSocket.OPEN && selectedChat) {
+        try {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const joinMessage = {
+                type: "join_chat",
+                chat_id: selectedChat,
+                user_id: user.id
+            };
+            console.log("Sending join message:", joinMessage);
+            websckt.send(JSON.stringify(joinMessage));
+            console.log("✅ Successfully joined chat room:", selectedChat);
+        } catch (error) {
+            console.error("❌ Error joining chat room:", error);
+        }
+    } else {
+        console.log("⚠️ Cannot join chat room - WebSocket not ready or no chat selected");
+        console.log("WebSocket readyState:", websckt?.readyState);
+        console.log("Selected chat:", selectedChat);
+        console.log("WebSocket exists:", !!websckt);
+    }
+    console.log("=== End Join Chat Room Attempt ===");
+}, [selectedChat, websckt]);
 
 const sendMessageSocket = () => {
     if (websckt && websckt.readyState === WebSocket.OPEN) {
-        websckt.send("hdjhdj");
-        setReceivedMessage(Math.floor(Math.random() * 1000000));
-
-    } else {
-        console.error("WebSocket is not open or not initialized");
-        setReceivedMessage(Math.floor(Math.random() * 1000000));
+        try {
+            const messageToSend = {
+                type: "message_sent",
+                chat_id: selectedChat
+            };
+            websckt.send(JSON.stringify(messageToSend));
+        } catch (error) {
+            console.error("Error sending WebSocket message:", error);
+        }
     }
 };
 
@@ -232,11 +348,35 @@ const sendMessageSocket = () => {
              Authorization:`Bearer ${accessToken}`
          }
         });
+        console.log(response.data);
      }
      catch(err){
          console.log("Error while creating notification : ", err)
      }
   }
+
+  // New functions for deliverable payment system
+  const fetchDeliverablePayments = async () => {
+    if (!selectedChatInfo?.application_id) return;
+    
+    try {
+      const response = await axios.get(`${BAPI}/api/v0/chats/get-deliverable-payments/${selectedChatInfo.application_id}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
+      setDeliverablePayments(response.data);
+    } catch (err) {
+      console.log("Error while fetching deliverable payments: ", err);
+    }
+  };
+
+  // Fetch deliverable payments when chat is selected
+  useEffect(() => {
+    if (selectedChatInfo?.application_id) {
+      fetchDeliverablePayments();
+    }
+  }, [selectedChatInfo]);
 
 
   const handleSendPrice = async() => {
@@ -552,15 +692,37 @@ const sendMessageSocket = () => {
     }
   
     const newMessage = {message: userMessage, sent_by: selectedChatInfo.freelancer_id, chat_id:selectedChatInfo.id ,status:'NORMAL',deadline:''};
+    
+    // Store the current message for immediate display
+    const messageToSend = userMessage;
+    
     try{
          const response=await axios.post(`${BAPI}/api/v0/chats/send-message`,newMessage,{
             headers:{
                 Authorization:`Bearer ${accessToken}`,
             }
          })
+         
+         // Add the sent message to local state immediately for instant feedback
+         const sentMessage = {
+           ...response.data, // Use the response data which includes the message ID and timestamp
+           message: messageToSend,
+           sent_by: selectedChatInfo.freelancer_id,
+           status: 'NORMAL',
+           deadline: ''
+         };
+         
+         setMessages(prevMessages => {
+           const limitedMessages = prevMessages.slice(-99); // Keep last 99 messages
+           return [...limitedMessages, sentMessage];
+         });
+         
     }
     catch(err){
         console.log("Error in sending chat : ",err)
+        // Show error toast if message fails to send
+        toast.error('Failed to send message. Please try again.');
+        return; // Don't clear input or proceed if there's an error
     }
     setuserMessage('');
     sendMessageSocket();
@@ -647,25 +809,68 @@ const checkcompleted=async()=>{
     }
 }
 
+  // Function to fetch messages
+  const fetchMessages = async () => {
+    if (!selectedChat) return; // Don't fetch if no chat is selected
+    
+    try {
+      const response = await axios.get(`${BAPI}/api/v0/chats/get-chat-message-by_id/${selectedChat}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
+      
+      // Limit message history to prevent memory issues
+      const limitedMessages = response.data.slice(-100);
+      setMessages(limitedMessages);
+    } catch (err) {
+      console.log("Error while fetching chat : ", err);
+    }
+  };
+
+  // Fetch messages when selectedChat changes
+  useEffect(() => {
+    fetchMessages();
+  }, [selectedChat]);
+
+  // Poll for new messages every 10 seconds when chat is selected (fallback only)
+  useEffect(() => {
+    if (!selectedChat) return;
+
+    const interval = setInterval(() => {
+      fetchMessages();
+    }, 10000); // Poll every 10 seconds as fallback
+
+    return () => clearInterval(interval);
+  }, [selectedChat]);
+
+  // Fetch messages when receivedMessage changes (manual refresh)
+  useEffect(() => {
+    if (selectedChat) {
+      fetchMessages();
+    }
+  }, [receivedMessage]);
+
   useEffect(()=>{
     const getChat=async()=>{
+        if (!selectedChat) return; // Don't fetch if no chat is selected
+        
         try{
            const response=await axios.get(`${BAPI}/api/v0/chats/get-chat-message-by_id/${selectedChat}`,{
             headers:{
                 Authorization:`Bearer ${accessToken}`
             }
            });
-        //    console.log(response.data);
-          setMessages(response.data);
-        //   await checkcompleted();
+           console.log("Fetched messages count:", response.data.length);
+          // Limit message history to prevent memory issues
+          const limitedMessages = response.data.slice(-100);
+          setMessages(limitedMessages);
         }
         catch(err){
             console.log("Error while fetching chat : ", err)
         }
     }
-    // if(selectedChat!==null){
-         getChat();
-    // }
+    getChat();
   },[selectedChat,receivedMessage]);
 
   const handleChatSelect = (chat,title) => {
@@ -752,7 +957,7 @@ useEffect(() => {
                                 <Box sx={{ display: 'flex', flexDirection: 'row', padding: '22px 20px 13px',alignItems:'center',justifyContent:'space-between',gap:'40px',cursor:'pointer'}} onClick={() => {handleChatSelect(JSON.parse(client).id,JSON.parse(client).job_title); setClientname(JSON.parse(client).first_name+" "+JSON.parse(client).last_name); setClientLocation(JSON.parse(client)?.location)}}>
                                     <Box sx={{ display: 'flex', flexDirection: 'row',alignItems:'center',gap:'10px'}}>
                                         <Avatar sx={{ textTransform: 'uppercase', width: '50px', height: '50px' }}>
-                                        {(JSON.parse(client).first_name+" "+JSON.parse(client).last_name)?.split(' ').slice(0, 2).map(part => part[0]).join('')}
+                                        {(JSON.parse(client).first_name+" "+JSON.parse(client).last_name)?.split(' ').slice(0, 2).map((part, idx) => part[0]).join('')}
                                         </Avatar>
                                         <Box sx={{display:'flex',flexDirection:'column'}}>
                                         <Typography sx={{color:'#353535',fontWeight:'500',fontSize:'18px'}}>{JSON.parse(client).first_name} {JSON.parse(client).last_name}</Typography>
@@ -784,7 +989,7 @@ useEffect(() => {
                                                   />
                                               ) : (
                                                 <Avatar sx={{ textTransform: 'uppercase', width: '50px', height: '50px' }}>
-                                                {freelancername?.split(' ').slice(0, 2).map(part => part[0]).join('')}
+                                                {freelancername?.split(' ').slice(0, 2).map((part, idx) => part[0]).join('')}
                                                 </Avatar>
                                               )}
                            
@@ -819,7 +1024,7 @@ useEffect(() => {
                                 />
                                 ):(
                                     <Avatar sx={{ textTransform: 'uppercase', width: '70px', height: '70px' }}>
-                                    {clientname?.split(' ').slice(0, 2).map(part => part[0]).join('')}
+                                    {clientname?.split(' ').slice(0, 2).map((part, idx) => part[0]).join('')}
                                     </Avatar>
                                 )
                             }
@@ -849,7 +1054,7 @@ if (message.status === 'DELIVERABLE_IMAGE_ACCEPTED') {
 
 return (
 <>{ (index===0 || handleConvertDate(messages[index-1]?.created_at)!==convertedDate) && (
-                                        <Box key={index}
+                                        <Box key={`date-${index}`}
                                         sx={{
                                            display:'flex',
                                            flexDirection:'row',
@@ -863,7 +1068,7 @@ return (
                                         </Box>
                                     )
                                 }
-        <Grid key={index} className={message.sent_by!==selectedChatInfo?.freelancer_id ? 'message-receive' : 'message-send'}
+        <Grid key={`message-${index}`} className={message.sent_by!==selectedChatInfo?.freelancer_id ? 'message-receive' : 'message-send'}
             sx={{
                 display: 'flex',
                 flexDirection:'row',
@@ -886,7 +1091,7 @@ return (
                             ) : (
                                 <Avatar sx={{ textTransform: 'uppercase', width: '40px', height: '40px'}}>
                                 {/* {message.username[0]} */}
-                                {(message.sent_by!==selectedChatInfo?.manager_id?(freelancername):(clientname))?.split(' ').slice(0, 2).map(part => part[0]).join('')}
+                                {(message.sent_by!==selectedChatInfo?.manager_id?(freelancername):(clientname))?.split(' ').slice(0, 2).map((part, idx) => part[0]).join('')}
                               </Avatar>
                             )}
                             </>
@@ -905,7 +1110,7 @@ return (
                                 ):(
                                     <Avatar sx={{ textTransform: 'uppercase', width: '40px', height: '40px'}}>
                               {/* {message.username[0]} */}
-                              {(message.sent_by!==selectedChatInfo?.manager_id?(freelancername):(clientname))?.split(' ').slice(0, 2).map(part => part[0]).join('')}
+                              {(message.sent_by!==selectedChatInfo?.manager_id?(freelancername):(clientname))?.split(' ').slice(0, 2).map((part, idx) => part[0]).join('')}
                             </Avatar>
                                 )
                             }
@@ -1141,7 +1346,7 @@ return (
                    width:'100%',
                    margin:{md:'5px 0',sm:'2px 0',xs:'0'}
                 }}>
-                 <Typography sx={{color:'#454545',fontWeight:'700',fontSize:{md:'18px',sm:'15px',xs:'13px'}}}>Deliverable {submittedacceptDeliverables} Sent Successfully</Typography>
+                 <Typography sx={{color:'#454545',fontWeight:'700',fontSize:{md:'18px',sm:'15px',xs:'13px'}}}>Deliverable {submittedacceptDeliverables} is accepted</Typography>
                 </Box>
             )
         }
@@ -1345,7 +1550,7 @@ return (
                                 <div className='chat_Profile_send_div'>
                                     <Button onClick={sendMessage} style={{ cursor: 'pointer' }} disabled={chatCompleted} >Send</Button>
                                     <div className='' style={{marginRight:'20px'}}>
-                                        {/* <i class="fa-solid fa-ellipsis" style={{ fontSize: '25px' }}></i> */}
+                                                                                 {/* <i class="fa-solid fa-ellipsis" style={{ fontSize: '25px' }}></i> */}
                                     </div>
                                 </div>
                             </div>
@@ -1356,6 +1561,68 @@ return (
                     position="top-center"
                     reverseOrder={true}
                 />
+
+                {/* Deliverable Payments Display */}
+                {deliverablePayments.length > 0 && (
+                    <Box sx={{
+                        position: 'fixed',
+                        top: '20px',
+                        right: '20px',
+                        width: '300px',
+                        backgroundColor: '#fff',
+                        boxShadow: '0px 0px 10px rgba(0,0,0,0.1)',
+                        borderRadius: '12px',
+                        padding: '15px',
+                        zIndex: 1000,
+                        maxHeight: '400px',
+                        overflowY: 'auto'
+                    }}>
+                        <Typography sx={{ fontWeight: '700', fontSize: '16px', marginBottom: '10px' }}>
+                            Deliverable Payments
+                        </Typography>
+                        
+                        {deliverablePayments.map((payment, index) => (
+                            <Box key={payment.id} sx={{
+                                border: '1px solid #e0e0e0',
+                                borderRadius: '8px',
+                                padding: '10px',
+                                marginBottom: '8px',
+                                backgroundColor: payment.status === 'PAID' ? '#e8f5e8' : 
+                                               payment.status === 'REJECTED' ? '#ffe8e8' : '#f8f8f8'
+                            }}>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                                    <Typography sx={{ fontWeight: '600' }}>
+                                        Deliverable {payment.deliverable_number}
+                                    </Typography>
+                                    <Typography sx={{ 
+                                        color: payment.status === 'PAID' ? '#4caf50' : 
+                                               payment.status === 'REJECTED' ? '#f44336' : '#ff9800',
+                                        fontSize: '12px',
+                                        fontWeight: '600'
+                                    }}>
+                                        {payment.status}
+                                    </Typography>
+                                </Box>
+                                
+                                <Typography sx={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>
+                                    Amount: ${payment.amount}
+                                </Typography>
+                                
+                                {payment.status === 'PAID' && payment.transaction_id && (
+                                    <Typography sx={{ fontSize: '10px', color: '#666' }}>
+                                        Transaction: {payment.transaction_id.substring(0, 8)}...
+                                    </Typography>
+                                )}
+                                
+                                {payment.status === 'PAID' && payment.paid_at && (
+                                    <Typography sx={{ fontSize: '10px', color: '#666' }}>
+                                        Paid: {new Date(payment.paid_at).toLocaleDateString()}
+                                    </Typography>
+                                )}
+                            </Box>
+                        ))}
+                    </Box>
+                )}
             </Box>
             </Box>
         </Box>

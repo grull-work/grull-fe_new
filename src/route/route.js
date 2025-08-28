@@ -3,6 +3,7 @@ import App from "../App.tsx";
 import Start from "../components/Start";
 import Login from '../components/Login';
 import SignUp from '../components/SignUp';
+import OTPVerification from '../components/OTPVerification';
 import FreelancerProfile from '../components/FreelancerProfile';
 import EmployerProfile from '../components/EmployerProfile';
 import PostJob from '../components/PostJob';
@@ -56,6 +57,7 @@ export default function PageRoute() {
             <Route path="/home" element={<Start />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup/:userType" element={<SignUp />} />
+            <Route path="/otp-verification" element={<OTPVerification />} />
             <Route path="/freelancerprofile" element={<FreelancerProfile/>}/>
             <Route path="/clientprofile" element={<EmployerProfile/>}/>
             <Route path="/postjob" element={<PostJob/>}/>

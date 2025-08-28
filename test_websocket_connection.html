@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+</head>
+<body>
+    <h1>WebSocket Connection Test</h1>
+    <div id="status">Connecting...</div>
+    <div id="messages"></div>
+    
+    <script>
+        const clientId = Date.now().toString();
+        const wsUrl = `ws://localhost:8000/ws/${clientId}`;
+        
+        console.log('Connecting to:', wsUrl);
+        
+        const ws = new WebSocket(wsUrl);
+        
+        ws.onopen = function(event) {
+            console.log('WebSocket connected');
+            document.getElementById('status').innerHTML = 'Connected';
+            
+            // Join a test chat room
+            const joinMessage = {
+                type: "join_chat",
+                chat_id: "test_chat_123",
+                user_id: "test_user_456"
+            };
+            ws.send(JSON.stringify(joinMessage));
+            console.log('Sent join message:', joinMessage);
+        };
+        
+        ws.onmessage = function(event) {
+            console.log('Message received:', event.data);
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML += '<p>' + event.data + '</p>';
+        };
+        
+        ws.onerror = function(error) {
+            console.error('WebSocket error:', error);
+            document.getElementById('status').innerHTML = 'Error: ' + error;
+        };
+        
+        ws.onclose = function(event) {
+            console.log('WebSocket closed');
+            document.getElementById('status').innerHTML = 'Disconnected';
+        };
+    </script>
+</body>
+</html>
+

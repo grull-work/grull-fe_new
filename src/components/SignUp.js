@@ -136,25 +136,42 @@ const SignUp = () => {
             last_name: lastName,
             list_as_freelancer:userType==='freelancer'
           };
+
+        setLoading("Sending OTP...");
         try {
-            const response = await fetch(`${BAPI}/api/v0/auth/register`, {
+            // First, send OTP for email verification
+            const otpResponse = await fetch(`${BAPI}/api/v0/auth/send-otp`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(registrationData),
+                body: JSON.stringify({
+                    email: email
+                }),
             });
-            console.log(response)
-            if (response.status === 201) {
-                toast.success('User registered Successfully!')
-                navigate('/login');
-            } else if (response.status === 400) {
-                toast.error('REGISTER USER ALREADY EXISTS');
+
+            if (otpResponse.ok) {
+                toast.success('OTP sent to your email!');
+                setLoading("");
+                // Navigate to OTP verification page with user data
+                navigate('/otp-verification', {
+                    state: {
+                        userData: registrationData,
+                        email: email
+                    }
+                });
+            } else if (otpResponse.status === 400) {
+                const errorData = await otpResponse.json();
+                toast.error(errorData.detail || 'Failed to send OTP');
+                setLoading("");
             } else {
-                console.error('Unexpected response:', response);
+                toast.error('Failed to send OTP');
+                setLoading("");
             }
         } catch (error) {
-            console.error('Error during registration:', error);
+            console.error('Error sending OTP:', error);
+            toast.error('Failed to send OTP');
+            setLoading("");
         }
     } else {
         toast.error('Please agree to the terms to proceed.')    

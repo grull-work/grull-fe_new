@@ -12,7 +12,7 @@ import BAPI from '../helper/variable';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
-import { signInWithGooglePopup } from '../utils/firebase.utils';
+import { signInWithGooglePopup, getGoogleRedirectResult } from '../utils/firebase.utils';
 import toast from 'react-hot-toast';
 
 const Login = () => {
@@ -28,7 +28,26 @@ const Login = () => {
         navigate('/home');
     };
 
-    const googleLogin=async(credentialResponse)=>{
+    useEffect(() => {
+    // Check for redirect result when component mounts
+    const checkRedirectResult = async () => {
+      try {
+        const result = await getGoogleRedirectResult();
+        if (result) {
+          console.log("Redirect result found:", result.user.email);
+          await googleLogin(result);
+        }
+      } catch (error) {
+        if (error.message !== 'Redirect initiated') {
+          console.error("Error checking redirect result:", error);
+        }
+      }
+    };
+    
+    checkRedirectResult();
+  }, []);
+
+  const googleLogin=async(credentialResponse)=>{
       const data =(credentialResponse.user)
       console.log(data.email);
       // return
@@ -46,10 +65,11 @@ const Login = () => {
             email:data.email
           }),
         });
-    
+
+        console.log(response);
         if (response.ok) {
           const responseData = await response.json();
-          // console.log(responseData)
+          console.log(responseData);
           if (responseData.access_token) {
             const accessToken = responseData.access_token;
             console.log(accessToken);
@@ -58,13 +78,19 @@ const Login = () => {
           } else {
             toast.error('Unexpected response from the server');
           }
+        } else if (response.status === 404) {
+          const errorData = await response.json();
+          toast.error(errorData.detail || 'User not found. Please register first.');
         } else if (response.status === 400) {
-          toast.error('Wrong credentials or invalid user');
+          const errorData = await response.json();
+          toast.error(errorData.detail || 'Wrong credentials or invalid user');
         } else if (response.status === 422) {
           const errorData = await response.json();
           console.error('Validation Error:', errorData);
+          toast.error('Invalid email format');
         } else {
-          toast.error('Unexpected response from the server');
+          const errorData = await response.json();
+          toast.error(errorData.detail || 'Unexpected response from the server');
         }
       
 
@@ -139,10 +165,19 @@ const Login = () => {
     };
 
     const logGoogleUser = async () => {
-      const response = await signInWithGooglePopup();
-      // console.log(response);
-      await googleLogin(response)
-  }
+      try {
+        const response = await signInWithGooglePopup();
+        await googleLogin(response);
+      } catch (error) {
+        if (error.message === 'Redirect initiated') {
+          // Redirect is happening, no need to show error
+          console.log("Redirect initiated for Google sign-in");
+        } else {
+          console.error("Google sign-in error:", error);
+          toast.error("Google sign-in failed. Please try again.");
+        }
+      }
+    }
 
     return (
       <div>
