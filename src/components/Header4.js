@@ -278,7 +278,7 @@ export default function Header3() {
             <IconButton sx={{ fontSize: { xs: "24px", sm: "30px" } }}>
               <FiMessageSquare
                 style={{ color: "#fff" }}
-                onClick={() => navigate("/freelancerchat")}
+                onClick={() => navigate("/clientchat")}
               />
             </IconButton>
             {/* <IconButton sx={{fontSize:{ xs:'27px',sm:'33px'}}}>

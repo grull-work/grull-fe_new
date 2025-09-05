@@ -54,7 +54,6 @@ const Login = () => {
 
       // const formData = new URLSearchParams();
       //   formData.append("email", data.email);
-       
     
         const response = await fetch(`${BAPI}/api/v0/auth/google/signin`, {
           method: 'POST',
@@ -74,7 +73,36 @@ const Login = () => {
             const accessToken = responseData.access_token;
             console.log(accessToken);
             localStorage.setItem('accessToken', accessToken);
-            navigate('/loading');
+            
+            // Show success message
+            toast.success('Successfully signed in with Google! Redirecting to dashboard...');
+            
+            // Get user info to determine dashboard type
+            try {
+              const userResponse = await fetch(`${BAPI}/api/v0/users/me`, {
+                headers: {
+                  'Authorization': `Bearer ${accessToken}`
+                }
+              });
+              
+              if (userResponse.ok) {
+                const userData = await userResponse.json();
+                const userType = userData.list_as_freelancer ? 'freelancer' : 'client';
+                
+                // Redirect to appropriate dashboard
+                if (userData.list_as_freelancer) {
+                  navigate('/freelancer');
+                } else {
+                  navigate('/client');
+                }
+              } else {
+                // Fallback to loading page
+                navigate('/loading');
+              }
+            } catch (error) {
+              console.error('Error fetching user data:', error);
+              navigate('/loading');
+            }
           } else {
             toast.error('Unexpected response from the server');
           }
@@ -147,7 +175,36 @@ const Login = () => {
             const accessToken = responseData.access_token;
             console.log(accessToken);
             localStorage.setItem('accessToken', accessToken);
-            navigate('/loading');
+            
+            // Show success message
+            toast.success('Successfully signed in! Redirecting to dashboard...');
+            
+            // Get user info to determine dashboard type
+            try {
+              const userResponse = await fetch(`${BAPI}/api/v0/users/me`, {
+                headers: {
+                  'Authorization': `Bearer ${accessToken}`
+                }
+              });
+              
+              if (userResponse.ok) {
+                const userData = await userResponse.json();
+                const userType = userData.list_as_freelancer ? 'freelancer' : 'client';
+                
+                // Redirect to appropriate dashboard
+                if (userData.list_as_freelancer) {
+                  navigate('/freelancer');
+                } else {
+                  navigate('/client');
+                }
+              } else {
+                // Fallback to loading page
+                navigate('/loading');
+              }
+            } catch (error) {
+              console.error('Error fetching user data:', error);
+              navigate('/loading');
+            }
           } else {
             toast.error('Unexpected response from the server');
           }

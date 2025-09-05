@@ -36,6 +36,7 @@ import EmployerprofileShare from "../components/ClientProfileShare.js";
 import Freelancerwallet from "../components/Freelancerwallet.js";
 import FreelancerWalletPage from "../components/FreelancerWalletPage.js";
 import AddBalance from "../components/AddBalance.js";
+import ProtectedRoute from '../components/ProtectedRoute';
 // import PaymentRazorpay from "../components/PaymentRazorpay.js";
 
 function ScrollToTop() {
@@ -53,38 +54,113 @@ export default function PageRoute() {
        <BrowserRouter>
        <ScrollToTop /> 
          <Routes>
+            {/* Public Routes */}
             <Route path="/" element={<App />} />
             <Route path="/home" element={<Start />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup/:userType" element={<SignUp />} />
             <Route path="/otp-verification" element={<OTPVerification />} />
-            <Route path="/freelancerprofile" element={<FreelancerProfile/>}/>
-            <Route path="/clientprofile" element={<EmployerProfile/>}/>
-            <Route path="/postjob" element={<PostJob/>}/>
-            <Route path="/applyproposal/:jobid" element={<ApplyProposal/>}/>
-            <Route path="/browsefreelancer" element={<BrowseFreelancer/>}/>
-            <Route path="/browsejobs" element={<BrowseJobs/>}/>
-            <Route path="/jobdetails/:jobid" element={<JobDetails/>}/>
-            <Route path="/freelancer/*" element={<FreelancerDashboard/>}/>
-            <Route path="/managejobs/:section" element={<FreelancerManagerJobs/>}/>
-            <Route path="/client/*" element={<ClientDashboard />} />
-            <Route path="/clientmanagejobs/:section" element={<ClientManageJobs />} />
-            <Route path="/jobapplications/:jobid" element={<JobApplications />} />
-            <Route path="/transactions" element={<Transactions />} />
-            <Route path="/freelancerchat" element ={<Freelancerchat/>} />
-            <Route path="/commonwallet" element={<CommonWallet />} /> 
-            <Route path="/clientchat" element={<Clientchat />} />
             <Route path="/loading" element={<Loading />} />
             <Route path='/terms-and-conditions' element={<TermsAndCondition/>}/>
             <Route path='/policies' element={<Policies/>}/>
             <Route path='/cancellation-policies' element={<CancellationPolicy/>}/>
             <Route path='/coming-soon' element={<ComingSoon/>}/>
             <Route path='/about-us' element={<AboutUs/>}/>
-            {/* <Route path="/google" element={<GoogleAuth />} /> */}
             <Route path="/freelancer/profile/:userid" element={<FreelancerProfileShare />}/>
             <Route path="/client/profile/:userid" element={<EmployerprofileShare />}/>
-            <Route path="/client-transactions" element={<PaymentByClient />} />
-            <Route path="/addbalance" element={<AddBalance />} />
+            
+            {/* Protected Routes - Require Authentication */}
+            <Route path="/freelancerprofile" element={
+              <ProtectedRoute>
+                <FreelancerProfile/>
+              </ProtectedRoute>
+            }/>
+            <Route path="/clientprofile" element={
+              <ProtectedRoute>
+                <EmployerProfile/>
+              </ProtectedRoute>
+            }/>
+            <Route path="/postjob" element={
+              <ProtectedRoute>
+                <PostJob/>
+              </ProtectedRoute>
+            }/>
+            <Route path="/applyproposal/:jobid" element={
+              <ProtectedRoute>
+                <ApplyProposal/>
+              </ProtectedRoute>
+            }/>
+            <Route path="/browsefreelancer" element={
+              <ProtectedRoute>
+                <BrowseFreelancer/>
+              </ProtectedRoute>
+            }/>
+            <Route path="/browsejobs" element={
+              <ProtectedRoute>
+                <BrowseJobs/>
+              </ProtectedRoute>
+            }/>
+            <Route path="/jobdetails/:jobid" element={
+              <ProtectedRoute>
+                <JobDetails/>
+              </ProtectedRoute>
+            }/>
+            <Route path="/freelancer/*" element={
+              <ProtectedRoute>
+                <FreelancerDashboard/>
+              </ProtectedRoute>
+            }/>
+            <Route path="/managejobs/:section" element={
+              <ProtectedRoute>
+                <FreelancerManagerJobs/>
+              </ProtectedRoute>
+            }/>
+            <Route path="/client/*" element={
+              <ProtectedRoute>
+                <ClientDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/clientmanagejobs/:section" element={
+              <ProtectedRoute>
+                <ClientManageJobs />
+              </ProtectedRoute>
+            } />
+            <Route path="/jobapplications/:jobid" element={
+              <ProtectedRoute>
+                <JobApplications />
+              </ProtectedRoute>
+            } />
+            <Route path="/transactions" element={
+              <ProtectedRoute>
+                <Transactions />
+              </ProtectedRoute>
+            } />
+            <Route path="/freelancerchat" element={
+              <ProtectedRoute>
+                <Freelancerchat/>
+              </ProtectedRoute>
+            } />
+            <Route path="/commonwallet" element={
+              <ProtectedRoute>
+                <CommonWallet />
+              </ProtectedRoute>
+            } /> 
+            <Route path="/clientchat" element={
+              <ProtectedRoute>
+                <Clientchat />
+              </ProtectedRoute>
+            } />
+            <Route path="/client-transactions" element={
+              <ProtectedRoute>
+                <PaymentByClient />
+              </ProtectedRoute>
+            } />
+            <Route path="/addbalance" element={
+              <ProtectedRoute>
+                <AddBalance />
+              </ProtectedRoute>
+            } />
+            {/* <Route path="/google" element={<GoogleAuth />} /> */}
             {/* <Route path="/payment/razorpay" element={<PaymentRazorpay />} /> */}
          </Routes>
  

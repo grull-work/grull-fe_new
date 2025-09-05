@@ -29,11 +29,11 @@ const SignUp = () => {
     const { userType } = useParams();
 
     const googleSignup = async (credentialResponse) => {
-        const data = credentialResponse._tokenResponse;
+        const data = credentialResponse.user;  // Changed from _tokenResponse to user
         console.log('credentialResponse:', credentialResponse);
         
-        if (!data || typeof data.idToken !== 'string') {
-            console.error('Invalid token specified: must be a string');
+        if (!data || !data.email) {
+            console.error('Invalid user data: email is required');
             return;
         }
         // return
@@ -41,13 +41,34 @@ const SignUp = () => {
     
             const registrationData = {
                 email: data.email || '',
-                password: data.localId || '',
-                first_name: data.firstName || '',
-                last_name: data.lastName || '',
+                password: data.uid || '',
+                first_name: data.displayName?.split(' ')[0] || data.email?.split('@')[0] || 'User',
+                last_name: data.displayName?.split(' ').slice(1).join(' ') || 'Account',
                 list_as_freelancer: userType === 'freelancer' ? true : false
             };
             
-             console.log(registrationData);
+            // Ensure no empty strings for required fields
+            if (!registrationData.first_name || registrationData.first_name.trim() === '') {
+                registrationData.first_name = 'User';
+            }
+            if (!registrationData.last_name || registrationData.last_name.trim() === '') {
+                registrationData.last_name = 'Account';
+            }
+            
+            // Validate that we have the minimum required data
+            if (!registrationData.email || !registrationData.password) {
+                toast.error('Invalid Google account data. Please try again.');
+                setLoading("");
+                return;
+            }
+            
+            // Ensure password is at least 3 characters (FastAPI Users requirement)
+            if (registrationData.password.length < 3) {
+                registrationData.password = registrationData.password + '123'; // Add padding to meet minimum length
+            }
+            
+            console.log('Original Firebase data:', data);
+            console.log('Processed registration data:', registrationData);
             const response = await fetch(`${BAPI}/api/v0/auth/register`, {
                 method: 'POST',
                 headers: {
@@ -64,7 +85,7 @@ const SignUp = () => {
     
                 const formData = new URLSearchParams();
                 formData.append("username", data.email);
-                formData.append("password", data.localId);
+                formData.append("password", data.uid);  // Using Firebase user ID
     
                 const loginResponse = await fetch(`${BAPI}/api/v0/auth/login`, {
                     method: 'POST',
@@ -81,7 +102,36 @@ const SignUp = () => {
                         const accessToken = responseData.access_token;
                         console.log('Access Token:', accessToken);
                         localStorage.setItem('accessToken', accessToken);
-                        navigate('/loading');
+                        
+                        // Show success message
+                        toast.success('Successfully signed up with Google! Redirecting to dashboard...');
+                        
+                        // Get user info to determine dashboard type
+                        try {
+                          const userResponse = await fetch(`${BAPI}/api/v0/users/me`, {
+                            headers: {
+                              'Authorization': `Bearer ${accessToken}`
+                            }
+                          });
+                          
+                          if (userResponse.ok) {
+                            const userData = await userResponse.json();
+                            const userType = userData.list_as_freelancer ? 'freelancer' : 'client';
+                            
+                            // Redirect to appropriate dashboard
+                            if (userData.list_as_freelancer) {
+                              navigate('/freelancer');
+                            } else {
+                              navigate('/client');
+                            }
+                          } else {
+                            // Fallback to loading page
+                            navigate('/loading');
+                          }
+                        } catch (error) {
+                          console.error('Error fetching user data:', error);
+                          navigate('/loading');
+                        }
                     } else {
                         setLoading("");
                         toast.error('Unexpected response from the server');
@@ -99,10 +149,21 @@ const SignUp = () => {
                 }
             } else if (response.status === 400) {
                 setLoading("");
-                toast.error('User Already Exists');
+                const errorData = await response.json();
+                console.error('Registration Error Details:', errorData);
+                if (errorData.detail === 'REGISTER_USER_ALREADY_EXISTS') {
+                    toast.error('User Already Exists');
+                } else if (errorData.detail?.code === 'REGISTER_INVALID_PASSWORD') {
+                    toast.error(`Password validation failed: ${errorData.detail.reason}`);
+                } else {
+                    toast.error(errorData.detail || 'Registration failed. Please check your data.');
+                }
             } else {
                 setLoading("");
                 console.error('Unexpected response:', response);
+                const errorData = await response.json().catch(() => ({}));
+                console.error('Error details:', errorData);
+                toast.error('Registration failed. Please try again.');
             }
         } catch (error) {
             setLoading("");

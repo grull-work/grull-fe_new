@@ -17,7 +17,7 @@ import { Grid} from '@mui/material';
 import toast, { Toaster } from 'react-hot-toast';
 import { IoSend } from "react-icons/io5";
 import { BsCurrencyDollar } from "react-icons/bs";
-import BAPI, { getWebSocketUrl } from '../helper/variable'
+import BAPI, { getSocketIOUrl } from '../helper/variable'
 // import {Cloudinary} from "@cloudinary/url-gen";
 import axios from 'axios';
 import io from 'socket.io-client';
@@ -71,6 +71,9 @@ export default function Freelancerchat() {
 
   // New state for deliverable payment system
   const [deliverablePayments, setDeliverablePayments] = useState([]);
+  
+  // State to track if welcome message has been shown
+  const [welcomeMessageShown, setWelcomeMessageShown] = useState(false);
 
   const handleClickOutside = (e) => {
     if (container1.current && !container1.current.contains(e.target)) {
@@ -107,169 +110,175 @@ useEffect(() => {
   useEffect(() => {
     // Generate a unique client ID
     const newClientId = Date.now().toString();
+    setClientId(newClientId);
 
-    // Use environment-based WebSocket URL
-    const url = getWebSocketUrl(newClientId);
-    const ws = new WebSocket(url);
+    // Use environment-based Socket.IO URL
+    const url = getSocketIOUrl();
+    console.log("=== Socket.IO Connection Setup (Freelancer) ===");
+    console.log("Client ID:", newClientId);
+    console.log("Socket.IO URL:", url);
+    console.log("Environment:", process.env.NODE_ENV);
+    
+    // Create Socket.IO connection
+    const socket = io(url, {
+        transports: ['websocket', 'polling'],
+        autoConnect: true
+    });
 
-    ws.onopen = () => {
-        console.log("WebSocket connected");
-        // Send a connection message to the server
-        ws.send(JSON.stringify({
-            type: "connect",
-            client_id: newClientId
-        }));
+    // Socket.IO event handlers
+    socket.on('connect', () => {
+        console.log("Socket.IO connected successfully (Freelancer)");
+        console.log("Socket ID:", socket.id);
         
-        // If we already have a selected chat, join it now that WebSocket is ready
+        // If we already have a selected chat, join it now that Socket.IO is ready
         if (selectedChat) {
+            console.log("Socket.IO ready, joining existing chat:", selectedChat);
             setTimeout(() => {
                 try {
                     const user = JSON.parse(localStorage.getItem('user'));
-                    const joinMessage = {
-                        type: "join_chat",
+                    socket.emit('join_chat', {
                         chat_id: selectedChat,
                         user_id: user.id
-                    };
-                    ws.send(JSON.stringify(joinMessage));
+                    });
+                    console.log("✅ Joined chat room after Socket.IO ready:", selectedChat);
                 } catch (error) {
-                    console.error("Error joining chat room:", error);
+                    console.error("❌ Error joining chat room after Socket.IO ready:", error);
                 }
-            }, 100);
+            }, 100); // Small delay to ensure connection is stable
         }
-    };
+    });
 
-    ws.onmessage = (event) => {
-        try {
-            const data = JSON.parse(event.data);
+    socket.on('disconnect', () => {
+        console.log("Socket.IO disconnected (Freelancer)");
+    });
+
+    socket.on('connected', (data) => {
+        console.log("Server confirmed connection (Freelancer):", data);
+    });
+
+    socket.on('joined_chat', (data) => {
+        console.log("Successfully joined chat (Freelancer):", data);
+    });
+
+    socket.on('left_chat', (data) => {
+        console.log("Left chat (Freelancer):", data);
+    });
+
+    socket.on('new_message', (data) => {
+        console.log("=== Socket.IO Message Received (Freelancer) ===");
+        console.log("Message data:", data);
+        console.log("Current selectedChat:", selectedChat);
+        console.log("Current messages count:", messages.length);
+        
+        // Handle new message for current chat
+        if (data.chat_id === selectedChat) {
+            console.log("✅ New message received for current chat (Freelancer):", data.data);
             
-            // Handle different types of messages
-            if (data.type === "new_message" && data.chat_id === selectedChat) {
-                // New message received for current chat
-                if (data.data && data.data.message) {
-                    setMessages(prevMessages => {
-                        // Check if message already exists to avoid duplicates
-                        const messageExists = prevMessages.some(msg => msg.id === data.data.id);
-                        if (messageExists) {
-                            return prevMessages;
-                        }
-                        // Limit message history to prevent memory issues (keep last 100 messages)
-                        const limitedMessages = prevMessages.slice(-99);
-                        const newMessages = [...limitedMessages, data.data];
-                        return newMessages;
-                    });
-                } else {
-                    // Fallback: trigger message refresh
-                    setReceivedMessage(prev => prev + 1);
-                }
-            } else if (data.type === "new_message") {
-                // New message received but for different chat - ignore
-            } else if (data.type === "message_update" && data.chat_id === selectedChat) {
-                // Message update received for current chat
-                if (data.data && data.data.id) {
-                    setMessages(prevMessages => {
-                        const updatedMessages = prevMessages.map(msg => 
-                            msg.id === data.data.id ? { ...msg, ...data.data } : msg
-                        );
-                        return updatedMessages;
-                    });
-                } else {
-                    // Fallback: trigger message refresh
-                    setReceivedMessage(prev => prev + 1);
-                }
-            } else if (data.type === "joined_chat") {
-                console.log("Joined chat:", data.chat_id);
-            } else if (data.type === "left_chat") {
-                console.log("Left chat:", data.chat_id);
-            } else if (data.type === "acknowledgment") {
-                // Acknowledgment message received - ignore
-            } else if (data.type === "message_sent") {
-                // Message sent confirmation - ignore
-            } else if (data.type === "chat_message") {
-                // Alternative message format
-                if (data.chat_id === selectedChat && data.message) {
-                    setMessages(prevMessages => {
-                        const limitedMessages = prevMessages.slice(-99);
-                        const newMessages = [...limitedMessages, data];
-                        return newMessages;
-                    });
-                }
-            } else if (data.type === "message") {
-                // Direct message format
-                if (data.chat_id === selectedChat && data.message) {
-                    setMessages(prevMessages => {
-                        const limitedMessages = prevMessages.slice(-99);
-                        const newMessages = [...limitedMessages, data];
-                        return newMessages;
-                    });
-                }
+            // Add new message directly to messages array
+            if (data.data && data.data.message) {
+                console.log("Adding new message to state (Freelancer):", data.data.message.substring(0, 50) + "...");
+                setMessages(prevMessages => {
+                    console.log("Previous messages count (Freelancer):", prevMessages.length);
+                    // Check if message already exists to avoid duplicates (by ID, content, and timestamp)
+                    const messageExists = prevMessages.some(msg => 
+                        msg.id === data.data.id || 
+                        (msg.message === data.data.message && 
+                         msg.sent_by === data.data.sent_by && 
+                         Math.abs(new Date(msg.created_at) - new Date(data.data.created_at)) < 1000) // Within 1 second
+                    );
+                    if (messageExists) {
+                        console.log("⚠️ Duplicate message detected, skipping (Freelancer)");
+                        return prevMessages;
+                    }
+                    // Limit message history to prevent memory issues (keep last 100 messages)
+                    const limitedMessages = prevMessages.slice(-99);
+                    const newMessages = [...limitedMessages, data.data];
+                    console.log("✅ Updated messages count (Freelancer):", newMessages.length);
+                    return newMessages;
+                });
+            } else {
+                // Fallback: trigger message refresh
+                console.log("⚠️ Fallback: triggering message refresh - no message content (Freelancer)");
+                setReceivedMessage(prev => prev + 1);
             }
-        } catch (error) {
-            console.error("Error parsing WebSocket message:", error);
+        } else {
+            // New message received but for different chat - still log it
+            console.log("📨 New message received for different chat (Freelancer):", data.chat_id, "Current chat:", selectedChat);
         }
-    };
+    });
 
-    ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
-    };
+    socket.on('message_update', (data) => {
+        console.log("=== Socket.IO Message Update Received (Freelancer) ===");
+        console.log("Update data:", data);
+        
+        if (data.chat_id === selectedChat) {
+            console.log("✅ Message update received for current chat (Freelancer):", data.data);
+            
+            // Update the specific message in the messages array
+            setMessages(prevMessages => {
+                return prevMessages.map(msg => {
+                    if (msg.id === data.data.id) {
+                        console.log("Updating message (Freelancer):", msg.id);
+                        return { ...msg, ...data.data };
+                    }
+                    return msg;
+                });
+            });
+        }
+    });
 
-    ws.onclose = () => {
-        console.log("WebSocket disconnected");
-    };
+    // Store socket instance
+    setWebsckt(socket);
 
-    // Set the WebSocket object to state
-    setWebsckt(ws);
-
-    // Cleanup function when component unmounts
+    // Cleanup function
     return () => {
-        if (ws.readyState === WebSocket.OPEN) {
-            ws.close();
+        console.log("Cleaning up Socket.IO connection (Freelancer)");
+        if (socket) {
+            socket.disconnect();
         }
     };
-}, []); // Only run once on component mount
+}, []);
 
-// Join chat room when selectedChat changes
-useEffect(() => {
-    console.log("=== Attempting to Join Chat Room ===");
-    console.log("WebSocket state:", websckt?.readyState);
-    console.log("Selected chat:", selectedChat);
-    console.log("WebSocket object exists:", !!websckt);
-    
-    if (websckt && websckt.readyState === WebSocket.OPEN && selectedChat) {
-        try {
-            const user = JSON.parse(localStorage.getItem('user'));
-            const joinMessage = {
-                type: "join_chat",
-                chat_id: selectedChat,
-                user_id: user.id
-            };
-            console.log("Sending join message:", joinMessage);
-            websckt.send(JSON.stringify(joinMessage));
-            console.log("✅ Successfully joined chat room:", selectedChat);
-        } catch (error) {
-            console.error("❌ Error joining chat room:", error);
-        }
-    } else {
-        console.log("⚠️ Cannot join chat room - WebSocket not ready or no chat selected");
-        console.log("WebSocket readyState:", websckt?.readyState);
-        console.log("Selected chat:", selectedChat);
-        console.log("WebSocket exists:", !!websckt);
-    }
-    console.log("=== End Join Chat Room Attempt ===");
-}, [selectedChat, websckt]);
-
-const sendMessageSocket = () => {
-    if (websckt && websckt.readyState === WebSocket.OPEN) {
-        try {
-            const messageToSend = {
-                type: "message_sent",
-                chat_id: selectedChat
-            };
-            websckt.send(JSON.stringify(messageToSend));
-        } catch (error) {
-            console.error("Error sending WebSocket message:", error);
-        }
-    }
-};
+  // Join chat room when selectedChat changes
+  useEffect(() => {
+     console.log("=== Attempting to Join Chat Room (Freelancer) ===");
+     console.log("Socket.IO connected:", websckt?.connected);
+     console.log("Selected chat:", selectedChat);
+     console.log("Socket.IO object exists:", !!websckt);
+     
+     if (websckt && websckt.connected && selectedChat) {
+         try {
+             const user = JSON.parse(localStorage.getItem('user'));
+             websckt.emit('join_chat', {
+                 chat_id: selectedChat,
+                 user_id: user.id
+             });
+             console.log("✅ Successfully joined chat room (Freelancer):", selectedChat);
+         } catch (error) {
+             console.error("❌ Error joining chat room (Freelancer):", error);
+         }
+     } else {
+         console.log("⚠️ Cannot join chat room - Socket.IO not ready or no chat selected");
+         console.log("Socket.IO connected:", websckt?.connected);
+         console.log("Selected chat:", selectedChat);
+         console.log("Socket.IO exists:", !!websckt);
+     }
+     console.log("=== End Join Chat Room Attempt (Freelancer) ===");
+  }, [selectedChat, websckt]);
+  
+  const sendMessageSocket = () => {
+     if (websckt && websckt.connected) {
+         try {
+             const messageToSend = {
+                 type: "message_sent",
+                 chat_id: selectedChat
+             };
+             websckt.emit('message_sent', messageToSend);
+         } catch (error) {
+             console.error("Error sending Socket.IO message (Freelancer):", error);
+         }
+     }
+  };
 
   useEffect(()=>{
     const getChats=async()=>{
@@ -333,7 +342,13 @@ const sendMessageSocket = () => {
     } else {
       toast.error('Please enter a valid price');
     }
-    sendMessageSocket()
+    
+    // Send WebSocket message (don't let WebSocket failure affect the main flow)
+    try {
+        sendMessageSocket();
+    } catch (websocketError) {
+        console.log("WebSocket failed but price update succeeded:", websocketError)
+    }
   };
   
   const createnotification=async(title, content)=>{
@@ -349,9 +364,12 @@ const sendMessageSocket = () => {
          }
         });
         console.log(response.data);
+        return response.data;
      }
      catch(err){
          console.log("Error while creating notification : ", err)
+         // Don't throw error for notification failures - they shouldn't break the main flow
+         return null;
      }
   }
 
@@ -360,7 +378,37 @@ const sendMessageSocket = () => {
     if (!selectedChatInfo?.application_id) return;
     
     try {
-      const response = await axios.get(`${BAPI}/api/v0/chats/get-deliverable-payments/${selectedChatInfo.application_id}`, {
+      // Get the job ID from the application using the chat's application_id
+      // Instead of making a separate call to applications endpoint, we'll get it from the chat data
+      // The chat info should already contain the job information
+      
+      // First, let's try to get the job ID from the chat data if available
+      let jobId = null;
+      
+      // If we have the job information in the chat data, use it
+      if (selectedChatInfo.job_id) {
+        jobId = selectedChatInfo.job_id;
+      } else {
+        // Fallback: try to get it from the application endpoint
+        try {
+          const jobResponse = await axios.get(`${BAPI}/api/v0/applications/${selectedChatInfo.application_id}`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`
+            }
+          });
+          jobId = jobResponse.data.job.id;
+        } catch (appErr) {
+          console.log("Error getting job from application:", appErr);
+          return; // Exit if we can't get the job ID
+        }
+      }
+      
+      if (!jobId) {
+        console.log("No job ID available for deliverable payments");
+        return;
+      }
+      
+      const response = await axios.get(`${BAPI}/api/v0/chats/get-deliverable-payments/${jobId}`, {
         headers: {
           Authorization: `Bearer ${accessToken}`
         }
@@ -390,6 +438,9 @@ const sendMessageSocket = () => {
         }
         })
         await createnotification("Price Negotiation", `${freelancername} has raised price of ${job_title} job.`)
+        
+        // Hide welcome message after sending price proposal
+        setWelcomeMessageShown(true);
     }
     catch(err){
         console.log("Error in sending chat : ",err)
@@ -398,7 +449,13 @@ const sendMessageSocket = () => {
     } else {
       toast.error('Please enter a valid price');
     }
-    sendMessageSocket()
+    
+    // Send WebSocket message (don't let WebSocket failure affect the main flow)
+    try {
+        sendMessageSocket();
+    } catch (websocketError) {
+        console.log("WebSocket failed but price sending succeeded:", websocketError)
+    }
   };
 
   const handleEditPrice=async(message)=>{
@@ -452,7 +509,13 @@ const sendMessageSocket = () => {
     } else {
       toast.error('Please enter a valid link');
     }
-    sendMessageSocket()
+    
+    // Send WebSocket message (don't let WebSocket failure affect the main flow)
+    try {
+        sendMessageSocket();
+    } catch (websocketError) {
+        console.log("WebSocket failed but deliverable update succeeded:", websocketError)
+    }
   };
   const handleSendDeliverable = async() => {
     if(countDeliverable-submittedacceptDeliverables<=0){
@@ -486,7 +549,13 @@ const sendMessageSocket = () => {
     } else {
       toast.error('Please enter a valid link');
     }
-    sendMessageSocket()
+    
+    // Send WebSocket message (don't let WebSocket failure affect the main flow)
+    try {
+        sendMessageSocket();
+    } catch (websocketError) {
+        console.log("WebSocket failed but deliverable sending succeeded:", websocketError)
+    }
   };
 
   const handleAccept=async(messageId)=>{
@@ -504,7 +573,13 @@ const sendMessageSocket = () => {
     catch(err){
         console.log("Error while Accepting deliverable : ",err)
     }
-    sendMessageSocket()
+    
+    // Send WebSocket message (don't let WebSocket failure affect the main flow)
+    try {
+        sendMessageSocket();
+    } catch (websocketError) {
+        console.log("WebSocket failed but deliverable acceptance succeeded:", websocketError)
+    }
   }
 
   const handleExtend=async(messageId)=>{
@@ -523,8 +598,151 @@ const sendMessageSocket = () => {
     catch(err){
         console.log("Error while Rejecting deliverable : ",err)
     }
-    sendMessageSocket()
+    
+    // Send WebSocket message (don't let WebSocket failure affect the main flow)
+    try {
+        sendMessageSocket();
+    } catch (websocketError) {
+        console.log("WebSocket failed but deliverable rejection succeeded:", websocketError)
+    }
   }
+
+  const handleAcceptDeliverableProposal = async(messageId) => {
+    console.log('✅ Accepting deliverable proposal (Freelancer):', messageId);
+    
+    try {
+      // Find the message to get deliverable count
+      const message = messages.find(msg => msg.id === messageId);
+      if (!message) {
+        toast.error('Message not found');
+        return;
+      }
+
+      // Check if message is already accepted to prevent duplicate calls
+      if (message.status === 'DELIVERABLES_ACCEPTED') {
+        console.log('⚠️ Message already accepted, skipping duplicate call (Freelancer)');
+        return;
+      }
+
+      // Extract deliverable count from message content
+      const acceptedDeliverables = parseInt(message.message);
+      if (isNaN(acceptedDeliverables)) {
+        toast.error('Invalid deliverable count format');
+        return;
+      }
+
+      // Get job ID and freelancer ID from selected chat info
+      const jobId = selectedChatInfo?.job_id;
+      const freelancerId = selectedChatInfo?.freelancer_id;
+      
+      if (!jobId || !freelancerId) {
+        toast.error('Missing job or freelancer information');
+        return;
+      }
+
+      // First update message status
+      await axios.post(`${BAPI}/api/v0/chats/update-message-status`,{
+        "message_id": messageId,
+        "status":"DELIVERABLES_ACCEPTED"
+      },{
+        headers:{
+          Authorization:`Bearer ${accessToken}`,
+        }
+      });
+
+      // Call backend API to update job with accepted deliverables
+      await axios.post(`${BAPI}/api/v0/jobs/accept-deliverable-proposal`, {
+        job_id: jobId,
+        accepted_deliverables: acceptedDeliverables,
+        freelancer_id: freelancerId
+      }, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
+      });
+
+      // Update local messages state
+      setMessages(prevMessages => 
+        prevMessages.map(msg => 
+          msg.id === messageId ? {
+            ...msg,
+                            status: 'DELIVERABLES_ACCEPTED'
+          } : msg
+        )
+      );
+
+      toast.success('Deliverable proposal accepted!');
+      
+      // Send notification
+      try {
+        await createnotification("Deliverable Proposal Accepted", `${freelancername} has accepted the deliverable proposal for ${job_title} job.`)
+      } catch (notificationError) {
+        console.log('Notification error:', notificationError);
+      }
+      
+      // Send WebSocket message
+      try {
+        sendMessageSocket();
+      } catch (websocketError) {
+        console.log('WebSocket error:', websocketError);
+      }
+    } catch (error) {
+      console.log('Error accepting deliverable proposal:', error);
+      toast.error('Failed to accept deliverable proposal. Please try again.');
+    }
+  };
+
+  const handleRejectDeliverableProposal = async(messageId) => {
+    console.log('🚫 Rejecting deliverable proposal (Freelancer):', messageId);
+    
+    // Check if message is already rejected to prevent duplicate calls
+    const message = messages.find(msg => msg.id === messageId);
+    if (message && message.status === 'DELIVERABLES_REJECTED') {
+      console.log('⚠️ Message already rejected, skipping duplicate call (Freelancer)');
+      return;
+    }
+    
+    try {
+      // Update message status (same pattern as price rejection)
+      await axios.post(`${BAPI}/api/v0/chats/update-message-status`,{
+        "message_id": messageId,
+        "status":"DELIVERABLES_REJECTED"
+      },{
+        headers:{
+          Authorization:`Bearer ${accessToken}`,
+        }
+      });
+
+      // Update local messages state
+      setMessages(prevMessages => 
+        prevMessages.map(msg => 
+          msg.id === messageId ? {
+            ...msg,
+                            status: 'DELIVERABLES_REJECTED'
+          } : msg
+        )
+      );
+
+      toast.success('Deliverable proposal rejected.');
+      
+      // Send notification
+      try {
+        await createnotification("Deliverable Proposal Rejected", `${freelancername} has rejected the deliverable proposal for ${job_title} job.`)
+      } catch (notificationError) {
+        console.log('Notification error:', notificationError);
+      }
+      
+      // Send WebSocket message
+      try {
+        sendMessageSocket();
+      } catch (websocketError) {
+        console.log('WebSocket error:', websocketError);
+      }
+    } catch (error) {
+      console.log('Error rejecting deliverable proposal:', error);
+      toast.error('Failed to reject deliverable proposal. Please try again.');
+    }
+  };
 
   const handleCancel=async(messageId)=>{
     try{
@@ -541,7 +759,13 @@ const sendMessageSocket = () => {
     catch(err){
         console.log("Error while  Cancelling deliverables : ",err)
     }
-    sendMessageSocket()
+    
+    // Send WebSocket message (don't let WebSocket failure affect the main flow)
+    try {
+        sendMessageSocket();
+    } catch (websocketError) {
+        console.log("WebSocket failed but cancel operation succeeded:", websocketError)
+    }
   }
 
 
@@ -589,7 +813,13 @@ const sendMessageSocket = () => {
           console.log(err);
         });
         setImage(null)
-        sendMessageSocket()
+        
+        // Send WebSocket message (don't let WebSocket failure affect the main flow)
+        try {
+            sendMessageSocket();
+        } catch (websocketError) {
+            console.log("WebSocket failed but image upload succeeded:", websocketError)
+        }
     }
 
     const uploadVideo = async () => {
@@ -635,7 +865,13 @@ const sendMessageSocket = () => {
             console.log(err);
           });
           setSelectedVideo(null)
-          sendMessageSocket()
+          
+          // Send WebSocket message (don't let WebSocket failure affect the main flow)
+          try {
+              sendMessageSocket();
+          } catch (websocketError) {
+              console.log("WebSocket failed but video upload succeeded:", websocketError)
+          }
       }
 
     if(image){
@@ -717,6 +953,9 @@ const sendMessageSocket = () => {
            return [...limitedMessages, sentMessage];
          });
          
+         // Hide welcome message after sending any message
+         setWelcomeMessageShown(true);
+         
     }
     catch(err){
         console.log("Error in sending chat : ",err)
@@ -725,7 +964,13 @@ const sendMessageSocket = () => {
         return; // Don't clear input or proceed if there's an error
     }
     setuserMessage('');
-    sendMessageSocket();
+    
+    // Send WebSocket message (don't let WebSocket failure affect the main flow)
+    try {
+        sendMessageSocket();
+    } catch (websocketError) {
+        console.log("WebSocket failed but message sending succeeded:", websocketError)
+    }
   };
 
   const getClientDetails=async(clientId)=>{
@@ -833,23 +1078,16 @@ const checkcompleted=async()=>{
     fetchMessages();
   }, [selectedChat]);
 
-  // Poll for new messages every 10 seconds when chat is selected (fallback only)
+  // Poll for new messages every 30 seconds when chat is selected (fallback only)
   useEffect(() => {
     if (!selectedChat) return;
 
     const interval = setInterval(() => {
       fetchMessages();
-    }, 10000); // Poll every 10 seconds as fallback
+    }, 30000); // Poll every 30 seconds as fallback
 
     return () => clearInterval(interval);
   }, [selectedChat]);
-
-  // Fetch messages when receivedMessage changes (manual refresh)
-  useEffect(() => {
-    if (selectedChat) {
-      fetchMessages();
-    }
-  }, [receivedMessage]);
 
   useEffect(()=>{
     const getChat=async()=>{
@@ -1001,13 +1239,13 @@ useEffect(() => {
                         </div>
                         <div className='chat_profile_settings'>
                             {/* <div className='chat_profile_settings_menu'>
-                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                                <i className="fa-solid fa-ellipsis-vertical"></i>
                             </div>
                             <div className=''>
-                                <i class="fa-solid fa-chevron-down"></i>
+                                <i className="fa-solid fa-chevron-down"></i>
                             </div> */}
                             <div className='' onClick={()=>setSelectedChat(null)}>
-                                <i class="fa-solid fa-xmark"></i>
+                                <i className="fa-solid fa-xmark"></i>
                             </div>
                         </div>
                     </div>
@@ -1037,11 +1275,94 @@ useEffect(() => {
                         </div>
                     </div>
                     <Divider />
+                    
+                    {/* Deliverable Payment Status */}
+                    {deliverablePayments.length > 0 && (
+                        <Box sx={{
+                            padding: '15px 20px',
+                            backgroundColor: '#f8f9fa',
+                            borderBottom: '1px solid #e9ecef'
+                        }}>
+                            <Typography sx={{ fontWeight: '600', marginBottom: '10px', color: '#495057' }}>
+                                Deliverable Payment Status
+                            </Typography>
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                                {deliverablePayments.map((payment, index) => (
+                                    <Box key={payment.id} sx={{
+                                        padding: '8px 12px',
+                                        backgroundColor: payment.status === 'PAID' ? '#d4edda' : '#fff3cd',
+                                        border: `1px solid ${payment.status === 'PAID' ? '#c3e6cb' : '#ffeaa7'}`,
+                                        borderRadius: '6px',
+                                        fontSize: '12px'
+                                    }}>
+                                        <Typography sx={{ fontWeight: '500', color: payment.status === 'PAID' ? '#155724' : '#856404' }}>
+                                            Deliverable {payment.deliverable_number}
+                                        </Typography>
+                                        <Typography sx={{ fontSize: '11px', color: payment.status === 'PAID' ? '#155724' : '#856404' }}>
+                                            ₹{(payment.amount / 100).toFixed(2)} - {payment.status}
+                                        </Typography>
+                                    </Box>
+                                ))}
+                            </Box>
+                        </Box>
+                    )}
+                    
                     {/* <div className='chat-container_chat_date'>
                         8 Dec 2024
                     </div> */}
 
                     <Grid sx={{padding:{sm:'20px 35px',xs:'14px'},display:'flex',flexDirection:'column',gap:'13px',overflowY:'auto',width:'100%',flex:1}} className='chat-container_chat_msg_scroll' ref={chatContainerRef}>
+                    
+                    {/* Welcome Message - Show when no messages exist and not shown before */}
+                    {messages.length === 0 && !welcomeMessageShown && (
+                        <>
+                            {/* Show current date */}
+                            <Box
+                                sx={{
+                                    display:'flex',
+                                    flexDirection:'row',
+                                    justifyContent:'center',
+                                    gap:'10px',
+                                    alignItems:'center',
+                                    width:'100%',
+                                    margin:{md:'5px 0',xs:'2px 0'}
+                                }}
+                            >
+                                <Typography sx={{color:'#454545',fontWeight:'700',fontSize:{md:'18px',sm:'15px',xs:'13px'}}}>
+                                    {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
+                                </Typography>
+                            </Box>
+                            
+                            {/* Welcome message */}
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    width: '100%',
+                                    margin: {md:'10px 0',xs:'5px 0'},
+                                    padding: '12px 20px',
+                                    backgroundColor: '#f8f9fa',
+                                    borderRadius: '8px',
+                                    border: '1px solid #e9ecef'
+                                }}
+                            >
+                                <Typography 
+                                    sx={{
+                                        color: '#495057',
+                                        fontWeight: '500',
+                                        fontSize: {md: '14px', sm: '13px', xs: '12px'},
+                                        textAlign: 'center',
+                                        lineHeight: '1.4'
+                                    }}
+                                >
+                                    💰 Hi! Welcome to the project. Please click the dollar icon in the chat input area to propose your rate for this project.
+                                </Typography>
+                            </Box>
+                        </>
+                    )}
+                    
                     {messages.map((message, index) => {
 
 if (message.status === 'DELIVERABLES_ACCEPTED') {
@@ -1053,7 +1374,7 @@ if (message.status === 'DELIVERABLE_IMAGE_ACCEPTED') {
                                 const convertedDate=handleConvertDate(message.created_at);
 
 return (
-<>{ (index===0 || handleConvertDate(messages[index-1]?.created_at)!==convertedDate) && (
+<div key={`message-${index}`}>{ (index===0 || handleConvertDate(messages[index-1]?.created_at)!==convertedDate) && (
                                         <Box key={`date-${index}`}
                                         sx={{
                                            display:'flex',
@@ -1219,14 +1540,13 @@ return (
                     </Box>
                     
                 )}
-                {/* {message.status === 'DELIVERABLES_ACCEPTED' && setCountDeliverable(prevCount => prevCount + 1)} */}
-                {(message.status === 'DELIVERABLES' || message.status === 'DELIVERABLES_ACCEPTED' || message.status==='DELIVERABLES_REJECTED') && (
+                {(message.status === 'DELIVERABLES' || message.status === 'DELIVERABLES_ACCEPTED' || message.status === 'DELIVERABLES_REJECTED') && (
                     <Box sx={{display:'flex',flexDirection:'column',gap:'8px',marginBottom:'10px'}}>
                     <Box sx={{
                             maxWidth: '100%',
                             color: message.status!=='DELIVERABLES_REJECTED'?'#ffffff':'#000000',
                             padding:'10px 15px 10px 15px',
-                            minWidth:{md:'130px'},
+                            minWidth:{md:'120px'},
                             backgroundColor:message.status!=='DELIVERABLES_REJECTED'?'#ED8335':'#EAEAEA',
                             borderRadius:'16px',
                             display:'flex',flexDirection:'column',gap:'0px'
@@ -1235,24 +1555,25 @@ return (
                                     fontWeight:'500',
                                     fontSize:{sm:'12px',xs:'10px'}
                             }}>
-                                {message.message}
+                                Deliverables
                             </Typography>
                             <Typography sx={{
                                     fontWeight:'500',
                                     fontSize:{md:'20px',sm:'16px',xs:'14px'},lineHeight:'1'
                             }}>
-                                {message.deadline}
+                                {message.message} deliverable(s)
                             </Typography>
                     </Box>
                     {
-                       message.status==='DELIVERABLES'?
-                            (<Box sx={{display: 'flex',width:'100%',flexDirection:'row',gap:'10px',justifyContent:'left'}}>
-                                <Button sx={{backgroundColor:'#B27EE3',color:'#fff',padding:'7px 20px',fontSize:'14px',borderRadius:'16px',':hover':{backgroundColor:'#B27EE3',color:'#fff'}}} onClick={()=>{handleExtend(message.id)}}>Extend</Button>
-                                <Button sx={{backgroundColor:'#fff',color:'#B27EE3',padding:'7px 20px',border:'1px solid #B27EE3',fontSize:'14px',borderRadius:'16px',':hover':{backgroundColor:'#fff',color:'#B27EE3'}}} onClick={()=>{handleAccept(message.id)}}>Accept</Button>
-                            </Box>):null
+                        message.status==='DELIVERABLES' && message.sent_by!==selectedChatInfo?.freelancer_id?
+                        (<Box sx={{display: 'flex',width:'100%',flexDirection:'row',gap:'10px',justifyContent:'center'}}>
+                            <Button sx={{backgroundColor:'#B27EE3',color:'#fff',padding:'7px 20px',fontSize:'14px',borderRadius:'16px',':hover':{backgroundColor:'#B27EE3',color:'#fff'}}} onClick={()=>handleAcceptDeliverableProposal(message.id)}>Accept</Button>
+                            <Button sx={{backgroundColor:'#fff',color:'#B27EE3',padding:'7px 20px',border:'1px solid #B27EE3',fontSize:'14px',borderRadius:'16px',':hover':{backgroundColor:'#fff',color:'#B27EE3'}}} onClick={()=>handleRejectDeliverableProposal(message.id)}>Reject</Button>
+                        </Box>):null
                     }
                     </Box>
                 )}
+                {/* {message.status === 'DELIVERABLES_ACCEPTED' && setCountDeliverable(prevCount => prevCount + 1)} */}
                 {message.status === 'NORMAL' && (
                     <Typography sx={{
                             fontWeight:'500',
@@ -1314,7 +1635,7 @@ return (
                    width:'100%',
                    margin:{md:'5px 0',sm:'2px 0',xs:'0'}
                 }}>
-                 <Typography sx={{color:'#454545',fontWeight:'700',fontSize:{md:'18px',sm:'15px',xs:'13px'}}}>Freelancer has rejected the deliverable {countDeliverable+1}</Typography>
+                 <Typography sx={{color:'#454545',fontWeight:'700',fontSize:{md:'18px',sm:'15px',xs:'13px'}}}>Deliverable proposal was rejected by freelancer</Typography>
                 </Box>
             )
         }
@@ -1330,7 +1651,7 @@ return (
                    width:'100%',
                    margin:{md:'5px 0',sm:'2px 0',xs:'0'}
                 }}>
-                 <Typography sx={{color:'#454545',fontWeight:'700',fontSize:{md:'18px',sm:'15px',xs:'13px'}}}>Freelancer has accepted the deliverable {countDeliverable}</Typography>
+                 <Typography sx={{color:'#454545',fontWeight:'700',fontSize:{md:'18px',sm:'15px',xs:'13px'}}}>Deliverable proposal accepted! {message.message} deliverable(s) confirmed.</Typography>
                 </Box>
             )
         }
@@ -1346,7 +1667,7 @@ return (
                    width:'100%',
                    margin:{md:'5px 0',sm:'2px 0',xs:'0'}
                 }}>
-                 <Typography sx={{color:'#454545',fontWeight:'700',fontSize:{md:'18px',sm:'15px',xs:'13px'}}}>Deliverable {submittedacceptDeliverables} is accepted</Typography>
+                 <Typography sx={{color:'#454545',fontWeight:'700',fontSize:{md:'18px',sm:'15px',xs:'13px'}}}>Deliverable {submittedacceptDeliverables} has been accepted</Typography>
                 </Box>
             )
         }
@@ -1367,7 +1688,7 @@ return (
             )
         }
         
-        </>
+        </div>
     ) })}
     
         {
@@ -1475,7 +1796,7 @@ return (
                             <div className='chat_Profile_send'>
                                 <div className='chat_Profile_send1'>
                                     <Box sx={{position:'relative'}} ref={container1}>
-                                        <i class="fa-solid fa-paperclip" onClick={()=>{handleClickAttach()}}></i>
+                                        <i className="fa-solid fa-paperclip" onClick={()=>{handleClickAttach()}}></i>
                                         <Box sx={{position:'absolute',display:open?'flex':'none',top:'-70px',left:'-20px',backgroundColor:'#ffffff',boxShadow:'0px 0px 4px 1px #00000040',borderRadius:'16px',padding:'10px'}} >
                                             <Button component="label" htmlFor="ImageInput" ><MdAddPhotoAlternate style={{fontSize:'20px',color:'#B27EE3'}}/></Button>
                                             <input
@@ -1518,7 +1839,18 @@ return (
                                         </Box>
                                     </Box>
                                     <Box sx={{position:'relative'}} ref={container2}>
-                                    <i class="fa-regular fa-calendar" onClick={()=>handleOpenDeliverable()}></i>
+                                    {/* Calendar icon for individual deliverable submission - only show after deliverable proposal is accepted */}
+                                    {(() => {
+                                        const hasDeliverablesAccepted = messages.some(msg => msg.status === 'DELIVERABLES_ACCEPTED');
+                                        console.log('🔍 Calendar Icon Debug (Freelancer):');
+                                        console.log('- Total messages:', messages.length);
+                                        console.log('- Messages with DELIVERABLES_ACCEPTED:', messages.filter(msg => msg.status === 'DELIVERABLES_ACCEPTED').length);
+                                        console.log('- Has deliverables accepted:', hasDeliverablesAccepted);
+                                        console.log('- All message statuses:', messages.map(msg => ({ id: msg.id, status: msg.status, message: msg.message?.substring(0, 30) })));
+                                        return hasDeliverablesAccepted;
+                                    })() && (
+                                        <i className="fa-regular fa-calendar" onClick={()=>handleOpenDeliverable()}></i>
+                                    )}
                                     <Box sx={{position:'absolute',display:deliverableInputOpen?'flex':'none',top:'-138px',left:'-20px',backgroundColor:'#ffffff',boxShadow:'0px 0px 4px 1px #00000040',borderRadius:'16px',padding:'15px',flexDirection:'column',gap:'10px'}}>
                                             <Box sx={{width:'100%',display:'flex',flexDirection:'row',justifyContent:'space-between',gap:'20px'}} >
                                                <Typography> Post a Milestone :</Typography>
@@ -1628,5 +1960,7 @@ return (
         </Box>
       </Box>
     </Box>
+
+
   )
 }

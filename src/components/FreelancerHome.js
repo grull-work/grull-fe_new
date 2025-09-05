@@ -66,10 +66,6 @@ export default function FreelancerHome() {
     const [modalPage, setModalPage] = useState(0);
     const [country, setCountry] = useState('india'); 
     const [setuppaymethod,setSetupmethod]=useState(0);
-    const previousAccounts = [
-    { id: 1, type: 'Bank Account', details: 'XXXX1234 (HDFC)' },
-    { id: 2, type: 'UPI', details: 'user@upi' },
-  ];
 
     const [upidetails,setupidetails]=useState({name:'',email:'',upiid:''})
   const [bankdetails,setbankdetails]=useState({name:'',email:'',holdername:'',ifsc:'',accno:'',confaccno:''})

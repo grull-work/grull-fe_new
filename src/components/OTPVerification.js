@@ -103,19 +103,30 @@ const OTPVerification = () => {
 
     const registerUser = async (userData) => {
         try {
-            const response = await fetch(`${BAPI}/api/v0/auth/register`, {
+            // Use the new signup-with-otp endpoint that handles both OTP verification and user creation
+            const response = await fetch(`${BAPI}/api/v0/auth/signup-with-otp`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(userData),
+                body: JSON.stringify({
+                    ...userData,
+                    otp_code: otp.join('') // Include the OTP code
+                }),
             });
 
-            if (response.status === 201) {
+            if (response.ok) {
+                const responseData = await response.json();
                 toast.success('User registered successfully!');
+                
+                // Show success message and redirect to login
+                toast.success('User registered successfully! Please login to continue.');
+                
+                // Redirect to login page
                 navigate('/login');
             } else if (response.status === 400) {
-                toast.error('User already exists');
+                const errorData = await response.json();
+                toast.error(errorData.detail || 'User already exists');
             } else {
                 console.error('Unexpected response:', response);
                 toast.error('Registration failed');

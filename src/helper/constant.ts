@@ -176,10 +176,6 @@ export const section16BasicPlan = {
       isAvailable: true,
     },
     {
-      text: "Standard Project Matching",
-      isAvailable: true,
-    },
-    {
       text: "Access Recorded Content",
       isAvailable: true,
     },

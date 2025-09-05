@@ -119,8 +119,8 @@ export default function Section16() {
             </Typography>
           </Box>
 
-          {section16BasicPlan.feat.map((feature) => (
-            <Box key={feature.text} sx={{ display: "grid", gridTemplateColumns: "2fr 10fr", mb: { xs: 1, md: 1.5 } }}>
+          {section16BasicPlan.feat.map((feature, index) => (
+            <Box key={`basic-${index}-${feature.text}`} sx={{ display: "grid", gridTemplateColumns: "2fr 10fr", mb: { xs: 1, md: 1.5 } }}>
               <Box sx={{ display: "grid", placeContent: "center" }}>
                 <img
                   src={feature.isAvailable ? section6GreenTicks : crossIcon}
@@ -193,8 +193,8 @@ export default function Section16() {
             </Typography>
           </Box>
 
-          {section16PremiumPlan.feat.map((feature) => (
-            <Box key={feature.text} sx={{ display: "grid", gridTemplateColumns: "2fr 10fr", mb: { xs: 1, md: 1.5 } }}>
+          {section16PremiumPlan.feat.map((feature, index) => (
+            <Box key={`premium-${index}-${feature.text}`} sx={{ display: "grid", gridTemplateColumns: "2fr 10fr", mb: { xs: 1, md: 1.5 } }}>
               <Box sx={{ display: "grid", placeContent: "center" }}>
                 <img
                   src={feature.isAvailable ? section6GreenTicks : crossIcon}

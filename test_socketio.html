@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.IO Test</title>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Socket.IO Connection Test</h1>
+    <div id="status">Connecting...</div>
+    <div id="messages"></div>
+    
+    <button onclick="joinChat()">Join Chat Test</button>
+    <button onclick="sendMessage()">Send Test Message</button>
+
+    <script>
+        // Connect to Socket.IO server
+        const socket = io('http://localhost:8000', {
+            transports: ['websocket', 'polling']
+        });
+
+        const statusDiv = document.getElementById('status');
+        const messagesDiv = document.getElementById('messages');
+
+        // Connection events
+        socket.on('connect', () => {
+            console.log('Connected to Socket.IO server');
+            statusDiv.innerHTML = 'Connected! Socket ID: ' + socket.id;
+            statusDiv.style.color = 'green';
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from Socket.IO server');
+            statusDiv.innerHTML = 'Disconnected';
+            statusDiv.style.color = 'red';
+        });
+
+        socket.on('connected', (data) => {
+            console.log('Server confirmed connection:', data);
+            addMessage('Server confirmed connection: ' + JSON.stringify(data));
+        });
+
+        socket.on('joined_chat', (data) => {
+            console.log('Joined chat:', data);
+            addMessage('Joined chat: ' + JSON.stringify(data));
+        });
+
+        socket.on('new_message', (data) => {
+            console.log('New message received:', data);
+            addMessage('New message: ' + JSON.stringify(data));
+        });
+
+        socket.on('message_update', (data) => {
+            console.log('Message update received:', data);
+            addMessage('Message update: ' + JSON.stringify(data));
+        });
+
+        function addMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = new Date().toLocaleTimeString() + ': ' + text;
+            messagesDiv.appendChild(messageDiv);
+        }
+
+        function joinChat() {
+            socket.emit('join_chat', {
+                chat_id: 'test-chat-123',
+                user_id: 'test-user-456'
+            });
+            addMessage('Attempting to join chat...');
+        }
+
+        function sendMessage() {
+            socket.emit('send_message', {
+                chat_id: 'test-chat-123',
+                message_data: {
+                    message: 'Hello from test client!',
+                    sent_by: 'test-user-456',
+                    status: 'SENT'
+                }
+            });
+            addMessage('Sending test message...');
+        }
+    </script>
+</body>
+</html>

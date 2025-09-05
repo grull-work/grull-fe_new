@@ -91,6 +91,7 @@ const JobApplications = () => {
 const handleAccept = async (applicationId) => {
   console.log(applicationId);
   try {
+    // First, accept the application
     const response = await axios.post(`${BAPI}/api/v0/applications/${applicationId}/accept`, {}, {
       headers: {
         'Content-Type': 'application/json',
@@ -98,22 +99,63 @@ const handleAccept = async (applicationId) => {
       }
     });
     console.log(response);
-    await rejectAllRemainingFreelancers(applicationId);
-    navigate("/clientchat");
+    
+    // If acceptance is successful, then reject remaining freelancers
+    if (response.status === 200) {
+      try {
+        await rejectAllRemainingFreelancers(applicationId);
+      } catch (rejectError) {
+        console.error('Error rejecting remaining freelancers:', rejectError);
+        // Don't fail the entire operation if rejection fails
+      }
+      navigate("/clientchat");
+    }
   } catch (error) {
     console.error('Error occurred while accepting:', error);
+    // Show user-friendly error message
+    if (error.response) {
+      console.error('Error response:', error.response.data);
+      console.error('Error status:', error.response.status);
+    } else if (error.request) {
+      console.error('Network error - no response received');
+    } else {
+      console.error('Error message:', error.message);
+    }
   }
 };
 
 const rejectAllRemainingFreelancers = async (acceptedFreelancerId) => {
-  try {
-    for (const freelancer of allFreelancers) {
-      if (freelancer.id !== acceptedFreelancerId && freelancer.status!=='REJECTED') {
-        await handleReject(freelancer.id);
-      }
+  const rejectionPromises = [];
+  
+  for (const freelancer of allFreelancers) {
+    if (freelancer.id !== acceptedFreelancerId && freelancer.status !== 'REJECTED') {
+      // Create a promise for each rejection but don't await immediately
+      const rejectionPromise = axios.post(`${BAPI}/api/v0/applications/${freelancer.id}/reject`, {}, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        }
+      }).catch(error => {
+        console.error(`Error rejecting freelancer ${freelancer.id}:`, error);
+        // Return null for failed rejections so we can continue
+        return null;
+      });
+      
+      rejectionPromises.push(rejectionPromise);
     }
+  }
+  
+  // Wait for all rejections to complete (successful or failed)
+  try {
+    await Promise.allSettled(rejectionPromises);
+    // Update the UI to remove rejected freelancers
+    setAllFreelancers(prevFreelancers => 
+      prevFreelancers.filter(freelancer => 
+        freelancer.id === acceptedFreelancerId || freelancer.status === 'REJECTED'
+      )
+    );
   } catch (error) {
-    console.error('Error occurred while rejecting all remaining freelancers:', error);
+    console.error('Error in batch rejection:', error);
   }
 }
 
