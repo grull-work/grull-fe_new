@@ -86,6 +86,9 @@ export default function Clientchat() {
   const [deliverables, setDeliverables] = useState(null);
   const [setupDeliverablesOpen, setSetupDeliverablesOpen] = useState(false);
   const [numberOfDeliverables, setNumberOfDeliverables] = useState(1);
+  
+  // Remaining deliverables state
+  const [remainingDeliverables, setRemainingDeliverables] = useState(0);
 
 
   const handleApiCheck=async()=>{
@@ -189,147 +192,7 @@ useEffect(() => {
     }
   };
 
-  const handleAcceptDeliverableProposal = async(messageId) => {
-    // console.log('✅ Accepting deliverable proposal (Client):', messageId);
-    
-    try {
-      // Find the message to get deliverable count
-      const message = messages.find(msg => msg.id === messageId);
-      if (!message) {
-        toast.error('Message not found');
-        return;
-      }
 
-      // Check if message is already accepted to prevent duplicate calls
-      if (message.status === 'DELIVERABLES_ACCEPTED') {
-        // console.log('⚠️ Message already accepted, skipping duplicate call (Client)');
-        return;
-      }
-
-      // Extract deliverable count from message content
-      const acceptedDeliverables = parseInt(message.message);
-      if (isNaN(acceptedDeliverables)) {
-        toast.error('Invalid deliverable count format');
-        return;
-      }
-
-      // Get job ID and freelancer ID from selected chat info
-      const jobId = selectedChatInfo?.job_id;
-      const freelancerId = selectedChatInfo?.freelancer_id;
-      
-      if (!jobId || !freelancerId) {
-        toast.error('Missing job or freelancer information');
-        return;
-      }
-
-      // First update message status
-      await axios.post(`${BAPI}/api/v0/chats/update-message-status`,{
-        "message_id": messageId,
-        "status":"DELIVERABLES_ACCEPTED"
-      },{
-        headers:{
-          Authorization:`Bearer ${accessToken}`,
-        }
-      });
-
-      // Call backend API to update job with accepted deliverables
-      await axios.post(`${BAPI}/api/v0/jobs/accept-deliverable-proposal`, {
-        job_id: jobId,
-        accepted_deliverables: acceptedDeliverables,
-        freelancer_id: freelancerId
-      }, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        }
-      });
-
-      // Update local messages state
-      setMessages(prevMessages => 
-        prevMessages.map(msg => 
-          msg.id === messageId ? {
-            ...msg,
-                            status: 'DELIVERABLES_ACCEPTED'
-          } : msg
-        )
-      );
-
-      // Update deliverables state
-      setDeliverables({
-        count: acceptedDeliverables
-      });
-
-      toast.success('Deliverable proposal accepted!');
-      
-      // Send notification
-      try {
-        await createnotification("Deliverable Proposal Accepted", `${freelancername} has accepted the deliverable proposal for ${job_title} job.`)
-      } catch (notificationError) {
-        // console.log('Notification error:', notificationError);
-      }
-      
-      // Send WebSocket message
-      try {
-        sendMessageSocket();
-      } catch (websocketError) {
-        // console.log('WebSocket error:', websocketError);
-      }
-    } catch (error) {
-      // console.log('Error accepting deliverable proposal:', error);
-      toast.error('Failed to accept deliverable proposal. Please try again.');
-    }
-  };
-
-  const handleRejectDeliverableProposal = async(messageId) => {
-    // console.log('🚫 Rejecting deliverable proposal (Client):', messageId);
-    
-    // Check if message is already rejected to prevent duplicate calls
-    const message = messages.find(msg => msg.id === messageId);
-    if (message && message.status === 'DELIVERABLES_REJECTED') {
-      // console.log('⚠️ Message already rejected, skipping duplicate call (Client)');
-      return;
-    }
-    
-    try {
-      // Update message status (same pattern as price rejection)
-      await axios.post(`${BAPI}/api/v0/chats/update-message-status`,{
-        "message_id": messageId,
-        "status":"DELIVERABLES_REJECTED"
-      },{
-        headers:{
-          Authorization:`Bearer ${accessToken}`,
-        }
-      });
-
-      // Update local messages state
-      setMessages(prevMessages => 
-        prevMessages.map(msg => 
-          msg.id === messageId ? {
-            ...msg,
-                            status: 'DELIVERABLES_REJECTED'
-          } : msg
-        )
-      );
-
-      toast.success('Deliverable proposal rejected.');
-      
-      // Send notification
-      try {
-        await createnotification("Deliverable Proposal Rejected", `${freelancername} has rejected the deliverable proposal for ${job_title} job.`)
-      } catch (notificationError) {
-        // console.log('Notification error:', notificationError);
-      }
-      
-      // Send WebSocket message
-      try {
-        sendMessageSocket();
-      } catch (websocketError) {
-        // console.log('WebSocket error:', websocketError);
-      }
-    } catch (error) {
-      // console.log('Error rejecting deliverable proposal:', error);
-      toast.error('Failed to reject deliverable proposal. Please try again.');
-    }
-  };
 
   useEffect(()=>{
       const user=localStorage.getItem('user');
@@ -471,41 +334,6 @@ const sendMessageSocket = () => {
     }
 };
 
-const handleCancel=async(messageId)=>{
-    try{
-        const negres = await axios.post(`${BAPI}/api/v0/chats/update-message-status`,{
-            "message_id":messageId,
-            "status":"NORMAL"
-        },{
-            headers:{
-                Authorization:`Bearer ${accessToken}`,
-            }
-        })
-        
-        // Update the message status in local state immediately for instant feedback
-        setMessages(prevMessages => 
-          prevMessages.map(msg => 
-            msg.id === messageId ? {
-              ...msg,
-              status: 'NORMAL'
-            } : msg
-          )
-        );
-        
-            }
-        catch(err){
-            toast.error('Failed to cancel deliverable. Please try again.');
-        }
-        
-        // Send WebSocket message (don't let WebSocket failure affect the main flow)
-        try {
-            sendMessageSocket();
-        } catch (websocketError) {
-        }
-        
-        // WebSocket will handle real-time updates, no need to fetch manually
-  }
-   
   useEffect(()=>{
     const getChats=async()=>{
         try{
@@ -720,14 +548,6 @@ if(document.getElementsByClassName('ant-picker-clear') && document.getElementsBy
     sendMessageSocket();
   };
 
-  const handleEditDeliverable=async(message)=>{
-    setEditMode(true);
-    setDeliverableValue(message.message);
-    setDeliverableInputOpen(true);
-    setSelectedDate(message.deadline);
-    setDateval(dayjs(message.deadline, 'DD-MM-YYYY'));
-    setEditmessageId(message.id);
-  }
 
   const createnotification=async(title, content)=>{
     const notification={
@@ -836,11 +656,6 @@ if(document.getElementsByClassName('ant-picker-clear') && document.getElementsBy
       throw error;
     }
   };
-
-
-
-
-
 
     const handleNegotiate=async(messaegId)=>{
         try{
@@ -1446,6 +1261,34 @@ if(document.getElementsByClassName('ant-picker-clear') && document.getElementsBy
 useEffect(() => {
     handleFilter();
 }, [search, freelancers]);
+
+// Fetch remaining deliverables once when component mounts
+useEffect(() => {
+    const fetchRemainingDeliverables = async () => {
+        console.log("reach");
+        try {
+            // Only fetch if we have a selected chat with job_id
+            if (selectedChatInfo?.job_id) {
+                const response = await axios.get(`${BAPI}/api/v0/jobs/${selectedChatInfo.job_id}/remaining-deliverables`, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    }
+                });
+                
+                // Extract remaining_deliverables from response
+                const remaining = response.data.remaining_deliverables;
+                setRemainingDeliverables(remaining);
+                console.log('📊 Fetched remaining deliverables:', remaining);
+            }
+        } catch (error) {
+            toast.error("Network Error");
+            console.log(error)
+            setRemainingDeliverables(0);
+        }
+    };
+
+    fetchRemainingDeliverables();
+}, [selectedChatInfo]); 
 
 
   return (
