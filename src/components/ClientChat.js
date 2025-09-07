@@ -36,12 +36,6 @@ export default function Clientchat() {
 
   // Debug wrapper for setMessages
   const debugSetMessages = (newMessages) => {
-    console.log('🔄 setMessages called (Client):');
-    console.log('- Previous count:', messages.length);
-    console.log('- New messages:', Array.isArray(newMessages) ? newMessages.length : 'Function');
-    if (Array.isArray(newMessages)) {
-      console.log('- New message details:', newMessages.map(msg => ({ id: msg.id, status: msg.status, message: msg.message?.substring(0, 30) })));
-    }
     setMessages(newMessages);
   };
   const chatContainerRef = useRef(null);
@@ -103,7 +97,7 @@ export default function Clientchat() {
             }
         }
       );
-      console.log(response.data);
+      // console.log(response.data);
     }
     catch(err){
   }}
@@ -124,7 +118,7 @@ export default function Clientchat() {
 useEffect(()=>{
     try{
         const data = handleApiCheck();
-        console.log(data);
+        // console.log(data);
     }
     catch(err){
         console.error('Error occurred:', err);
@@ -190,13 +184,13 @@ useEffect(() => {
       toast.success(`Deliverable proposal sent! ${numberOfDeliverables} deliverable(s) proposed to freelancer.`);
       handleSetupDeliverablesClose();
     } catch (error) {
-      console.log('Error sending deliverable proposal:', error);
+      // console.log('Error sending deliverable proposal:', error);
       toast.error('Failed to send deliverable proposal. Please try again.');
     }
   };
 
   const handleAcceptDeliverableProposal = async(messageId) => {
-    console.log('✅ Accepting deliverable proposal (Client):', messageId);
+    // console.log('✅ Accepting deliverable proposal (Client):', messageId);
     
     try {
       // Find the message to get deliverable count
@@ -208,7 +202,7 @@ useEffect(() => {
 
       // Check if message is already accepted to prevent duplicate calls
       if (message.status === 'DELIVERABLES_ACCEPTED') {
-        console.log('⚠️ Message already accepted, skipping duplicate call (Client)');
+        // console.log('⚠️ Message already accepted, skipping duplicate call (Client)');
         return;
       }
 
@@ -270,28 +264,28 @@ useEffect(() => {
       try {
         await createnotification("Deliverable Proposal Accepted", `${freelancername} has accepted the deliverable proposal for ${job_title} job.`)
       } catch (notificationError) {
-        console.log('Notification error:', notificationError);
+        // console.log('Notification error:', notificationError);
       }
       
       // Send WebSocket message
       try {
         sendMessageSocket();
       } catch (websocketError) {
-        console.log('WebSocket error:', websocketError);
+        // console.log('WebSocket error:', websocketError);
       }
     } catch (error) {
-      console.log('Error accepting deliverable proposal:', error);
+      // console.log('Error accepting deliverable proposal:', error);
       toast.error('Failed to accept deliverable proposal. Please try again.');
     }
   };
 
   const handleRejectDeliverableProposal = async(messageId) => {
-    console.log('🚫 Rejecting deliverable proposal (Client):', messageId);
+    // console.log('🚫 Rejecting deliverable proposal (Client):', messageId);
     
     // Check if message is already rejected to prevent duplicate calls
     const message = messages.find(msg => msg.id === messageId);
     if (message && message.status === 'DELIVERABLES_REJECTED') {
-      console.log('⚠️ Message already rejected, skipping duplicate call (Client)');
+      // console.log('⚠️ Message already rejected, skipping duplicate call (Client)');
       return;
     }
     
@@ -322,17 +316,17 @@ useEffect(() => {
       try {
         await createnotification("Deliverable Proposal Rejected", `${freelancername} has rejected the deliverable proposal for ${job_title} job.`)
       } catch (notificationError) {
-        console.log('Notification error:', notificationError);
+        // console.log('Notification error:', notificationError);
       }
       
       // Send WebSocket message
       try {
         sendMessageSocket();
       } catch (websocketError) {
-        console.log('WebSocket error:', websocketError);
+        // console.log('WebSocket error:', websocketError);
       }
     } catch (error) {
-      console.log('Error rejecting deliverable proposal:', error);
+      // console.log('Error rejecting deliverable proposal:', error);
       toast.error('Failed to reject deliverable proposal. Please try again.');
     }
   };
@@ -387,15 +381,15 @@ useEffect(() => {
     });
 
     socket.on('new_message', (data) => {        
-        console.log('📨 Socket new_message received (Client):', data);
+        // console.log('📨 Socket new_message received (Client):', data);
         // Handle new message for current chat
         if (data.chat_id === selectedChat) {            
-            console.log('✅ Message is for current chat (Client)');
+            // console.log('✅ Message is for current chat (Client)');
             // Add new message directly to messages array
             if (data.data && data.data.message) {
-                console.log('📝 Adding message via socket (Client):', data.data.message.substring(0, 50) + '...');
+                // console.log('📝 Adding message via socket (Client):', data.data.message.substring(0, 50) + '...');
                 setMessages(prevMessages => {
-                    console.log('📊 Current messages count before adding (Client):', prevMessages.length);
+                    // console.log('📊 Current messages count before adding (Client):', prevMessages.length);
                     // Check if message already exists to avoid duplicates (by ID, content, and timestamp)
                     const messageExists = prevMessages.some(msg => 
                         msg.id === data.data.id || 
@@ -404,22 +398,22 @@ useEffect(() => {
                          Math.abs(new Date(msg.created_at) - new Date(data.data.created_at)) < 1000) // Within 1 second
                     );
                     if (messageExists) {
-                        console.log("⚠️ Duplicate message detected, skipping (Client)");
+                        // console.log("⚠️ Duplicate message detected, skipping (Client)");
                         return prevMessages;
                     }
                     // Limit message history to prevent memory issues (keep last 100 messages)
                     const limitedMessages = prevMessages.slice(-99);
                     const newMessages = [...limitedMessages, data.data];
-                    console.log('✅ Message added via socket (Client). New count:', newMessages.length);
-                    console.log('📝 New message details:', data.data);
+                    // console.log('✅ Message added via socket (Client). New count:', newMessages.length);
+                    // console.log('📝 New message details:', data.data);
                     return newMessages;
                 });
             } else {
-                console.log('⚠️ No message content, triggering refresh (Client)');
+                // console.log('⚠️ No message content, triggering refresh (Client)');
                 setReceivedMessage(prev => prev + 1);
             }
         } else {
-            console.log('❌ Message not for current chat (Client). Chat ID:', data.chat_id, 'Current:', selectedChat);
+            // console.log('❌ Message not for current chat (Client). Chat ID:', data.chat_id, 'Current:', selectedChat);
         }
     });
 
@@ -600,52 +594,130 @@ if(document.getElementsByClassName('ant-picker-clear') && document.getElementsBy
   };
 
   const handleSendDeliverable = async() => {
+    // // console.log('🚀 Starting handleSendDeliverable');
+    // // console.log('📊 Current state:', {
+    //   priceAcceptId,
+    //   deliverableValue,
+    //   selectedDate,
+    //   selectedChatInfo: selectedChatInfo?.id,
+    //   job_id: selectedChatInfo?.job_id
+    // });
+
     if(!priceAcceptId){
+        // console.log('❌ No price accepted yet');
         toast.error('Price should be fixed first');
         handleCloseDeliverableInput();
         return;
     }
+    
     if (deliverableValue.trim() !== '' && selectedDate) {
-      const newDeliverableMessage = {message: deliverableValue, sent_by: selectedChatInfo.manager_id, chat_id:selectedChatInfo.id ,status:'DELIVERABLES',deadline:selectedDate};
-      
-      // Store values for immediate display
-      const deliverableToSend = deliverableValue;
-      const dateToSend = selectedDate;
-      
-      try{
-        const response=await axios.post(`${BAPI}/api/v0/chats/send-message`,newDeliverableMessage,{
-           headers:{
-               Authorization:`Bearer ${accessToken}`,
-           }
-        })
+      try {
+        // console.log('🚀 Sending deliverable:', deliverableValue);
         
-        // Add the sent deliverable to local state immediately for instant feedback
-        const sentDeliverable = {
-          ...response.data, // Use the response data which includes the message ID and timestamp
-          message: deliverableToSend,
-          sent_by: selectedChatInfo.manager_id,
-          status: 'DELIVERABLES',
-          deadline: dateToSend
-        };
+        // Get current deliverable count from database
+        let currentDeliverables = [];
+        let activeDeliverables = [];
+        let rejectedDeliverables = [];
         
-        setMessages(prevMessages => {
-          const limitedMessages = prevMessages.slice(-99); // Keep last 99 messages
-          return [...limitedMessages, sentDeliverable];
+        try {
+          const deliverablesResponse = await axios.get(`${BAPI}/api/v0/chats/job-deliverables-status/${selectedChatInfo.job_id}`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`
+            }
+          });
+          
+          currentDeliverables = deliverablesResponse.data.deliverables || [];
+          activeDeliverables = currentDeliverables.filter(d => d.status !== 'REJECTED');
+          rejectedDeliverables = currentDeliverables.filter(d => d.status === 'REJECTED');
+        } catch (error) {
+          // If job doesn't exist or no deliverables yet, start with empty arrays
+          console.warn('No deliverables found for this job yet:', error.response?.data);
+        }
+        
+        // Update local state with database data
+        setDeliverables({
+          count: activeDeliverables.length,
+          total: currentDeliverables.length,
+          active: activeDeliverables,
+          rejected: rejectedDeliverables
         });
         
+        // Get agreed deliverables from job data
+        let agreedDeliverables = deliverables?.count || 0;
+        if (agreedDeliverables === 0 && selectedChatInfo?.job_id) {
+          try {
+            const jobResponse = await axios.get(`${BAPI}/api/v0/jobs/${selectedChatInfo.job_id}`, {
+              headers: {
+                Authorization: `Bearer ${accessToken}`
+              }
+            });
+            agreedDeliverables = jobResponse.data.total_deliverables || 0;
+          } catch (jobErr) {
+            // console.log('❌ Error fetching job data:', jobErr);
+            agreedDeliverables = 0;
+          }
+        }
+        
+        // console.log('📊 Deliverable Status:', {
+        //   active: activeDeliverables.length,
+        //   agreed: agreedDeliverables,
+        //   rejected: rejectedDeliverables.length
+        // });
+        
+        // Check if we can add more deliverables
+        if (activeDeliverables.length >= agreedDeliverables) {
+          if (rejectedDeliverables.length > 0) {
+            // console.log('🔄 Found rejected deliverables - showing resubmit options');
+            const shouldResubmit = await showDeliverableResubmitDialog(rejectedDeliverables);
+            if (shouldResubmit) {
+              // console.log('✅ Resubmitting deliverable');
+              await resubmitDeliverable(shouldResubmit.deliverable_id, deliverableValue, selectedDate);
+              return;
+            }
+          } else {
+            // console.log('❌ Limit reached - cannot add more deliverables');
+            toast.error(`Cannot add more deliverables. Only ${agreedDeliverables} deliverables were agreed upon.`);
+            return;
+          }
+        }
+        
+        // Create new deliverable
+        const newDeliverableMessage = {
+          message: deliverableValue, 
+          sent_by: selectedChatInfo.manager_id, 
+          chat_id: selectedChatInfo.id,
+          status: 'DELIVERABLES',
+          deadline: selectedDate
+        };
+        
+        const response = await axios.post(`${BAPI}/api/v0/chats/send-message`, newDeliverableMessage, {
+           headers: {
+               Authorization: `Bearer ${accessToken}`,
+           }
+        });
+        
+        // console.log('✅ Deliverable sent successfully');
+        
+        // Update local state immediately for better UX
+        setDeliverables(prev => ({
+          ...prev,
+          count: (prev?.count || 0) + 1,
+          total: (prev?.total || 0) + 1
+        }));
+        
         await createnotification("Deliverable added", `${clientname} has added a new deliverable for ${job_title} job.`)
-        }
-        catch(err){
-            toast.error('Failed to send deliverable. Please try again.');
-            return; // Don't close input or proceed if there's an error
-        }
+        
+      } catch(err){
+          console.error('❌ Error sending deliverable:', err.response?.data || err.message);
+          toast.error('Failed to send deliverable. Please try again.');
+          return;
+      }
       handleCloseDeliverableInput();
     } else {
       toast.error('Please enter a valid deliverable and select a date');
     }
-    sendMessageSocket();
     
-    // WebSocket will handle real-time updates, no need to fetch manually
+    sendMessageSocket();
   };
 
   const handleEditDeliverable=async(message)=>{
@@ -657,7 +729,7 @@ if(document.getElementsByClassName('ant-picker-clear') && document.getElementsBy
     setEditmessageId(message.id);
   }
 
-const createnotification=async(title, content)=>{
+  const createnotification=async(title, content)=>{
     const notification={
         "title": title,
         "content": content,
@@ -675,6 +747,95 @@ const createnotification=async(title, content)=>{
          return null;
      }
   }
+
+  // Enhanced deliverable management functions
+  const showDeliverableResubmitDialog = async (rejectedDeliverables) => {
+    return new Promise((resolve) => {
+      const dialog = document.createElement('div');
+      dialog.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+          <div style="background: white; padding: 20px; border-radius: 8px; max-width: 500px; width: 90%;">
+            <h3>Resubmit Rejected Deliverable</h3>
+            <p>You have ${rejectedDeliverables.length} rejected deliverable(s) that can be resubmitted:</p>
+            <ul style="list-style: none; padding: 0;">
+              ${rejectedDeliverables.map(d => `
+                <li style="margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                  <strong>Deliverable ${d.deliverable_number}:</strong> ${d.title}
+                  <br><small style="color: #666;">Rejected: ${d.rejection_reason}</small>
+                  <br><button onclick="selectDeliverable('${d.id}')" style="margin-top: 5px; padding: 5px 10px; background: #B27EE3; color: white; border: none; border-radius: 3px; cursor: pointer;">Resubmit This One</button>
+                </li>
+              `).join('')}
+            </ul>
+            <div style="margin-top: 20px; text-align: center;">
+              <button onclick="createNewDeliverable()" style="margin-right: 10px; padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 3px; cursor: pointer;">Create New Deliverable Instead</button>
+              <button onclick="cancelDialog()" style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 3px; cursor: pointer;">Cancel</button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(dialog);
+      
+      window.selectDeliverable = (deliverableId) => {
+        document.body.removeChild(dialog);
+        resolve({ deliverable_id: deliverableId });
+      };
+      
+      window.createNewDeliverable = () => {
+        document.body.removeChild(dialog);
+        resolve(null); // Will create new deliverable
+      };
+      
+      window.cancelDialog = () => {
+        document.body.removeChild(dialog);
+        resolve(false);
+      };
+    });
+  };
+
+  const resubmitDeliverable = async (deliverableId, title, description, deadline) => {
+    try {
+      const response = await axios.post(`${BAPI}/api/v0/chats/resubmit-deliverable`, {
+        deliverable_id: deliverableId,
+        title: title,
+        description: description,
+        deadline: deadline
+      }, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
+      });
+      
+      toast.success('Deliverable resubmitted successfully!');
+      
+      // Add resubmitted message to chat
+      const resubmittedMessage = {
+        id: response.data.deliverable_id,
+        message: `Resubmitted: ${title}`,
+        sent_by: selectedChatInfo.manager_id,
+        status: 'DELIVERABLES',
+        deadline: deadline,
+        created_at: new Date().toISOString()
+      };
+      
+      setMessages(prevMessages => {
+        const limitedMessages = prevMessages.slice(-99);
+        return [...limitedMessages, resubmittedMessage];
+      });
+      
+      await createnotification("Deliverable Resubmitted", `${clientname} has resubmitted a deliverable for ${job_title} job.`);
+      
+      handleCloseDeliverableInput();
+      sendMessageSocket();
+      
+      return response.data;
+      
+    } catch (error) {
+      console.error('Error resubmitting deliverable:', error);
+      toast.error('Failed to resubmit deliverable. Please try again.');
+      throw error;
+    }
+  };
 
 
 
@@ -736,9 +897,9 @@ const createnotification=async(title, content)=>{
             const jobId = selectedChatInfo?.job_id;
             const freelancerId = selectedChatInfo?.freelancer_id;
             
-            console.log('selectedChatInfo:', selectedChatInfo);
-            console.log('jobId:', jobId);
-            console.log('freelancerId:', freelancerId);
+            // console.log('selectedChatInfo:', selectedChatInfo);
+            // console.log('jobId:', jobId);
+            // console.log('freelancerId:', freelancerId);
             
             if (!jobId || !freelancerId) {
                 toast.error('Missing job or freelancer information');
@@ -755,12 +916,7 @@ const createnotification=async(title, content)=>{
                 }
             });
 
-            // Call backend API to update job with accepted price
-            console.log('Sending accept-price request with payload:', {
-                job_id: jobId,
-                accepted_price: acceptedPrice,
-                freelancer_id: freelancerId
-            });
+            
             
             const response = await axios.post(`${BAPI}/api/v0/jobs/accept-price`, {
                 job_id: jobId,
@@ -772,7 +928,7 @@ const createnotification=async(title, content)=>{
                 }
             });
 
-            console.log('Accept-price response:', response.data);
+            // console.log('Accept-price response:', response.data);
             
             if (response.data.status === 'success') {
                 // Store the accepted price in state
@@ -794,21 +950,21 @@ const createnotification=async(title, content)=>{
                 try {
                     await createnotification("Price Accepted", `${clientname} has accepted the price negotiation of ${job_title} job.`)
                 } catch (notificationError) {
-                    console.log('Notification error:', notificationError);
+                    // console.log('Notification error:', notificationError);
                 }
                 
                 // Send WebSocket message
                 try {
                     sendMessageSocket();
                 } catch (websocketError) {
-                    console.log('WebSocket error:', websocketError);
+                    // console.log('WebSocket error:', websocketError);
                 }
             }
         }
         catch(err){
-            console.log('Error accepting price:', err);
-            console.log('Error details:', err.response?.data);
-            console.log('Error status:', err.response?.status);
+            // console.log('Error accepting price:', err);
+            // console.log('Error details:', err.response?.data);
+            // console.log('Error status:', err.response?.status);
             toast.error('Failed to accept price. Please try again.');
         }
     }
@@ -1188,7 +1344,7 @@ const createnotification=async(title, content)=>{
   const fetchMessages = async () => {
     if (!selectedChat) return; // Don't fetch if no chat is selected
     
-    console.log('🔄 Fetching messages from API (Client)');
+    // console.log('🔄 Fetching messages from API (Client)');
     try {
       const response = await axios.get(`${BAPI}/api/v0/chats/get-chat-message-by_id/${selectedChat}`, {
         headers: {
@@ -1198,11 +1354,11 @@ const createnotification=async(title, content)=>{
       
       // Limit message history to prevent memory issues
       const limitedMessages = response.data.slice(-100);
-      console.log('📥 API Response (Client):', limitedMessages.length, 'messages');
-      console.log('📥 API Messages (Client):', limitedMessages.map(msg => ({ id: msg.id, status: msg.status, message: msg.message?.substring(0, 30) })));
+      // console.log('📥 API Response (Client):', limitedMessages.length, 'messages');
+      // console.log('📥 API Messages (Client):', limitedMessages.map(msg => ({ id: msg.id, status: msg.status, message: msg.message?.substring(0, 30) })));
       debugSetMessages(limitedMessages);
     } catch (err) {
-      console.log('❌ Error fetching messages (Client):', err);
+      // console.log('❌ Error fetching messages (Client):', err);
     }
   };
 
@@ -1562,14 +1718,14 @@ useEffect(() => {
                                             </Box>
                                             
                                         )}
-                                        {(message.status === 'DELIVERABLES' || message.status === 'DELIVERABLES_ACCEPTED' || message.status === 'DELIVERABLES_REJECTED') && (
+                                        {(message.status === 'DELIVERABLES' || message.status === 'DELIVERABLES_ACCEPTED') && (
                                             <Box sx={{display:'flex',flexDirection:'column',gap:'8px',marginBottom:'10px'}}>
                                             <Box sx={{
                                                     maxWidth: '100%',
-                                                    color: message.status!=='DELIVERABLES_REJECTED'?'#ffffff':'#000000',
+                                                    color: '#ffffff',
                                                     padding:'10px 15px 10px 15px',
                                                     minWidth:{md:'120px'},
-                                                    backgroundColor:message.status!=='DELIVERABLES_REJECTED'?'#ED8335':'#EAEAEA',
+                                                    backgroundColor: '#ED8335',
                                                     borderRadius:'16px',
                                                     display:'flex',flexDirection:'column',gap:'0px'
                                                 }}>
@@ -1666,14 +1822,19 @@ useEffect(() => {
                                         <Box 
                                         sx={{
                                            display:'flex',
-                                           flexDirection:'row',
+                                           flexDirection:'column',
                                            justifyContent:'center',
                                            gap:'10px',
                                            alignItems:'center',
                                            width:'100%',
                                            margin:{md:'5px 0',sm:'2px 0',xs:'0'}
                                         }}>
-                                         <Typography sx={{color:'#454545',fontWeight:'700',fontSize:{md:'18px',sm:'15px',xs:'13px'}}}>Deliverable proposal was rejected by freelancer</Typography>
+                                         <Typography sx={{color:'#454545',fontWeight:'700',fontSize:{md:'18px',sm:'15px',xs:'13px'}}}>
+                                           {message.rejection_reason 
+                                             ? `Deliverable proposal rejected: ${message.rejection_reason}`
+                                             : 'Deliverable proposal was rejected by freelancer'
+                                           }
+                                         </Typography>
                                         </Box>
                                     )
                                 }
@@ -1729,22 +1890,6 @@ useEffect(() => {
                                         margin:{md:'5px 0',sm:'2px 0',xs:'0'}
                                         }}>
                                         <Typography sx={{color:'#454545',fontWeight:'700',fontSize:{md:'18px',sm:'15px',xs:'13px'}}}>Price was negotiated by the client</Typography>
-                                        </Box>
-                                    )
-                                }
-                                {
-                                    message.status==="DELIVERABLES_REJECTED" && (
-                                        <Box 
-                                        sx={{
-                                           display:'flex',
-                                           flexDirection:'row',
-                                           justifyContent:'center',
-                                           gap:'10px',
-                                           alignItems:'center',
-                                           width:'100%',
-                                           margin:{md:'5px 0',sm:'2px 0',xs:'0'}
-                                        }}>
-                                         <Typography sx={{color:'#454545',fontWeight:'700',fontSize:{md:'18px',sm:'15px',xs:'13px'}}}>Deliverable proposal was rejected by freelancer</Typography>
                                         </Box>
                                     )
                                 }
@@ -1921,11 +2066,11 @@ useEffect(() => {
                                     {/* Calendar icon for individual deliverable submission - only show after deliverable proposal is accepted */}
                                     {(() => {
                                         const hasDeliverablesAccepted = messages.some(msg => msg.status === 'DELIVERABLES_ACCEPTED');
-                                        console.log('🔍 Calendar Icon Debug (Client):');
-                                        console.log('- Total messages:', messages.length);
-                                        console.log('- Messages with DELIVERABLES_ACCEPTED:', messages.filter(msg => msg.status === 'DELIVERABLES_ACCEPTED').length);
-                                        console.log('- Has deliverables accepted:', hasDeliverablesAccepted);
-                                        console.log('- All message statuses:', messages.map(msg => ({ id: msg.id, status: msg.status, message: msg.message?.substring(0, 30) })));
+                                        // console.log('🔍 Calendar Icon Debug (Client):');
+                                        // console.log('- Total messages:', messages.length);
+                                        // console.log('- Messages with DELIVERABLES_ACCEPTED:', messages.filter(msg => msg.status === 'DELIVERABLES_ACCEPTED').length);
+                                        // console.log('- Has deliverables accepted:', hasDeliverablesAccepted);
+                                        // console.log('- All message statuses:', messages.map(msg => ({ id: msg.id, status: msg.status, message: msg.message?.substring(0, 30) })));
                                         return hasDeliverablesAccepted;
                                     })() && (
                                         <i className="fa-regular fa-calendar" onClick={()=>handleOpenDeliverable()} ></i>
@@ -1935,10 +2080,10 @@ useEffect(() => {
                                         const hasNegotiationAccepted = messages.some(msg => msg.status === 'NEGOTIATION_ACCEPTED');
                                         const hasDeliverablesAccepted = messages.some(msg => msg.status === 'DELIVERABLES_ACCEPTED');
                                         const shouldShowPlus = hasNegotiationAccepted && !hasDeliverablesAccepted;
-                                        console.log('🔍 Plus Button Debug (Client):');
-                                        console.log('- Has negotiation accepted:', hasNegotiationAccepted);
-                                        console.log('- Has deliverables accepted:', hasDeliverablesAccepted);
-                                        console.log('- Should show plus button:', shouldShowPlus);
+                                        // console.log('🔍 Plus Button Debug (Client):');
+                                        // console.log('- Has negotiation accepted:', hasNegotiationAccepted);
+                                        // console.log('- Has deliverables accepted:', hasDeliverablesAccepted);
+                                        // console.log('- Should show plus button:', shouldShowPlus);
                                         return shouldShowPlus;
                                     })() && (
                                         <i 
