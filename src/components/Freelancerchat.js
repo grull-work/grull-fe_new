@@ -136,46 +136,29 @@ useEffect(() => {
                         chat_id: selectedChat,
                         user_id: user.id
                     });
-                    // console.log("✅ Joined chat room after Socket.IO ready:", selectedChat);
                 } catch (error) {
                     console.error("❌ Error joining chat room after Socket.IO ready:", error);
                 }
-            }, 100); // Small delay to ensure connection is stable
+            }, 100); 
         }
     });
 
     socket.on('disconnect', () => {
-        // console.log("Socket.IO disconnected (Freelancer)");
     });
 
     socket.on('connected', (data) => {
-        // console.log("Server confirmed connection (Freelancer):", data);
     });
 
     socket.on('joined_chat', (data) => {
-        // console.log("Successfully joined chat (Freelancer):", data);
     });
 
     socket.on('left_chat', (data) => {
-        // console.log("Left chat (Freelancer):", data);
     });
 
     socket.on('new_message', (data) => {
-        // console.log("=== Socket.IO Message Received (Freelancer) ===");
-        // console.log("Message data:", data);
-        // console.log("Current selectedChat:", selectedChat);
-        // console.log("Current messages count:", messages.length);
-        
-        // Handle new message for current chat
         if (data.chat_id === selectedChat) {
-            // console.log("✅ New message received for current chat (Freelancer):", data.data);
-            
-            // Add new message directly to messages array
             if (data.data && data.data.message) {
-                // console.log("Adding new message to state (Freelancer):", data.data.message.substring(0, 50) + "...");
                 setMessages(prevMessages => {
-                    // console.log("Previous messages count (Freelancer):", prevMessages.length);
-                    // Check if message already exists to avoid duplicates (by ID, content, and timestamp)
                     const messageExists = prevMessages.some(msg => 
                         msg.id === data.data.id || 
                         (msg.message === data.data.message && 
@@ -183,38 +166,26 @@ useEffect(() => {
                          Math.abs(new Date(msg.created_at) - new Date(data.data.created_at)) < 1000) // Within 1 second
                     );
                     if (messageExists) {
-                        // console.log("⚠️ Duplicate message detected, skipping (Freelancer)");
                         return prevMessages;
                     }
-                    // Limit message history to prevent memory issues (keep last 100 messages)
                     const limitedMessages = prevMessages.slice(-99);
                     const newMessages = [...limitedMessages, data.data];
-                    // console.log("✅ Updated messages count (Freelancer):", newMessages.length);
                     return newMessages;
                 });
             } else {
-                // Fallback: trigger message refresh
-                // console.log("⚠️ Fallback: triggering message refresh - no message content (Freelancer)");
+               
                 setReceivedMessage(prev => prev + 1);
             }
         } else {
-            // New message received but for different chat - still log it
-            // console.log("📨 New message received for different chat (Freelancer):", data.chat_id, "Current chat:", selectedChat);
         }
     });
 
     socket.on('message_update', (data) => {
-        // console.log("=== Socket.IO Message Update Received (Freelancer) ===");
-        // console.log("Update data:", data);
         
         if (data.chat_id === selectedChat) {
-            // console.log("✅ Message update received for current chat (Freelancer):", data.data);
-            
-            // Update the specific message in the messages array
             setMessages(prevMessages => {
                 return prevMessages.map(msg => {
                     if (msg.id === data.data.id) {
-                        // console.log("Updating message (Freelancer):", msg.id);
                         return { ...msg, ...data.data };
                     }
                     return msg;
@@ -228,7 +199,6 @@ useEffect(() => {
 
     // Cleanup function
     return () => {
-        // console.log("Cleaning up Socket.IO connection (Freelancer)");
         if (socket) {
             socket.disconnect();
         }
@@ -237,10 +207,6 @@ useEffect(() => {
 
   // Join chat room when selectedChat changes
   useEffect(() => {
-     // console.log("=== Attempting to Join Chat Room (Freelancer) ===");
-     // console.log("Socket.IO connected:", websckt?.connected);
-     // console.log("Selected chat:", selectedChat);
-     // console.log("Socket.IO object exists:", !!websckt);
      
      if (websckt && websckt.connected && selectedChat) {
          try {
@@ -249,17 +215,11 @@ useEffect(() => {
                  chat_id: selectedChat,
                  user_id: user.id
              });
-             // console.log("✅ Successfully joined chat room (Freelancer):", selectedChat);
          } catch (error) {
              console.error("❌ Error joining chat room (Freelancer):", error);
          }
      } else {
-         // console.log("⚠️ Cannot join chat room - Socket.IO not ready or no chat selected");
-         // console.log("Socket.IO connected:", websckt?.connected);
-         // console.log("Selected chat:", selectedChat);
-         // console.log("Socket.IO exists:", !!websckt);
      }
-     // console.log("=== End Join Chat Room Attempt (Freelancer) ===");
   }, [selectedChat, websckt]);
   
   const sendMessageSocket = () => {
@@ -294,7 +254,7 @@ useEffect(() => {
         setClients(sortedClients);
         }
         catch(err){
-            // console.log("Error while fetching chat : ", err)
+           
         }
     }
          getChats();
@@ -318,7 +278,6 @@ useEffect(() => {
   const handleEditedSendPrice = async() => {
     if (priceValue.trim() !== '') {
     const newPriceMessage =  {message: priceValue, message_id:editmessageId ,status:'NEGOTIATION_PENDING',deadline:''};
-    //   setMessages((prevMessages) => [...prevMessages, newPriceMessage]);
     const priceburl = `${BAPI}/api/v0/chats/update-deliverable`;
     
     setEditMode(false);
@@ -329,21 +288,17 @@ useEffect(() => {
             Authorization:`Bearer ${accessToken}`,
         }
         })
-        // // console.log(response);
     }
     catch(err){
-        // console.log("Error in updating price chat : ",err)
     }
       handleClosePriceInput();
     } else {
       toast.error('Please enter a valid price');
     }
     
-    // Send WebSocket message (don't let WebSocket failure affect the main flow)
     try {
         sendMessageSocket();
     } catch (websocketError) {
-        // console.log("WebSocket failed but price update succeeded:", websocketError)
     }
   };
   
@@ -363,8 +318,7 @@ useEffect(() => {
         return response.data;
      }
      catch(err){
-         // console.log("Error while creating notification : ", err)
-         // Don't throw error for notification failures - they shouldn't break the main flow
+          
          return null;
      }
   }
@@ -425,18 +379,15 @@ useEffect(() => {
         setWelcomeMessageShown(true);
     }
     catch(err){
-        // console.log("Error in sending chat : ",err)
     }
       handleClosePriceInput();
     } else {
       toast.error('Please enter a valid price');
     }
-    
-    // Send WebSocket message (don't let WebSocket failure affect the main flow)
     try {
         sendMessageSocket();
     } catch (websocketError) {
-        // console.log("WebSocket failed but price sending succeeded:", websocketError)
+        
     }
   };
 
@@ -482,21 +433,19 @@ useEffect(() => {
                Authorization:`Bearer ${accessToken}`,
            }
         })
-        // // console.log(response)
         }
         catch(err){
-            // console.log("Error in updating Milestone : ",err)
+           
         }
       handleCloseDeliverableInput();
     } else {
       toast.error('Please enter a valid link');
     }
     
-    // Send WebSocket message (don't let WebSocket failure affect the main flow)
     try {
         sendMessageSocket();
     } catch (websocketError) {
-        // console.log("WebSocket failed but deliverable update succeeded:", websocketError)
+       
     }
   };
   const handleSendDeliverable = async() => {
@@ -525,18 +474,18 @@ useEffect(() => {
         
           }
           catch(err){
-              // console.log("error while sending Milestone : ", err)
+              
           }
       handleCloseDeliverableInput();
     } else {
       toast.error('Please enter a valid link');
     }
     
-    // Send WebSocket message (don't let WebSocket failure affect the main flow)
+   
     try {
         sendMessageSocket();
     } catch (websocketError) {
-        // console.log("WebSocket failed but deliverable sending succeeded:", websocketError)
+      
     }
   };
 
@@ -553,61 +502,57 @@ useEffect(() => {
         await createnotification("Deliverable Accepted", `${freelancername} has accepted the deliverable of ${job_title} job.`)
     }
     catch(err){
-        // console.log("Error while Accepting deliverable : ",err)
     }
     
-    // Send WebSocket message (don't let WebSocket failure affect the main flow)
     try {
         sendMessageSocket();
     } catch (websocketError) {
-        // console.log("WebSocket failed but deliverable acceptance succeeded:", websocketError)
+        
     }
+  }
+  
+  const handleAcceptNOOFDeliverableProposal = async(messageId) => {
+       console.log("freelancer accept the number of deliverables")
+  }
+
+  const handleRejectNOOFDeliverableProposal = async(messageId) => {
+    console.log("freelancer reject the number of deliverables")
   }
 
 
+
   const handleAcceptDeliverableProposal = async(messageId) => {
-    // console.log('✅ Starting accept deliverable (Freelancer):', messageId);
     
     try {
       // Find the message to get deliverable count
       const message = messages.find(msg => msg.id === messageId);
-      // console.log('📋 Current message:', message);
       
       if (!message) {
-        // console.log('❌ Message not found');
+      
         toast.error('Message not found');
         return;
       }
 
-      // Check if message is already accepted to prevent duplicate calls
       if (message.status === 'DELIVERABLES_ACCEPTED') {
-        // console.log('⚠️ Message already accepted, skipping duplicate call (Freelancer)');
         return;
       }
-
-      // Extract deliverable count from message content
       const acceptedDeliverables = parseInt(message.message);
       if (isNaN(acceptedDeliverables)) {
         toast.error('Invalid deliverable count format');
         return;
       }
-      // console.log('📊 Accepted deliverables count:', acceptedDeliverables);
-      // console.log('📝 Deliverable description:', message.message);
-
-      // Get job ID and freelancer ID from selected chat info
-      const jobId = selectedChatInfo?.job_id;
-      const freelancerId = selectedChatInfo?.freelancer_id;
       
-      // console.log('🔍 Job and freelancer info:', { jobId, freelancerId });
+      const jobId = selectedChatInfo?.job_id;
+        const freelancerId = selectedChatInfo?.freelancer_id;
+        
       
       if (!jobId || !freelancerId) {
-        // console.log('❌ Missing job or freelancer information');
+       
         toast.error('Missing job or freelancer information');
         return;
       }
 
-      // First update message status
-      // console.log('📤 Updating message status to ACCEPTED...');
+     
       const statusResponse = await axios.post(`${BAPI}/api/v0/chats/update-message-status`,{
         "message_id": messageId,
         "status":"DELIVERABLES_ACCEPTED"
@@ -616,31 +561,14 @@ useEffect(() => {
           Authorization:`Bearer ${accessToken}`,
         }
       });
-      // console.log('✅ Status update response:', statusResponse.data);
-
-      // Call backend API to update job with accepted deliverables
-      // console.log('📤 Calling accept-deliverable-proposal API...');
-      const acceptPayload = {
-        job_id: jobId,
-        accepted_deliverables: acceptedDeliverables,
-        freelancer_id: freelancerId
-      };
-      // console.log('📦 Accept payload:', acceptPayload);
       
-      const acceptResponse = await axios.post(`${BAPI}/api/v0/jobs/accept-deliverable-proposal`, acceptPayload, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        }
-      });
-      // console.log('✅ Accept API response:', acceptResponse.data);
 
-      // Update remaining_deliverables
+      
       const remainingPayload = {
         job_id: jobId,
         remaining_deliverables: acceptedDeliverables
       };
-      console.log('📦 Remaining payload:', remainingPayload);
-      console.log('📊 acceptedDeliverables type:', typeof acceptedDeliverables, 'value:', acceptedDeliverables);
+      
       
       try {
         const remainingResponse = await axios.post(`${BAPI}/api/v0/jobs/update-remaining-deliverables`, remainingPayload, {
@@ -648,16 +576,14 @@ useEffect(() => {
             Authorization: `Bearer ${accessToken}`,
           }
         });
-        console.log('✅ Remaining deliverables updated:', remainingResponse.data);
+        
       } catch (remainingError) {
-        console.error('❌ Error updating remaining deliverables:', remainingError.response?.data);
-        console.error('❌ Error status:', remainingError.response?.status);
-        console.error('❌ Full error:', remainingError);
-        // Don't fail the whole process if this fails
+        
+        
       }
 
       // Update local messages state
-      // console.log('🔄 Updating local messages state...');
+      
       setMessages(prevMessages => 
         prevMessages.map(msg => 
           msg.id === messageId ? {
@@ -667,64 +593,56 @@ useEffect(() => {
         )
       );
 
-      // console.log('✅ Local state updated');
+      
       toast.success('Deliverable proposal accepted!');
       
       // Send notification
-      // console.log('🔔 Sending notification...');
+      
       try {
         await createnotification("Deliverable Proposal Accepted", `${freelancername} has accepted the deliverable proposal for ${job_title} job.`)
-        // console.log('✅ Notification sent');
+        
       } catch (notificationError) {
         // console.log('❌ Notification error:', notificationError);
       }
       
       // Send WebSocket message
-      // console.log('🌐 Sending WebSocket message...');
+      
       try {
         sendMessageSocket();
-        // console.log('✅ WebSocket message sent');
+        
       } catch (websocketError) {
-        // console.log('❌ WebSocket error:', websocketError);
       }
       
-      // console.log('🎉 Accept process completed successfully');
+      
     } catch (error) {
       toast.error('Failed to accept deliverable proposal. Please try again.');
     }
   };
 
   const handleRejectDeliverableProposal = async(messageId) => {
-    // console.log('🚫 Starting reject deliverable (Freelancer):', messageId);
+    
     
     // Check if message is already rejected to prevent duplicate calls
     const message = messages.find(msg => msg.id === messageId);
-    // console.log('📋 Current message status:', message?.status);
     
     if (message && message.status === 'DELIVERABLES_REJECTED') {
-      // console.log('⚠️ Message already rejected, skipping duplicate call (Freelancer)');
       return;
     }
     
     try {
       // Show rejection reason dialog
-      // console.log('💬 Showing rejection reason dialog...');
       const rejectionReason = await showRejectionReasonDialog();
-      // console.log('📝 Rejection reason received:', rejectionReason);
       
       if (!rejectionReason) {
-        // console.log('❌ User cancelled rejection');
         return; // User cancelled
       }
       
       // Update message status (same pattern as price rejection)
-      // console.log('📤 Sending reject API call...');
       const rejectPayload = {
         "message_id": messageId,
         "status":"DELIVERABLES_REJECTED",
         "rejection_reason": rejectionReason
       };
-      // console.log('📦 Reject payload:', rejectPayload);
       
       const rejectResponse = await axios.post(`${BAPI}/api/v0/chats/update-message-status`, rejectPayload, {
         headers:{
@@ -732,10 +650,8 @@ useEffect(() => {
         }
       });
       
-      // console.log('✅ Reject API response:', rejectResponse.data);
 
       // Update local messages state
-      // console.log('🔄 Updating local messages state...');
       setMessages(prevMessages => 
         prevMessages.map(msg => 
           msg.id === messageId ? {
@@ -746,28 +662,23 @@ useEffect(() => {
         )
       );
 
-      // console.log('✅ Local state updated');
       toast.success('Deliverable proposal rejected.');
       
       // Send notification
-      // console.log('🔔 Sending notification...');
       try {
         await createnotification("Deliverable Proposal Rejected", `${freelancername} has rejected the deliverable proposal for ${job_title} job.`)
-        // console.log('✅ Notification sent');
-      } catch (notificationError) {
-        // console.log('❌ Notification error:', notificationError);
+      } catch (notificationError) {   
       }
       
       // Send WebSocket message
-      // console.log('🌐 Sending WebSocket message...');
       try {
         sendMessageSocket();
-        // console.log('✅ WebSocket message sent');
+        
       } catch (websocketError) {
-        // console.log('❌ WebSocket error:', websocketError);
+        
       }
       
-      // console.log('🎉 Reject process completed successfully');
+      
     } catch (error) {
       toast.error('Failed to reject deliverable proposal. Please try again.');
     }
@@ -783,17 +694,17 @@ useEffect(() => {
                 Authorization:`Bearer ${accessToken}`,
             }
         })
-        // // console.log(negres);
+        
     }
     catch(err){
-        // console.log("Error while  Cancelling deliverables : ",err)
+        
     }
     
     // Send WebSocket message (don't let WebSocket failure affect the main flow)
     try {
         sendMessageSocket();
     } catch (websocketError) {
-        // console.log("WebSocket failed but cancel operation succeeded:", websocketError)
+        
     }
   }
 
@@ -810,7 +721,7 @@ useEffect(() => {
       })
         .then((res) => res.json())
         .then(async(data) => {
-            // console.log(data)
+            
             const imageUrl = data.url;
               if (imageUrl !== '') {
                 const newMessage = {
@@ -831,15 +742,15 @@ useEffect(() => {
                       }
                     );
               
-                    // // console.log(sendMessageResponse);
+                    
                 }
                 catch(err){
-                    // console.log("error while sending Image : ", err)
+                    
                 }
               }
           })
         .catch((err) => {
-          // console.log(err);
+          
         });
         setImage(null)
         
@@ -847,7 +758,7 @@ useEffect(() => {
         try {
             sendMessageSocket();
         } catch (websocketError) {
-            // console.log("WebSocket failed but image upload succeeded:", websocketError)
+            
         }
     }
 
@@ -862,7 +773,7 @@ useEffect(() => {
         })
           .then((res) => res.json())
           .then(async(data) => {
-            // console.log(data)
+            
             const videoUrl = data.url;
               if (videoUrl !== '') {
                 const newMessage = {
@@ -883,15 +794,14 @@ useEffect(() => {
                       }
                     );
               
-                    // // console.log(sendMessageResponse);
+
                 }
                 catch(err){
-                    // console.log("error while sending Image : ", err)
+                    
                 }
               }
           })
           .catch((err) => {
-            // console.log(err);
           });
           setSelectedVideo(null)
           
@@ -899,7 +809,7 @@ useEffect(() => {
           try {
               sendMessageSocket();
           } catch (websocketError) {
-              // console.log("WebSocket failed but video upload succeeded:", websocketError)
+              
           }
       }
 
@@ -914,7 +824,6 @@ useEffect(() => {
 
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
-    // console.log(file);
 
     if (file === undefined) {
         toast({
@@ -987,18 +896,16 @@ useEffect(() => {
          
     }
     catch(err){
-        // console.log("Error in sending chat : ",err)
-        // Show error toast if message fails to send
+        
         toast.error('Failed to send message. Please try again.');
         return; // Don't clear input or proceed if there's an error
     }
     setuserMessage('');
     
-    // Send WebSocket message (don't let WebSocket failure affect the main flow)
     try {
         sendMessageSocket();
     } catch (websocketError) {
-        // console.log("WebSocket failed but message sending succeeded:", websocketError)
+        
     }
   };
 
@@ -1009,11 +916,10 @@ useEffect(() => {
                 Authorization:`Bearer ${accessToken}`
             }
            });
-        //    // console.log(response)
+       
         setClientPhotoUrl(response.data.photo_url)
     }
     catch(err){
-        // console.log("Error while fetching client details : ", err)
     }
   }
   
@@ -1025,12 +931,12 @@ useEffect(() => {
                 Authorization:`Bearer ${accessToken}`
             }
            });
-        //    // console.log("Chat Info : ", response.data)
+       
            setSelectedChatInfo(response.data);
            getClientDetails(response.data.manager_id)
         }
         catch(err){
-            // console.log("Error while fetching chat : ", err)
+           
         }
     }
     if(selectedChat!==null){
@@ -1061,7 +967,7 @@ useEffect(() => {
             handleClose();
     }
     catch(err){
-        // console.log("Error while giving review : ",err)
+       
     }
 }
 
@@ -1098,7 +1004,7 @@ const checkcompleted=async()=>{
       const limitedMessages = response.data.slice(-100);
       setMessages(limitedMessages);
     } catch (err) {
-      // console.log("Error while fetching chat : ", err);
+      
     }
   };
 
@@ -1128,13 +1034,13 @@ const checkcompleted=async()=>{
                 Authorization:`Bearer ${accessToken}`
             }
            });
-           // console.log("Fetched messages count:", response.data.length);
+           
           // Limit message history to prevent memory issues
           const limitedMessages = response.data.slice(-100);
           setMessages(limitedMessages);
         }
         catch(err){
-            // console.log("Error while fetching chat : ", err)
+           
         }
     }
     getChat();
@@ -1198,8 +1104,7 @@ useEffect(() => {
             <Box sx={{boxShadow: {sm:'0px 0px 4px 1px #00000040',xs:'0'},borderRadius:{lg:'16px 0 0 16px',sm:'16px',xs:'0'},width:{lg:'380px',xs:'100%'},overflowY:'auto'}}>
                 <Box sx={{ padding: '15px 25px', display: 'flex', flexDirection: 'row', alignItems: 'center', width: '100%',gap:'15px' }}>
                     <Typography sx={{ color: '#000000', fontWeight: '600', fontSize: '28px', marginRight: 'auto' }}>Messaging</Typography>
-                    {/* <RxDotsHorizontal style={{ fontSize: '25px', marginLeft: 'auto',cursor:'pointer' }} />
-                    <RiEdit2Line style={{ fontSize: '25px', borderRadius: '50px', border: '1px solid #000',cursor:'pointer'}} /> */}
+                    
                 </Box>
                 <Divider />
                 <Box sx={{padding:'24px 20px 12px'}}>
@@ -1213,7 +1118,7 @@ useEffect(() => {
                             onChange={(e) => setSearch(e.target.value)}
                         />
                         <IconButton type="button" sx={{p: '10px'}} aria-label="filter">
-                            {/* <CiFilter /> */}
+                            
                         </IconButton>
                     </Box>
                 </Box>
@@ -1267,12 +1172,7 @@ useEffect(() => {
                             <p>Online</p>
                         </div>
                         <div className='chat_profile_settings'>
-                            {/* <div className='chat_profile_settings_menu'>
-                                <i className="fa-solid fa-ellipsis-vertical"></i>
-                            </div>
-                            <div className=''>
-                                <i className="fa-solid fa-chevron-down"></i>
-                            </div> */}
+                            
                             <div className='' onClick={()=>setSelectedChat(null)}>
                                 <i className="fa-solid fa-xmark"></i>
                             </div>
@@ -1284,7 +1184,7 @@ useEffect(() => {
                             {
                                 (clientphotoUrl && clientphotoUrl !=='' )?(
                                     <img
-                                    // className='user-picture-img'
+
                                     alt={clientname[0]}
                                     src={clientphotoUrl}
                                     style={{ borderRadius:'50%',width:'70px',height:'70px',objectFit: 'cover'  }}
@@ -1305,7 +1205,6 @@ useEffect(() => {
                     </div>
                     <Divider />
                     
-                    {/* Deliverable Payment Status */}
                     {deliverablePayments.length > 0 && (
                         <Box sx={{
                             padding: '15px 20px',
@@ -1336,9 +1235,6 @@ useEffect(() => {
                         </Box>
                     )}
                     
-                    {/* <div className='chat-container_chat_date'>
-                        8 Dec 2024
-                    </div> */}
 
                     <Grid sx={{padding:{sm:'20px 35px',xs:'14px'},display:'flex',flexDirection:'column',gap:'13px',overflowY:'auto',width:'100%',flex:1}} className='chat-container_chat_msg_scroll' ref={chatContainerRef}>
                     
@@ -1472,12 +1368,7 @@ return (
               ) : <div style={{width:'40px'}}></div>}                                      
                 {(message.status === 'DELIVERABLE_IMAGE' || message.status === 'DELIVERABLE_IMAGE_ACCEPTED' ||message.status === 'DELIVERABLE_IMAGE_REJECTED' ) && (
                     <Box sx={{display:'flex',justifyContent:'flex-end',flexDirection:'column',marginBottom:'5px'}}>
-                        {/* <img
-                            className="image_deliverable"
-                            src={message.message}
-                            alt="Image"
-                            style={{width:'220px', height:'220px'}}
-                        /> */}
+                      
                         <Box sx={{
                             backgroundColor: '#f2f2f2',
                             boxShadow: '0px 0px 4px 1px #00000040',
@@ -1602,6 +1493,39 @@ return (
                     }
                     </Box>
                 )}
+
+                    {(message.status === 'NO_OF_DELIVERABLES' && message.sent_by!==selectedChatInfo?.freelancer_id) && (
+                         <Box sx={{display:'flex',flexDirection:'column',gap:'8px',marginBottom:'10px'}}>
+                         <Box sx={{
+                                 maxWidth: '100%',
+                                 color: '#ffffff',
+                                 padding:'10px 15px 10px 15px',
+                                 minWidth:{md:'120px'},
+                                 backgroundColor: '#ED8335',
+                                 borderRadius:'16px',
+                                 display:'flex',flexDirection:'column',gap:'0px'
+                             }}>
+                                 <Typography sx={{
+                                         fontWeight:'500',
+                                         fontSize:{sm:'12px',xs:'10px'}
+                                 }}>
+                                     Deliverables
+                                 </Typography>
+                                 <Typography sx={{
+                                         fontWeight:'500',
+                                         fontSize:{md:'20px',sm:'16px',xs:'14px'},lineHeight:'1'
+                                 }}>
+                                     {message.message} deliverable(s)
+                                 </Typography>
+                         </Box>
+                        <Box sx={{display: 'flex',width:'100%',flexDirection:'row',gap:'10px',justifyContent:'center'}}>
+                            {console.log(message)}
+                            <Button sx={{backgroundColor:'#B27EE3',color:'#fff',padding:'7px 20px',fontSize:'14px',borderRadius:'16px',':hover':{backgroundColor:'#B27EE3',color:'#fff'}}} onClick={()=>handleAcceptNOOFDeliverableProposal(message.id)}>Accept</Button>
+                            <Button sx={{backgroundColor:'#fff',color:'#B27EE3',padding:'7px 20px',border:'1px solid #B27EE3',fontSize:'14px',borderRadius:'16px',':hover':{backgroundColor:'#fff',color:'#B27EE3'}}} onClick={()=>handleRejectNOOFDeliverableProposal(message.id)}>Reject</Button>
+                        </Box>
+                        </Box>
+                        )
+                    }
                 {/* {message.status === 'DELIVERABLES_ACCEPTED' && setCountDeliverable(prevCount => prevCount + 1)} */}
                 {message.status === 'NORMAL' && (
                     <Typography sx={{
@@ -1876,11 +1800,7 @@ return (
                                     {/* Calendar icon for individual deliverable submission - only show after deliverable proposal is accepted */}
                                     {(() => {
                                         const hasDeliverablesAccepted = messages.some(msg => msg.status === 'DELIVERABLES_ACCEPTED');
-                                        // console.log('🔍 Calendar Icon Debug (Freelancer):');
-                                        // console.log('- Total messages:', messages.length);
-                                        // console.log('- Messages with DELIVERABLES_ACCEPTED:', messages.filter(msg => msg.status === 'DELIVERABLES_ACCEPTED').length);
-                                        // console.log('- Has deliverables accepted:', hasDeliverablesAccepted);
-                                        // console.log('- All message statuses:', messages.map(msg => ({ id: msg.id, status: msg.status, message: msg.message?.substring(0, 30) })));
+                                  
                                         return hasDeliverablesAccepted;
                                     })() && (
                                         <i className="fa-regular fa-calendar" onClick={()=>handleOpenDeliverable()}></i>

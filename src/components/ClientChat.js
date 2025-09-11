@@ -142,33 +142,44 @@ useEffect(() => {
   const handleSetupDeliverablesClose = () => setSetupDeliverablesOpen(false);
 
   const handleSetupDeliverablesSubmit = async () => {
+    console.log("reach")
     if (!numberOfDeliverables || numberOfDeliverables < 1) {
       toast.error('Number of deliverables must be at least 1');
       return;
     }
 
+    
     try {
       // Send deliverable proposal message (same pattern as price proposal)
       const deliverableProposalMessage = {
         message: numberOfDeliverables.toString(),
         sent_by: selectedChatInfo.manager_id,
         chat_id: selectedChatInfo.id,
-                status: 'DELIVERABLES',
+        status: 'NO_OF_DELIVERABLES',
         deadline: ''
       };
-      
-      const sendMessageResponse = await axios.post(`${BAPI}/api/v0/chats/send-message`, deliverableProposalMessage, {
+
+      console.log("deliverableProposalMessage",deliverableProposalMessage)
+
+      const sendMessageResponse = ""
+
+
+      try{
+       sendMessageResponse = await axios.post(`${BAPI}/api/v0/chats/send-message`, deliverableProposalMessage, {
         headers: {
           Authorization: `Bearer ${accessToken}`
         }
       });
+    }catch(error){
+      console.log("error",error)
+    }
 
       // Add the sent message to local state
       const sentMessage = {
         ...sendMessageResponse.data,
         message: numberOfDeliverables.toString(),
         sent_by: selectedChatInfo.manager_id,
-                status: 'DELIVERABLES',
+        status: 'NO_OF_DELIVERABLES',
         deadline: ''
       };
       
@@ -187,7 +198,7 @@ useEffect(() => {
       toast.success(`Deliverable proposal sent! ${numberOfDeliverables} deliverable(s) proposed to freelancer.`);
       handleSetupDeliverablesClose();
     } catch (error) {
-      // console.log('Error sending deliverable proposal:', error);
+      console.log('Error sending deliverable proposal:', error);
       toast.error('Failed to send deliverable proposal. Please try again.');
     }
   };
@@ -421,16 +432,12 @@ if(document.getElementsByClassName('ant-picker-clear') && document.getElementsBy
     // WebSocket will handle real-time updates, no need to fetch manually
   };
 
-  const handleSendDeliverable = async() => {
-    // // console.log('🚀 Starting handleSendDeliverable');
-    // // console.log('📊 Current state:', {
-    //   priceAcceptId,
-    //   deliverableValue,
-    //   selectedDate,
-    //   selectedChatInfo: selectedChatInfo?.id,
-    //   job_id: selectedChatInfo?.job_id
-    // });
 
+  const handleSendNOOFDeliverable = async() => {
+       
+  }
+
+  const handleSendDeliverable = async() => {
     if(!priceAcceptId){
         // console.log('❌ No price accepted yet');
         toast.error('Price should be fixed first');
@@ -1417,9 +1424,16 @@ useEffect(() => {
 
                     <Grid sx={{padding:{sm:'20px 35px',xs:'14px'},display:'flex',flexDirection:'column',gap:'13px',overflowY:'auto',width:'100%',flex:1}} className='chat-container_chat_msg_scroll' ref={chatContainerRef}>
                     {messages.map((message, index) => {
+                      
+                        {if(message.status === 'NO_OF_DELIVERABLES'){
+                                {console.log("message",message)}
+                                {console.log("selectedChatInfo",selectedChatInfo)}
+                           }
+                        }
                                  if (message.status === 'DELIVERABLES_ACCEPTED') {
                                     countDeliverable++;
                                 }
+                                {console.log("countDeliverable",countDeliverable)}
                                 if (message.status === 'DELIVERABLE_IMAGE_ACCEPTED') {
                                     submittedacceptDeliverables++;
                                 }
@@ -1594,6 +1608,40 @@ useEffect(() => {
                                             }
                                             </Box>
                                         )}
+                                            {
+                                                message.status==='NO_OF_DELIVERABLES' && message.sent_by===selectedChatInfo?.manager_id &&
+                                                (
+                                                  <Box sx={{display:'flex',flexDirection:'column',gap:'8px',marginBottom:'10px'}}>
+                                                  <Box sx={{
+                                                    maxWidth: '100%',
+                                                    color: '#ffffff',
+                                                    padding:'10px 15px 10px 15px',
+                                                    minWidth:{md:'120px'},
+                                                    backgroundColor: '#ED8335',
+                                                    borderRadius:'16px',
+                                                    display:'flex',flexDirection:'column',gap:'0px'
+                                                }}>
+                                                    <Typography sx={{
+                                                            fontWeight:'500',
+                                                            fontSize:{sm:'12px',xs:'10px'}
+                                                    }}>
+                                                        Deliverables
+                                                    </Typography>
+                                                    <Typography sx={{
+                                                            fontWeight:'500',
+                                                            fontSize:{md:'20px',sm:'16px',xs:'14px'},lineHeight:'1'
+                                                    }}>
+                                                        {message.message} deliverable(s)
+                                                    </Typography>
+                                            </Box>
+                                                <Box sx={{display: 'flex',width:'100%',flexDirection:'row',gap:'10px',justifyContent:'center'}}>
+                                                    <Button sx={{backgroundColor:'#fff',color:'#B27EE3',padding:'7px 20px',border:'1px solid #B27EE3',fontSize:'14px',borderRadius:'16px',':hover':{backgroundColor:'#fff',color:'#B27EE3'}}} onClick={()=>{}}>Cancel</Button>
+                                                    console.log("yes reached here with wuabkvbudxfvbk")
+                                                    <Button sx={{backgroundColor:'#B27EE3',color:'#fff',padding:'7px 20px',fontSize:'14px',borderRadius:'16px',':hover':{backgroundColor:'#B27EE3',color:'#fff'}}} onClick={()=>{}}>Edit</Button>
+                                                </Box>
+                                                </Box>
+                                                )
+                                            }
                                         {(message.status === 'NEGOTIATION_ACCEPTED' || message.status=== 'NEGOTIATION_PENDING' || message.status==='NEGOTIATION_REJECTED') && (
                                             <Box sx={{display:'flex',flexDirection:'column',gap:'8px',marginBottom:'10px'}}>
                                             <Box sx={{
@@ -1645,7 +1693,7 @@ useEffect(() => {
                                         )}
                                 </Grid>
                                 {
-                                    message.status==="DELIVERABLES_ACCEPTED" && (
+                                    message.status==="NO_OF_DELIVERABLES_ACCEPTED" && (
                                         <Box 
                                         sx={{
                                            display:'flex',
@@ -1657,6 +1705,22 @@ useEffect(() => {
                                            margin:{md:'5px 0',sm:'2px 0',xs:'0'}
                                         }}>
                                          <Typography sx={{color:'#454545',fontWeight:'700',fontSize:{md:'18px',sm:'15px',xs:'13px'}}}>Deliverable proposal accepted! {message.message} deliverable(s) confirmed.</Typography>
+                                        </Box>
+                                    )
+                                }
+                                {
+                                    message.status==="DELIVERABLES_ACCEPTED" && (
+                                        <Box 
+                                        sx={{
+                                           display:'flex',
+                                           flexDirection:'row',
+                                           justifyContent:'center',
+                                           gap:'10px',
+                                           alignItems:'center',
+                                           width:'100%',
+                                           margin:{md:'5px 0',sm:'2px 0',xs:'0'}
+                                        }}>
+                                         <Typography sx={{color:'#454545',fontWeight:'700',fontSize:{md:'18px',sm:'15px',xs:'13px'}}}>{message.message} deliverable(s) confirmed.</Typography>
                                         </Box>
                                     )
                                 }
