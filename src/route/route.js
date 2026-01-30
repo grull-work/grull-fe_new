@@ -33,8 +33,6 @@ import { useEffect } from "react";
 // import GoogleAuth from "../components/GoogleAuth.js";
 import FreelancerProfileShare from "../components/FreelancerProfileShare.js";
 import EmployerprofileShare from "../components/ClientProfileShare.js";
-import Freelancerwallet from "../components/Freelancerwallet.js";
-import FreelancerWalletPage from "../components/FreelancerWalletPage.js";
 import AddBalance from "../components/AddBalance.js";
 import ProtectedRoute from '../components/ProtectedRoute';
 // import PaymentRazorpay from "../components/PaymentRazorpay.js";

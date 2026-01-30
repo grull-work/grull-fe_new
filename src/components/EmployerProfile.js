@@ -3,15 +3,19 @@ import '../styles/Freelancerprofile.css';
 import '../styles/Employerprofile.css';
 import { useNavigate, NavLink } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
+import { userService } from '../services/userService';
 import axios from 'axios';
 import Avatar from '@mui/material/Avatar';
+import { reviewService } from '../services/reviewService';
+import { cloudinaryService } from '../utils/cloudinary.utils';
+import BAPI from '../helper/variable';
+ 
 import { Box, Button, Typography} from '@mui/material';
 import { MdArrowOutward } from "react-icons/md";
 import { CiCamera } from "react-icons/ci";
 import { CiLocationOn } from "react-icons/ci";
 import { MdWorkOutline } from "react-icons/md";
 import Header2 from './Header2';
-import BAPI from '../helper/variable'
 import { RiStarSFill } from "react-icons/ri";
 import { GrFormView } from "react-icons/gr";
 import { toast } from 'react-hot-toast';
@@ -117,13 +121,7 @@ const Employerprofile = () => {
     useEffect(() => {
         const fetchUserReviews = async () => {
             try {
-                const response = await axios.get(`${BAPI}/api/v0/reviews/reviews`,
-                    {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${accessToken}`,
-                        },
-                    });
+                const response = await reviewService.getReviews();
                     // console.log(response.data)
                     setReviews(response.data.filter(item => !item.is_freelancer));
                 
@@ -140,11 +138,7 @@ const Employerprofile = () => {
         const fetchUserProfile = async () => {
           try {
             
-            const response = await axios.get(`${BAPI}/api/v0/users/me`, {
-              headers: {
-                'Authorization':`Bearer ${accessToken}`,
-              },
-            });
+            const response = await userService.getMe();
     
             if (response.status === 200) {
               const { full_name, role, location,jobs_posted_count,average_rate_offered,description } = response.data;
@@ -209,89 +203,40 @@ const Employerprofile = () => {
         }
     };
 
-    const [cloudinaryImage,setCloudinaryImage]=useState(null);
-    const uploadImage = async () => {
-        if(!cloudinaryImage){ return '';}
-        const data = new FormData();
-        data.append("file", cloudinaryImage);
-        data.append("upload_preset", 'er103mfg');
-        data.append("cloud_name", 'dlpcihcmz');
-        const response = await fetch('https://api.cloudinary.com/v1_1/dlpcihcmz/image/upload', {
-          method: "post",
-          body: data,
-        })
-          .then((res) => res.json())
-          .then((data) => {
-              console.log(data)
-              return data.url;
-            })
-          .catch((err) => {
-            console.log(err);
-            return '';
-          });
-        return response;
-      }
-      const updateUserPhoto = async () => {
-       
-        try { 
-            let photourl;
-            if(cloudinaryImage){
-                photourl = await uploadImage();
-                setCloudinaryImage(null);
-            }
-            // console.log("photo url is : ",photourl)
-            const data_send={
-                
-                photo_url:photourl
-            }
-            const response = await axios.patch(`${BAPI}/api/v0/users/me`,data_send,
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`,
-                    },
-                });
+      // usage of cloudinaryService instead
+    const handleFileChange = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
 
-            if (response.status === 200) {
-                const responseData = response.data;
-                
-                setProfileImage(responseData.photo_url && responseData.photo_url !== '' ? responseData.photo_url : null);
-                setSavedImage(responseData.photo_url && responseData.photo_url !== '' ? responseData.photo_url : null);                     
-             
+        try {
+            const photourl = await cloudinaryService.uploadImage(file);
+            
+            if (photourl) {
+                const data_send = { photo_url: photourl };
+                const response = await userService.updateMe(data_send);
 
-            } else if (response.status === 400) {
-                // Handle error (e.g., show error message)
-                toast.error('A user with this email already exists');
-                console.error('Failed to update user profile');
-            }
-            else if (response.status === 401) {
-                toast.error('Missing token or inactive value');
+                if (response.status === 200) {
+                    const responseData = response.data;
+                    setProfileImage(responseData.photo_url || null);
+                    setSavedImage(responseData.photo_url || null);                     
+                    toast.success("Profile photo updated!");
+                } else {
+                     toast.error('Failed to update profile photo');
+                }
+            } else {
+                toast.error('Image upload failed');
             }
         } catch (error) {
-            // Handle network error or other issues
-            console.error('Network error:', error);
+            console.error('Error updating profile photo:', error);
+            toast.error('An error occurred');
         }
     };
-      const handleFileChange = (event) => {
-        const fileInput = event.target;
-        const file = fileInput.files[0];
-        setCloudinaryImage(file);
-        updateUserPhoto();
-        // if (file) {
-        //     const reader = new FileReader();
-        //     reader.onloadend = () => {
-        //         const imageDataUrl = reader.result; 
-        //         setProfileImage(imageDataUrl);
-        //     };
-    
-        //     reader.readAsDataURL(file);
-        // }
-    }
+
 
     // change user details
     const updateUserProfile = async () => {
         try {
-            const response = await axios.patch(`${BAPI}/api/v0/users/me`, {
+            const response = await userService.updateMe({
                 first_name: newName.first_name,
                 last_name:newName.last_name,
                 description: newJobCategory,
@@ -300,13 +245,7 @@ const Employerprofile = () => {
                     state: '',
                     country: newLocation,
                 },
-            },
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`,
-                    },
-                });
+            });
 
             if (response.status === 200) {
                 const { jobs_posted_count, average_rate_offered } = response.data;
@@ -335,18 +274,11 @@ const Employerprofile = () => {
     };
     const updateAbout = async () => {
         try {
-            const response = await axios.patch(`${BAPI}/api/v0/users/me`, {
+            const response = await userService.updateMe({
                 description: newinputval,
                 company_name:newinputcompdesc.company_name,
                 company_description:newinputcompdesc.company_description
-            },
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`,
-                    },
-                }
-            );
+            });
 
             if (response.status === 200) {
                 const responseData = response.data;
@@ -386,7 +318,7 @@ const Employerprofile = () => {
         setNewJobCategory(savedJobCategory);
         setNewLocation(savedLocation);
         setProfileImage(savedImage);
-        setCloudinaryImage(null);
+
         setTopButtonImage(require('../assets/edit.jpg'));
     }
 
@@ -733,7 +665,7 @@ const Employerprofile = () => {
                                     <div style={{ display: 'flex', alignItems: 'center' }}>
                                         <Typography sx={{ fontSize:{ xs:'18px',sm:'24px'}, fontWeight: '700', flex: '50%', margin: '0' }}>{job.title}</Typography>
                                         <Typography sx={{ fontSize: '15px', color: '#B27EE3', margin: '0',display:{xs:'none',md:'block'} }}>{job.job_applicants_count} Freelancers Applied</Typography>
-                                        <Button sx={{display:{xs:'none',md:'block'},marginLeft:'10px', color: '#B27EE3',display:'flex',flexDirection:'row'}} onClick={()=>navigate(`/jobdetails/${job.id}`)} startIcon={<GrFormView style={{marginRight:'-8px'}}  />} >View Job</Button>
+                                        <Button sx={{marginLeft:'10px', color: '#B27EE3',display:{xs:'none',md:'flex'},flexDirection:'row'}} onClick={()=>navigate(`/jobdetails/${job.id}`)} startIcon={<GrFormView style={{marginRight:'-8px'}}  />} >View Job</Button>
                                     </div>
 
                                     <div style={{  display: 'flex', alignItems: 'center',marginTop:'2px' }}>

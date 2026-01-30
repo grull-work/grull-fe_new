@@ -1,14 +1,11 @@
 
+
 import { useNavigate} from 'react-router-dom';
 import React,{ useState, useRef, useEffect } from 'react';
 import '../styles/Browsejobs.css';
-import Form from 'react-bootstrap/Form';
-import Select from 'react-select';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
-import '@fortawesome/fontawesome-free/css/all.min.css';
-import axios from 'axios';
-import { Box, Button, Divider, Typography } from "@mui/material";
+import { FaSearch } from "react-icons/fa";
+import { jobService } from '../services/jobService';
+import { Box, Button, Divider, Typography, TextField, MenuItem } from "@mui/material";
 import Header3 from "./Header3";
 import { LiaFilterSolid } from "react-icons/lia";
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
@@ -136,18 +133,13 @@ const BrowseJobs = () => {
     try {
       const category = selectedCategories.map(item => item).join(",");
       const location = selectedLocations.map(item => item).join(",");
-      const response = await axios.get(`${BAPI}/api/v0/jobs`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-        },
-        params: {
+      const params = {
           page: type===1?currentpage:1,
           per_page: 8,
           category: category,
           location: location,
-        },
-      });
+      };
+      const response = await jobService.getJobs(params, accessToken);
 
       if (response.status === 200) {
         setCurrentpage(response.data.page+1);
@@ -316,8 +308,7 @@ const BrowseJobs = () => {
         backgroundColor: "#fff",
       }}
     />
-    <FontAwesomeIcon
-      icon={faSearch}
+    <FaSearch
       style={{
         position: "absolute",
         left: "14px",
@@ -357,28 +348,39 @@ const BrowseJobs = () => {
       <div className="sortingjobs" style={{marginBottom:'30px'}}>
         {/* responsive button filters  */}
         <Button endIcon={<LiaFilterSolid />} onClick={toggleDrawer(true)} sx={{boxShadow: '0px 0px 4px 0px #00000040',color:'#000',padding:'7px 20px',borderRadius:'16px'}}>Filters</Button>
-        <Form>
-          <Form.Group className="form-group" controlId="formSortByOptions">
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <span style={{ marginRight: '5px' }}>Sort by:</span>
-            <Select
-              placeholder=""
-              options={sortByOptions}
-              value={sort}
-              onChange={(selectedOption) => {
-                  setSort(selectedOption); 
-              }}
-              styles={{
-                  control: (provided) => ({
-                      ...provided,
-                      border: 'none',
-                      outline: 'none',
-                      borderRadius: '16px',
-                      // cursor:'pointer'
-                  }),
-              }}
-          />
-          </Form.Group>
-        </Form>
+            <TextField
+                select
+                value={sort.value}
+                onChange={(e) => {
+                    const selected = sortByOptions.find(opt => opt.value === e.target.value);
+                    setSort(selected);
+                }}
+                variant="standard"
+                InputProps={{
+                    disableUnderline: true,
+                    style: { fontSize: '16px', borderRadius: '16px' }
+                }}
+                SelectProps={{
+                  displayEmpty: true,
+                    MenuProps: {
+                        PaperProps: {
+                            style: {
+                                borderRadius: '16px',
+                            }
+                        }
+                    }
+                }}
+                sx={{ width: '150px', '.MuiSelect-select': { paddingBottom: '2px', paddingTop: '2px', paddingLeft: '10px' } }}
+            >
+                {sortByOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                    </MenuItem>
+                ))}
+            </TextField>
+          </Box>
       </div>
        
       {/* section 4 - responsive drawer for filters  */}
@@ -416,7 +418,7 @@ const BrowseJobs = () => {
                       border:'none',outline:'none'
                     }}
                   />
-                  <FontAwesomeIcon icon={faSearch} style={{
+                  <FaSearch style={{
                     position: 'absolute', left: '10px', top: '10px',
                     color: '#00000080',
                   }} />
@@ -585,7 +587,7 @@ const BrowseJobs = () => {
                       border:'none',outline:'none'
                     }}
                   />
-                  <FontAwesomeIcon icon={faSearch} style={{
+                  <FaSearch style={{
                     position: 'absolute', left: '10px', top: '10px',
                     color: '#00000080',
                   }} />

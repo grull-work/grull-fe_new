@@ -12,7 +12,7 @@ import {
   Grid,
   Divider,
 } from '@mui/material';
-import { Menu as MenuIcon } from '@mui/icons-material';
+import { FiMenu } from 'react-icons/fi';
 import { CiShare2 } from 'react-icons/ci';
 import { FiMessageSquare, FiHome, FiShoppingBag } from 'react-icons/fi';
 import { IoNotificationsOutline, IoWalletOutline } from 'react-icons/io5';
@@ -334,7 +334,7 @@ const drawer = (
         <Toolbar sx={{ bgcolor:'#EDEDED', boxShadow:'0 0 4px rgba(0,0,0,0.25)' }}>
           {!isDesktop && (
             <IconButton edge="start" onClick={()=>setMobileOpen(p=>!p)} sx={{ mr:2 }}>
-              <MenuIcon/>
+              <FiMenu size={24}/>
             </IconButton>
           )}
           <Typography variant="h5" sx={{ flexGrow:1, color:'black' }}>Dashboard</Typography>

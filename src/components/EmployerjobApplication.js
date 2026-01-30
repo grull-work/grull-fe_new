@@ -2,13 +2,9 @@ import React, { useLayoutEffect, useRef } from "react";
 import { useNavigate,useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import '../styles/jobapplications.css';
-import Form from 'react-bootstrap/Form';
-import Select from 'react-select';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
-import '@fortawesome/fontawesome-free/css/all.min.css';
+import { FaSearch } from "react-icons/fa";
 import axios from 'axios';
-import { Avatar, Box, Button, Divider, Typography } from "@mui/material";
+import { Avatar, Box, Button, Divider, Typography, TextField, MenuItem } from "@mui/material";
 import Header2 from "./Header2";
 import { LiaFilterSolid } from "react-icons/lia";
 import BAPI from '../helper/variable'
@@ -207,7 +203,7 @@ const filteredFreelancers = allFreelancers
               color:'#00000080'
             }}
           />
-          <FontAwesomeIcon icon={faSearch} style={{
+          <FaSearch style={{
             color: '#957474',position:'absolute',
             left:'16px',top:'12px'
           }} />
@@ -238,28 +234,39 @@ const filteredFreelancers = allFreelancers
       </div>
       <div className="sortingjobs" style={{marginBottom:'30px',cursor:'pointer'}}>
       <Button endIcon={<LiaFilterSolid />} sx={{boxShadow: '0px 0px 4px 0px #00000040',color:'#000',padding:'7px 20px',borderRadius:'16px',visibility:'hidden'}}>Filters</Button>
-       <Form>
-          <Form.Group className="form-group" controlId="formSortByOptions">
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <span style={{ marginRight: '5px' }}>Sort by:</span>
-            <Select
-              placeholder=""
-              options={sortByOptions}
-              value={sort}
-              onChange={(selectedOption) => {
-                  setSort(selectedOption); 
-                  
-              }}
-              styles={{
-                  control: (provided) => ({
-                      ...provided,
-                      border: 'none',
-                      outline: 'none',
-                      borderRadius: '16px',
-                  }),
-              }}
-          />
-          </Form.Group>
-        </Form>
+            <TextField
+                select
+                value={sort.value}
+                onChange={(e) => {
+                    const selected = sortByOptions.find(opt => opt.value === e.target.value);
+                    setSort(selected);
+                }}
+                variant="standard"
+                InputProps={{
+                    disableUnderline: true,
+                    style: { fontSize: '16px', borderRadius: '16px' }
+                }}
+                SelectProps={{
+                  displayEmpty: true,
+                    MenuProps: {
+                        PaperProps: {
+                            style: {
+                                borderRadius: '16px',
+                            }
+                        }
+                    }
+                }}
+                sx={{ width: '150px', '.MuiSelect-select': { paddingBottom: '2px', paddingTop: '2px', paddingLeft: '10px' } }}
+            >
+                {sortByOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                    </MenuItem>
+                ))}
+            </TextField>
+          </Box>
       </div>
 
 

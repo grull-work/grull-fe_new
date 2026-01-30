@@ -25,11 +25,8 @@ import { MdArrowOutward } from "react-icons/md";
 import { useLocation } from 'react-router-dom';
 import BAPI from '../helper/variable';
 
-interface Props {
-  window?: () => Window;
-}
 
-export default function FreelancerWalletPage(props: Props) {
+export default function FreelancerWalletPage(props) {
 
   const { windows } = props;
   const [fullname,setFullname]=useState('');
@@ -263,7 +260,7 @@ export default function FreelancerWalletPage(props: Props) {
                                               boxShadow: '0px 0px 4px 1px #00000040',
                                               borderRadius:{xs:'10px',sm:'40px'},
                                               width:{xs:'250px',sm:'280px'},
-                                              display:'flex',
+                                              display: showDropdown?'flex':'none',
                                               flexDirection:'column',
                                               gap:'5px'
                                             }}

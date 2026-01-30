@@ -297,7 +297,7 @@ const MilestoneReviewer = ({
                       <Box sx={{ mt: 2 }}>
                         <Typography variant="body2" color="text.secondary">
                           <strong>Submission:</strong>{' '}
-                          <Link href={milestone.submission_link} target="_blank" rel="noopener">
+                          <Link href={milestone.submission_link} target="_blank" rel="noopener noreferrer">
                             View Work
                           </Link>
                         </Typography>

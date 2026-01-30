@@ -3,16 +3,8 @@ import React from "react";
 import section13Bg from "../assets/section13Bg.png";
 import section13Quote from "../assets/section13Quote.webp";
 import section13QuoteText from "../assets/section13QuoteText.png";
-import section13InnovationCircle from "../assets/section13InnovationCircle.svg";
-import * as animationData from "../jsonAnimations/section13CircleAnimation.json";
-import Lottie from "react-lottie";
 
 function Section13() {
-  const defaultOptions = {
-    loop: true,
-    autoplay: true,
-    animationData: animationData,
-  };
 
   return (
     <Grid sx={{ minHeight: "40vh", width: "100vw" }}>
@@ -50,22 +42,6 @@ function Section13() {
                 zIndex: "4",
               }}
             />
-          </Box>
-          <Box
-            sx={{
-              display: { xs: "none", md: "block" },
-              position: "absolute",
-              top: 0,
-              bottom: 0,
-              height: "100px",
-              width: "300px",
-              margin: "auto",
-              left: "10%",
-              zIndex: 1,
-              rotate: "-10%",
-            }}
-          >
-            <Lottie options={defaultOptions} height={"100%"} width="100%" />
           </Box>
           <Typography
             sx={{

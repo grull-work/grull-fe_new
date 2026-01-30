@@ -1,23 +1,17 @@
 import React, { useLayoutEffect } from "react";
 import { useNavigate, NavLink } from 'react-router-dom';
+import Select from 'react-select';
 import { useState, useRef, useEffect } from 'react';
 import '../styles/Browsefreelancer.css';
-import Form from 'react-bootstrap/Form';
-import Select from 'react-select';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
-import '@fortawesome/fontawesome-free/css/all.min.css';
-import axios, { all } from 'axios';
-import Header3 from "./Header3";
-import { Box, Button, Divider, Typography } from "@mui/material";
-import SwipeableDrawer from '@mui/material/SwipeableDrawer';
-import { VscChromeClose } from "react-icons/vsc";
+import { FaSearch } from "react-icons/fa";
 import { LiaFilterSolid } from "react-icons/lia";
-import { IoIosArrowUp } from "react-icons/io";
-import { IoIosArrowDown } from "react-icons/io";
+import { VscChromeClose } from "react-icons/vsc";
+import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
+import { jobService } from '../services/jobService';
+import { userService } from '../services/userService';
 import BAPI from '../helper/variable'
 
-import Avatar from '@mui/material/Avatar';
+import { Box, Typography, Button, Divider, Avatar, TextField, MenuItem, SwipeableDrawer } from '@mui/material';
 import Header4 from "./Header4";
 import { toast } from 'react-hot-toast';
 
@@ -139,14 +133,7 @@ const BrowseFreelancer = () => {
   useEffect(() => {
     const fetchPostedJobs = async () => {
         try {
-            const response = await axios.get(`${BAPI}/api/v0/users/me/jobs`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                },
-                params: {
-                  status:"PENDING"
-                },
-            });
+            const response = await jobService.getMyJobs({ status: "PENDING" });
 
             if (response.status === 200) {
                 // console.log(response.data)
@@ -178,13 +165,7 @@ const getFreelancers = async(type) => {
       per_page: 8
     }
     // console.log(currentpage,param)
-    const response = await axios.get(`${BAPI}/api/v0/freelancers`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-      },
-      params: param,
-    });
+    const response = await userService.getFreelancers(param);
     // console.log(response);
 
     if (response.status === 200) {
@@ -278,12 +259,7 @@ const getFreelancers = async(type) => {
         company_name: correspondingJob.company_name
       };
   
-      const response = await axios.post(`${BAPI}/api/v0/jobs/hire-freelancer`, hireData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
-        }
-      });
+      const response = await jobService.hireFreelancer(hireData);
   
       if (response.status === 200) {
         // console.log(response.data)
@@ -377,8 +353,7 @@ const getFreelancers = async(type) => {
         backgroundColor: "#fff",
       }}
     />
-    <FontAwesomeIcon
-      icon={faSearch}
+    <FaSearch
       style={{
         position: "absolute",
         left: "14px",
@@ -421,28 +396,39 @@ const getFreelancers = async(type) => {
 
       <div className="sortingjobs" style={{marginBottom:'30px',cursor:'pointer'}}>
         <Button endIcon={<LiaFilterSolid />} onClick={toggleDrawer(true)} sx={{boxShadow: '0px 0px 4px 0px #00000040',color:'#000',padding:'7px 20px',borderRadius:'16px'}}>Filters</Button>
-        <Form>
-          <Form.Group className="form-group" controlId="formSortByOptions">
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <span style={{ marginRight: '5px' }}>Sort by:</span>
-            <Select
-              placeholder=""
-              options={sortByOptions}
-              value={sort}
-              onChange={(selectedOption) => {
-                  setSort(selectedOption); 
-                  
-              }}
-              styles={{
-                  control: (provided) => ({
-                      ...provided,
-                      border: 'none',
-                      outline: 'none',
-                      borderRadius: '16px',
-                  }),
-              }}
-          />
-          </Form.Group>
-        </Form>
+            <TextField
+                select
+                value={sort.value}
+                onChange={(e) => {
+                    const selected = sortByOptions.find(opt => opt.value === e.target.value);
+                    setSort(selected);
+                }}
+                variant="standard"
+                InputProps={{
+                    disableUnderline: true,
+                    style: { fontSize: '16px', borderRadius: '16px' }
+                }}
+                SelectProps={{
+                  displayEmpty: true,
+                    MenuProps: {
+                        PaperProps: {
+                            style: {
+                                borderRadius: '16px',
+                            }
+                        }
+                    }
+                }}
+                sx={{ width: '150px', '.MuiSelect-select': { paddingBottom: '2px', paddingTop: '2px', paddingLeft: '10px' } }}
+            >
+                {sortByOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                    </MenuItem>
+                ))}
+            </TextField>
+          </Box>
       </div>
 
       {/* section 3 - responsive drawer for filters  */}
@@ -480,7 +466,7 @@ const getFreelancers = async(type) => {
                       border:'none',outline:'none'
                     }}
                   />
-                  <FontAwesomeIcon icon={faSearch} style={{
+                  <FaSearch style={{
                     position: 'absolute', left: '10px', top: '10px',
                     color: '#00000080',
                   }} />
@@ -649,7 +635,7 @@ const getFreelancers = async(type) => {
                     border:'none',outline:'none'
                   }}
                 />
-                <FontAwesomeIcon icon={faSearch} style={{
+                <FaSearch style={{
                   position: 'absolute', left: '10px', top: '10px',
                   color: '#00000080',
                 }} />
@@ -814,18 +800,6 @@ const getFreelancers = async(type) => {
                                    <Typography sx={{fontWeight:'500',fontSize:{sm:'17px',xs:'15px'}}}>${freelancer.rate_per_hour}/hr</Typography>
                                </Box>
                                <Box style={{ display: 'flex',flexDirection:'row',gap:'10px'}}>
-                               {/* <img
-                                  src={require('../assets/dislikeIcon.png')} 
-                                  alt="Dislike"
-                                  style={{ cursor: 'pointer', height:'50px', width:'50px', borderRadius:'50%' }}
-                                  onClick={() => handleDislikeClick(freelancer.freelancer_id)}  
-                                />
-                                <img
-                                  src={require('../assets/likeIcon.png')}  
-                                  alt="Like"
-                                  style={{ cursor: 'pointer',height:'50px', width:'50px', borderRadius:'50%' }}
-                                  onClick={() => handleLikeClick(freelancer.freelancer_id)}  
-                                /> */}
                                </Box>
                           </Box>
                           <Box>

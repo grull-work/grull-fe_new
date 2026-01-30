@@ -2,7 +2,11 @@ import React from 'react';
 import '../styles/Freelancerprofile.css';
 import { useNavigate, NavLink,useParams } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
+import { userService } from '../services/userService';
+import { reviewService } from '../services/reviewService';
 import axios from 'axios';
+import { cloudinaryService } from '../utils/cloudinary.utils';
+
 import { CiLocationOn } from "react-icons/ci";
 import { MdWorkOutline } from "react-icons/md";
 import { CiCamera } from "react-icons/ci";
@@ -28,84 +32,35 @@ const FreelancerProfile = () => {
         navigate('/clientprofile');
     }
     
-    const [cloudinaryImage,setCloudinaryImage]=useState(null);
-    const uploadImage = async () => {
-        if(!cloudinaryImage){ return '';}
-        const data = new FormData();
-        data.append("file", cloudinaryImage);
-        data.append("upload_preset", 'er103mfg');
-        data.append("cloud_name", 'dlpcihcmz');
-        const response = await fetch('https://api.cloudinary.com/v1_1/dlpcihcmz/image/upload', {
-          method: "post",
-          body: data,
-        })
-          .then((res) => res.json())
-          .then((data) => {
-              console.log(data)
-              return data.url;
-            })
-          .catch((err) => {
-            console.log(err);
-            return '';
-          });
-        return response;
-      }
-      const updateUserPhoto = async () => {
-       
-        try { 
-            let photourl;
-            if(cloudinaryImage){
-                photourl = await uploadImage();
-                setCloudinaryImage(null);
-            }
-            // console.log("photo url is : ",photourl)
-            const data_send={
-                
-                photo_url:photourl
-            }
-            const response = await axios.patch(`${BAPI}/api/v0/users/me`,data_send,
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`,
-                    },
-                });
+      // usage of cloudinaryService instead
+    const handleFileChange = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
 
-            if (response.status === 200) {
-                const responseData = response.data;
-                
-                setProfileImage(responseData.photo_url && responseData.photo_url !== '' ? responseData.photo_url : null);
-                setSavedImage(responseData.photo_url && responseData.photo_url !== '' ? responseData.photo_url : null);                     
-             
+        try {
+            const photourl = await cloudinaryService.uploadImage(file);
+            
+            if (photourl) {
+                const data_send = { photo_url: photourl };
+                const response = await userService.updateMe(data_send);
 
-            } else if (response.status === 400) {
-                // Handle error (e.g., show error message)
-                toast.error('A user with this email already exists');
-                console.error('Failed to update user profile');
-            }
-            else if (response.status === 401) {
-                toast.error('Missing token or inactive value');
+                if (response.status === 200) {
+                    const responseData = response.data;
+                    setProfileImage(responseData.photo_url || null);
+                    setSavedImage(responseData.photo_url || null);                     
+                    toast.success("Profile photo updated!");
+                } else {
+                     toast.error('Failed to update profile photo');
+                }
+            } else {
+                toast.error('Image upload failed');
             }
         } catch (error) {
-            // Handle network error or other issues
-            console.error('Network error:', error);
+            console.error('Error updating profile photo:', error);
+            toast.error('An error occurred');
         }
     };
-      const handleFileChange = (event) => {
-        const fileInput = event.target;
-        const file = fileInput.files[0];
-        setCloudinaryImage(file);
-        updateUserPhoto();
-        // if (file) {
-        //     const reader = new FileReader();
-        //     reader.onloadend = () => {
-        //         const imageDataUrl = reader.result; 
-        //         setProfileImage(imageDataUrl);
-        //     };
-    
-        //     reader.readAsDataURL(file);
-        // }
-    }
+
 
     const [newSkill, setNewSkill] = useState('');
     const [newLanguage, setNewLanguage] = useState('');
@@ -230,13 +185,7 @@ const FreelancerProfile = () => {
     useEffect(() => {
         const fetchUserReviews = async () => {
             try {
-                const response = await axios.get(`${BAPI}/api/v0/reviews/reviews`,
-                    {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${accessToken}`,
-                        },
-                    });
+                const response = await reviewService.getReviews();
                     setReviews(response.data.filter(item => item.is_freelancer));
                 
             } catch (error) {
@@ -250,13 +199,7 @@ const FreelancerProfile = () => {
     useEffect(() => {
         const fetchUserProfile = async () => {
             try {
-                const response = await axios.get(`${BAPI}/api/v0/users/me`,
-                    {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${accessToken}`,
-                        },
-                    });
+                const response = await userService.getMe();
 
                 if (response.status === 200) {
                     const responseData = response.data;
@@ -330,13 +273,7 @@ const FreelancerProfile = () => {
                 },
                 rate_per_hour:newratePerHour,
             }
-            const response = await axios.patch(`${BAPI}/api/v0/users/me`,data_send,
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`,
-                    },
-                });
+            const response = await userService.updateMe(data_send);
 
             if (response.status === 200) {
                 const responseData = response.data;
@@ -373,17 +310,10 @@ const FreelancerProfile = () => {
     // updating skills and languages
     const updateSkillsAndLanguages = async () => {
         try {
-            const response = await axios.patch(`${BAPI}/api/v0/users/me`, {
+            const response = await userService.updateMe({
                 skills: [...tempSkills],
                 languages: [...tempLanguages],
-            },
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`,
-                    },
-                }
-            );
+            });
 
             if (response.status === 200) {
                 const responseData = response.data;
@@ -458,7 +388,7 @@ const FreelancerProfile = () => {
         setNewLocation(savedLocation);
         setnewRatePerHour(ratePerHour);
         setProfileImage(savedImage);
-        setCloudinaryImage(null);
+
         setTopButtonImage(require('../assets/edit.jpg'));
     }
 

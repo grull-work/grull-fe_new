@@ -1,11 +1,9 @@
 import React, { useRef, useState} from 'react';
 import '../styles/Applyproposal.css';
 import { useNavigate, useParams } from 'react-router-dom';
-import Select from 'react-select';
-import Form from 'react-bootstrap/Form';
 import axios from 'axios';
 import Header3 from './Header3';
-import { Button } from '@mui/material';
+import { Button, TextField, MenuItem, Box, Typography } from '@mui/material';
 import { FaArrowUp } from "react-icons/fa6";
 import BAPI from '../helper/variable'
 const ApplyProposal = () => {
@@ -63,10 +61,7 @@ const ApplyProposal = () => {
         // navigate(`/jobdetails/${jobid}`); 
     }
 
-    const updateTextareaHeight = (element) => {
-        element.style.height = 'auto';
-        element.style.height = `${element.scrollHeight}px`;
-    };
+
 
     const handleCancelClick = () => {
         navigate('/browsejobs');
@@ -100,52 +95,70 @@ const ApplyProposal = () => {
 
             {/* section 2 for making the input form */}
             <div className='input-form'>
-                <Form className='proposal-form'>
-                <h2 >Proposal</h2>
-                <Form.Group className='form-group' controlId="form">
-                    <h4>Why are you fit for this job?</h4>
-                    <Form.Control as="textarea"
-                        rows="6"
-                        ref={(textarea) => textarea && updateTextareaHeight(textarea)}
-                        onChange={(e) => updateTextareaHeight(e.target)}
+                <Box className='proposal-form' sx={{display:'flex',flexDirection:'column',gap:'20px'}}>
+                <Typography variant="h4" sx={{fontWeight:'700'}}>Proposal</Typography>
+                <Box className='form-group' >
+                    <Typography variant="h6" sx={{marginBottom:'10px'}}>Why are you fit for this job?</Typography>
+                    <TextField
+                        multiline
+                        minRows={6}
+                        fullWidth
                         className='form-val proposaldesc' 
-                        type="text" name='proposal' placeholder="Enter answer here" />
-                </Form.Group>
-                {/* <div>
-                    <h4>Any files to support your proposal</h4>
-                    <div>
-                        <Button onClick={handleArrowClick} endIcon={<FaArrowUp />}
-                         sx={{display: 'flex', alignItems: 'center',
-                           justifyContent: 'space-between',width:'100%', boxShadow: '0px 0px 4px 0px #00000040',padding: '15px 22px',borderRadius:'16px',color:'#000000B2'}}>Upload Your File Here</Button>
-                        <input
-                            type="file"
-                            id="fileInput"
-                            ref={fileInputRef}
-                            accept=".pdf"
-                            style={{ display: 'none' }}
-                            onChange={handleFileChange}
-                            multiple
-                        />
-                    </div>
-                </div> */}
+                        name='proposal' 
+                        placeholder="Enter answer here"
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: '16px',
+                                backgroundColor: '#F9F9F9',
+                                '& fieldset': { border: 'none' },
+                            },
+                        }}
+                    />
+                </Box>
 
                 <div>
-                    <h4 >What is your Proposed rate?</h4>
+                    <Typography variant="h6" sx={{marginBottom:'10px'}}>What is your Proposed rate?</Typography>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }} className='bud-form'>
-                        <Form.Group className="form-group" controlId="formBudget">
-                            <Form.Control className='form-val-5' type="text" name='proposed_rate' placeholder="Price" />
-                        </Form.Group>
-
-                        <Form.Group className="form-group" controlId="formCurrency">
-                            <Select
-                                options={CurrencyOptions} placeholder="Select"
-                                className='form-val-4'
-                                styles={{ control: (provided) => ({ ...provided,border:'none',outline:'none'}) }}
+                        <Box sx={{flex:1}}>
+                            <TextField 
+                                fullWidth
+                                className='form-val-5' 
+                                name='proposed_rate' 
+                                placeholder="Price" 
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: '16px',
+                                        backgroundColor: '#F9F9F9',
+                                        '& fieldset': { border: 'none' },
+                                    },
+                                }}
                             />
-                        </Form.Group>
+                        </Box>
+
+                        <Box sx={{width:'150px'}}>
+                            <TextField
+                                select
+                                defaultValue={CurrencyOptions[0].value}
+                                fullWidth
+                                className='form-val-4'
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: '16px',
+                                        backgroundColor: '#F9F9F9',
+                                        '& fieldset': { border: 'none' },
+                                    },
+                                }}
+                            >
+                                {CurrencyOptions.map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                        </Box>
                     </div>
                 </div>
-                </Form>
+                </Box>
                 
                 <div style={{marginTop:'10px',marginBottom:'5px'}}>
                     <div>

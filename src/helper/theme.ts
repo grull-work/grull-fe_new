@@ -1,6 +1,5 @@
 import * as React from "react";
-import { createTheme, ThemeOptions } from "@mui/material/styles";
-import { TypographyOptions } from "@mui/material/styles/createTypography";
+import { createTheme, ThemeOptions, TypographyVariantsOptions } from "@mui/material/styles";
 declare module "@mui/material/Typography" {
   interface TypographyPropsVariantOverrides {
     font_64_800: true;
@@ -43,7 +42,7 @@ declare module "@mui/material/Typography" {
     font_14_600: true;
   }
 }
-interface ExtendedTypographyOptions extends TypographyOptions {
+interface ExtendedTypographyOptions extends TypographyVariantsOptions {
   font_64_800: React.CSSProperties;
   font_60_800: React.CSSProperties;
   font_48_900: React.CSSProperties;

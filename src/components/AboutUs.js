@@ -35,7 +35,7 @@ function AboutUs() {
              Unlike generic competitors, we foster a community where designers thrive, continuously upskill through Grull Academy, and build long-lasting client relationships. Our AI-driven matchmaking ensures the right fit for projects and cultures. With a zero-commission model, we prioritize designers’ earnings.
              Robust conflict resolution mechanisms and a localized-global approach provide support and accessibility.
              We prioritize sustainable growth, offering a seamless user experience. Grull addresses the holistic needs of the freelance design industry, making it stand out in a competitive landscape.
-             Grull is registered at PROP- SANJAY GUPTA 22-A ASAF ALI ROAD DELHI 110002 and operating at #423 A 9th main 1st cross -  Iti layout main road , Bangalore, KARNATAKA 560068 India.</h3>
+             Grull is registered at PROP- SANJAY GUPTA 22-A ASAF ALI ROAD DELHI 110002.</h3>
         </section>
       </main>
  

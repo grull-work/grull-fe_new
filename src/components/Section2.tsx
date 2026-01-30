@@ -87,7 +87,7 @@ function Section2() {
                   <img
                     key={logoObj.logo}
                     src={logoObj.logo}
-                    alt="img"
+                    alt="Partner logo"
                     style={{ height: "100%", width: "100%" }}
                   />
                 </Box>

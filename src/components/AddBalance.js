@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import Header4 from './Header4';
 import BAPI from '../helper/variable';
-import { Box, Button, Typography } from '@mui/material';
-import Select from 'react-select';
+import { Box, Button, Typography, TextField, MenuItem } from '@mui/material';
 import axios from 'axios'
 import { toast } from 'react-hot-toast';
 
@@ -145,26 +144,32 @@ export default function AddBalance() {
                 }}
               >
                 <Typography sx={{ color: '#000000B3' }}>Currency</Typography>
-                <Select
-                  options={CurrencyOptions}
-                  value={CurrencyOptions.find((option) => option.value === selectedCurrency)}
-                  onChange={handleCurrencyChange}
+                <TextField
+                  select
+                  fullWidth
+                  value={selectedCurrency}
+                  onChange={(e) => handleCurrencyChange({ value: e.target.value })}
                   placeholder="Select Currency"
                   name="curropts"
-                  styles={{
-                    control: (provided) => ({
-                      ...provided,
-                      width: '200px',
-                      border: 'none',
-                      outline: 'none',
-                      cursor: 'pointer',
-                      padding: '0 10px',
+                  sx={{
+                    width: '200px',
+                    '& .MuiOutlinedInput-root': {
                       borderRadius: '16px',
                       boxShadow: '0px 0px 4px 1px #00000040',
-                      textAlign: 'center',
-                    }),
+                      '& fieldset': { border: 'none' },
+                    },
+                    '& .MuiSelect-select': {
+                        textAlign: 'center',
+                        padding: '10px',
+                    }
                   }}
-                />
+                >
+                    {CurrencyOptions.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                        </MenuItem>
+                    ))}
+                </TextField>
               </Box>
               <Box
                 sx={{
@@ -177,20 +182,22 @@ export default function AddBalance() {
                 }}
               >
                 <Typography sx={{ color: '#000000B3' }}>Amount</Typography>
-                <input
-                  type="text"
+                <TextField
                   value={Amount}
                   onChange={handleAmountChange}
                   placeholder="Amount here"
-                  style={{
+                  sx={{
                     width: '200px',
-                    padding: '10px',
-                    borderRadius: '16px',
-                    boxShadow: '0px 0px 4px 1px #00000040',
-                    outline: 'none',
-                    border: 'none',
-                    textAlign: 'right',
-                    fontSize: '16px',
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '16px',
+                      boxShadow: '0px 0px 4px 1px #00000040',
+                      '& fieldset': { border: 'none' },
+                    },
+                     '& input': {
+                        textAlign: 'right',
+                        padding: '10px',
+                        fontSize: '16px',
+                    }
                   }}
                 />
               </Box>

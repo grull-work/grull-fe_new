@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
-import "react-toastify/dist/ReactToastify.css";
+
 import Toolbar from "@mui/material/Toolbar";
 import BAPI from "../helper/variable";
 import Freelancerwallet from "./Freelancerwallet";

@@ -22,7 +22,7 @@ export default function TermsAndCondition() {
         <h1 className="text-3xl font-bold mb-4">Terms and Conditions for Grull Technologies Pvt Ltd</h1>
 
         <p>{`Last Updated: 21-02-2024`}</p>
-        <p className="mb-8">{`Welcome to Grull Technologies Pvt Ltd, a service provided by Grull Technologies ("Company", "we", "us", or "our"), registered at PROP- SANJAY GUPTA 22-A ASAF ALI ROAD DELHI 110002 and operating at #423 A 9th main 1st cross -  Iti layout main road , Bangalore, KARNATAKA 560068 India. These Terms and Conditions ("Terms") govern your use of the Grull Technologies Pvt Ltd website and its associated services (collectively, the "Service").`}</p>
+        <p className="mb-8">{`Welcome to Grull Technologies Pvt Ltd, a service provided by Grull Technologies ("Company", "we", "us", or "our"), registered at PROP- SANJAY GUPTA 22-A ASAF ALI ROAD DELHI 110002. These Terms and Conditions ("Terms") govern your use of the Grull Technologies Pvt Ltd website and its associated services (collectively, the "Service").`}</p>
 
         <h2 className="text-xl font-bold mb-4">Acceptance of Terms</h2>
             <p className="mb-8">{`By accessing or using our Service, you confirm that you have read, understood, and agree to be bound by these Terms, including any additional terms and conditions and policies referenced herein. If you do not agree to these Terms, you are not authorized to use the Service.`}</p>

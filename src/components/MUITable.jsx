@@ -1,16 +1,13 @@
 import React, { useState } from 'react'
-import MUIDataTable from "mui-datatables";
 import '../styles/CommonWallet.css'
 import { Box } from '@mui/material';
 import { Grid } from '@mui/material';
-import { DatePicker, Space } from 'antd';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import { FaSearch } from "react-icons/fa";
 
 
 function MUITable() {
 
-    const { RangePicker } = DatePicker;
+    // const { RangePicker } = DatePicker;
 
     const data = [
         ['12 Dec 2023', '+₹8414.00', 'Success', 'ID-1234567890'],
@@ -26,7 +23,7 @@ function MUITable() {
         ['12 Dec 2023', '+₹8414.00', 'Success', 'ID-1234567890'],
         ['12 Dec 2023', '+₹8414.00', 'Pending', 'ID-1234567890'],
     ];
-    
+
     const columns = [
         'Date',
         'Amount',
@@ -73,54 +70,75 @@ function MUITable() {
 
     return (
         <Box sx={{ marginTop: '15px' }}>
-        <Grid sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between',gap:'12px' }}>
-            <div style={{ position: 'relative' }}>
-                <input
-                    value={searchBox}
-                    onChange={(e) => setSearchBox(e.target.value)}
-                    type="text"
-                    placeholder="Search or Filter Transactions"
-                    style={{
-                        borderRadius: '12px',
-                        boxShadow: '0px 0px 4px 0px #00000040',
-                        border: 'none',
-                        width: '100%',
-                        padding: '10px 45px',
-                        fontSize: '16px',
-                        color: '#00000080',
-                    }}
-                />
-                <FontAwesomeIcon icon={faSearch} style={{
-                    color: '#957474', position: 'absolute',
-                    left: '16px', top: '12px'
-                }} />
-            </div>
-            <select className='MUITable_Select' value={transactionType} onChange={handleTransactionTypeChange}>
-                <option value={0}>All Transactions</option>
-                <option value={1}>Success</option>
-                <option value={2}>Failed</option>
-                <option value={3}>Pending</option>
-            </select>
-            <RangePicker
-                style={{
-                    borderRadius: '12px', boxShadow: '0px 0px 4px 0px #00000040',
-                }}
-                onChange={handleDateRangeChange}
-                value={selectedDateRange}
-            />
-        </Grid>
+            <Grid sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: '12px' }}>
+                <div style={{ position: 'relative' }}>
+                    <input
+                        value={searchBox}
+                        onChange={(e) => setSearchBox(e.target.value)}
+                        type="text"
+                        placeholder="Search or Filter Transactions"
+                        style={{
+                            borderRadius: '12px',
+                            boxShadow: '0px 0px 4px 0px #00000040',
+                            border: 'none',
+                            width: '100%',
+                            padding: '10px 45px',
+                            fontSize: '16px',
+                            color: '#00000080',
+                        }}
+                    />
+                    <FaSearch style={{
+                        color: '#957474', position: 'absolute',
+                        left: '16px', top: '12px'
+                    }} />
+                </div>
+                <select className='MUITable_Select' value={transactionType} onChange={handleTransactionTypeChange}>
+                    <option value={0}>All Transactions</option>
+                    <option value={1}>Success</option>
+                    <option value={2}>Failed</option>
+                    <option value={3}>Pending</option>
+                </select>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <input
+                        type="date"
+                        onChange={(e) => {
+                            const newStart = e.target.value;
+                            const end = selectedDateRange ? selectedDateRange[1] : null;
+                            handleDateRangeChange([newStart, end]);
+                        }}
+                        style={{
+                            borderRadius: '12px', boxShadow: '0px 0px 4px 0px #00000040',
+                            padding: '10px',
+                            border: 'none'
+                        }}
+                    />
+                    <input
+                        type="date"
+                        onChange={(e) => {
+                            const start = selectedDateRange ? selectedDateRange[0] : null;
+                            const newEnd = e.target.value;
+                            handleDateRangeChange([start, newEnd]);
+                        }}
+                        style={{
+                            borderRadius: '12px', boxShadow: '0px 0px 4px 0px #00000040',
+                            padding: '10px',
+                            border: 'none'
+                        }}
+                    />
+                </div>
+            </Grid>
 
-        <table style={{ width: '100%', marginTop: '20px', borderCollapse: 'collapse' }}>
-            <thead>
-                <tr>
-                    {columns.map((column) => (
-                        <th key={column} style={{ borderBottom: '1px solid #000000', padding: '30px 0', textAlign: 'center' }}>
-                            {column}
-                        </th>
-                    ))}
-                </tr>
-            </thead>
-            <tbody>
+            <table style={{ width: '100%', marginTop: '20px', borderCollapse: 'collapse' }}>
+                <thead>
+                    <tr>
+                        {columns.map((column) => (
+                            <th key={column} style={{ borderBottom: '1px solid #000000', padding: '30px 0', textAlign: 'center' }}>
+                                {column}
+                            </th>
+                        ))}
+                    </tr>
+                </thead>
+                <tbody>
                     {filteredData.map((row, rowIndex) => (
                         <tr key={rowIndex}>
                             {row.map((cell, cellIndex) => (
@@ -128,7 +146,7 @@ function MUITable() {
                                     padding: '30px 0',
                                     textAlign: 'center',
                                     verticalAlign: 'middle',
-                                    borderBottom:'1px solid #00000080 ',
+                                    borderBottom: '1px solid #00000080 ',
                                     color: cellIndex === 2 ? getStatusColor(cell) : 'inherit',
                                 }}>
                                     {cell}
@@ -137,8 +155,8 @@ function MUITable() {
                         </tr>
                     ))}
                 </tbody>
-        </table>
-    </Box>
+            </table>
+        </Box>
     )
 }
 

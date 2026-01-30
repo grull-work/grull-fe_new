@@ -22,3 +22,4 @@ yarn-error.log*
 # Markdown files (except README.md)
 *.md
 !README.md
+desktop.ini

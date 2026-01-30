@@ -120,7 +120,7 @@ useEffect(() => {
                       }))}
                       step={1 / total_deliverables}
                       className={`${passed_from === 1 ? '' : 'ongoingjobslider'}`}
-                      sx={{ color: '#ED8335', height: '8px', width:passed_from===1?'100%':'300px',minWidth:'0', marginLeft: '10px', '& .MuiSlider-thumb': { width: '20px', height: '20px',display:completed_deliverables!==0?'block':'block' },'& .MuiSlider-rail': {
+                      sx={{ color: '#ED8335', height: '8px', width:passed_from===1?'100%':'300px',minWidth:'0', marginLeft: '10px', '& .MuiSlider-thumb': { width: '20px', height: '20px',display:'block' },'& .MuiSlider-rail': {
                         height: '8px',
                         backgroundColor: '#B4B4B4',
                       }, }} /></Box>

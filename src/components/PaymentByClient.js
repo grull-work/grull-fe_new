@@ -1,9 +1,7 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import '../styles/Browsefreelancer.css';
-import Form from 'react-bootstrap/Form';
-import Select from 'react-select';
+
 
 const PaymentByClient=()=>{
     const navigate = useNavigate();

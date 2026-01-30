@@ -11,8 +11,7 @@ import { IoWalletOutline } from "react-icons/io5";
 import { FiShoppingBag } from "react-icons/fi"
 import Avatar from '@mui/material/Avatar';
 import {useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import toast, { Toaster } from 'react-hot-toast';
 import FreelancerHome from './FreelancerHome';
 import Freelancerwallet from './Freelancerwallet';
 import '../styles/freelancerdashboard.css';
@@ -118,7 +117,7 @@ export default function FreelancerDashboard(props) {
 
                   {<CiShare2 style={{height:'1.5em',width:'1.3em'}}/>}  Share Profile
                 </Button>
-                <ToastContainer />
+                  <Toaster />
                 <FiMessageSquare style={{color:'#0c0c0c',fontSize:'30px',cursor:'pointer'}} onClick={()=>navigate('/freelancerchat')} className='resdash' />
                 <Box ref={container2} sx={{position:'relative'}} onClick={()=>{setNotificationmodel(!notificationmodel);UpdateNotificationStatus()}}>
                   

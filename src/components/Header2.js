@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FiMessageSquare } from "react-icons/fi";
-import { IoMdNotificationsOutline } from "react-icons/io";
-import { RiArrowDropDownLine } from "react-icons/ri";
 import {
   Button,
   Typography,
@@ -9,10 +7,8 @@ import {
   Grid,
   IconButton,
   Divider,
-  Menu,
-  MenuItem,
-  Box,
   useMediaQuery,
+  Box,
 } from '@mui/material';
 import Logo from "../assets/grullLogoPurple.svg";
 import mobilelogo from "../assets/grullPurpuleMobileLogo.svg"
@@ -156,7 +152,7 @@ export default function Header2() {
                                         <Box
                                         sx={{
                                               padding:'15px 30px 20px 20px',
-                                              display: showDropdown?'block':'none',
+                                              display: showDropdown?'flex':'none',
                                               position:'absolute',
                                               backgroundColor:'#fff',
                                               zIndex:'1',
@@ -165,7 +161,6 @@ export default function Header2() {
                                               boxShadow: '0px 0px 4px 1px #00000040',
                                               borderRadius:{xs:'10px',sm:'40px'},
                                               width:{xs:'250px',sm:'280px'},
-                                              display:'flex',
                                               flexDirection:'column',
                                               gap:'5px'
                                             }}

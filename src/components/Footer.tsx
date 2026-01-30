@@ -43,19 +43,18 @@ function Footer() {
             style={{ height: "40px", objectFit: "contain" }}
           />
           <Box sx={{ width: { xs: "100%", md: "60%" }, margin: "24px 0" }}>
-            <Typography variant="font_16_600">
-            #423 A 9th main 1st cross - 
-            Iti layout main road
-            </Typography>
-            <Typography variant="font_16_600" sx={{ margin: "12px 0" }}>
-            BENGALURU, KARNATAKA 560068 
-            India
-            </Typography>
+
             <Typography variant="font_16_600" sx={{ margin: "12px 0" }}>
               contact@grull.work
             </Typography>
             <Typography variant="font_16_600" sx={{ margin: "12px 0" }}>
+              PROP- SANJAY GUPTA 22-A ASAF ALI ROAD DELHI 110002.
+            </Typography>
+            <Typography variant="font_16_600" sx={{ margin: "12px 0" }}>
               Grull Technologies Pvt. Ltd.
+            </Typography>
+            <Typography variant="font_16_600" sx={{ margin: "12px 0" }}>
+              GSTIN : 07AAKCG7012M1ZD
             </Typography>
             <Box
               sx={{

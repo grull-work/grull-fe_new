@@ -2,8 +2,7 @@ import { Box, Grid, Typography, IconButton, useMediaQuery, useTheme } from "@mui
 import React, { useRef, useState, useEffect } from "react";
 import { shades } from "../helper/shades";
 import { useNavigate } from "react-router-dom";
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 function Section17() {
   interface BlogLink {
@@ -136,7 +135,7 @@ function Section17() {
                 pointerEvents: currentIndex > 0 ? 'auto' : 'none',
               }}
             >
-              <ChevronLeftIcon />
+              <FiChevronLeft size={24} />
             </IconButton>
             <Box
               ref={containerRef}
@@ -156,7 +155,7 @@ function Section17() {
               {bloglinks.map((blog, i) => (
                 <Box
                   key={blog.id}
-                  ref={el => itemRefs.current[i] = el as HTMLDivElement | null}
+                  ref={el => { itemRefs.current[i] = el as HTMLDivElement | null; }}
                   onClick={() => handleBoxClick(blog.link)}
                   sx={{
                     border: `1px solid ${black}`,
@@ -197,7 +196,7 @@ function Section17() {
                 pointerEvents: currentIndex < bloglinks.length - 1 ? 'auto' : 'none',
               }}
             >
-              <ChevronRightIcon />
+              <FiChevronRight size={24} />
             </IconButton>
           </Box>
         ) : (

@@ -195,7 +195,7 @@ export default function Header3() {
                 <Box
                   sx={{
                     padding: "15px 20px 15px 20px",
-                    display: showMangejobsDropdown ? "block" : "none",
+                    display: showMangejobsDropdown ? "flex" : "none",
                     position: "absolute",
                     backgroundColor: "#fff",
                     zIndex: "1",
@@ -204,7 +204,6 @@ export default function Header3() {
                     boxShadow: "0px 0px 4px 1px #00000040",
                     borderRadius: { xs: "10px", sm: "10px" },
                     width: { xs: "250px", sm: "170px" },
-                    display: "flex",
                     flexDirection: "column",
                     gap: "15px",
                   }}
@@ -331,7 +330,7 @@ export default function Header3() {
                 <Box
                   sx={{
                     padding: "15px 30px 20px 20px",
-                    display: showDropdown ? "block" : "none",
+                    display: showDropdown ? "flex" : "none",
                     position: "absolute",
                     backgroundColor: "#fff",
                     zIndex: "1",
@@ -340,7 +339,6 @@ export default function Header3() {
                     boxShadow: "0px 0px 4px 1px #00000040",
                     borderRadius: { xs: "10px", sm: "40px" },
                     width: { xs: "250px", sm: "280px" },
-                    display: "flex",
                     flexDirection: "column",
                     gap: "5px",
                   }}

@@ -15,10 +15,9 @@ const firebaseApp = initializeApp(firebaseConfig);
 
 // Initialize Firebase Auth provider
 const provider = new GoogleAuthProvider();
-  
-// whenever a user interacts with the provider, we force them to select an account
-provider.setCustomParameters({   
-    prompt : "select_account"
+
+provider.setCustomParameters({
+  prompt: "select_account"
 });
 
 export const auth = getAuth(firebaseApp);
@@ -27,12 +26,27 @@ export const auth = getAuth(firebaseApp);
 export const signInWithGooglePopup = async () => {
   try {
     // Try popup first
-    return await signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, provider);
+    return result;
   } catch (error) {
-    console.log("Popup failed, trying redirect:", error);
-    
-    // If popup fails due to COOP policy, fall back to redirect
-    if (error.code === 'auth/popup-blocked' || error.message.includes('Cross-Origin-Opener-Policy')) {
+    console.log("Popup failed, error details:", error);
+
+    // Check specifically for popup blocked or closed by user
+    if (error.code === 'auth/popup-blocked' || error.message.includes('popup-blocked')) {
+      console.warn("Popup was blocked by the browser. Consider falling back to redirect.");
+      // You might want to automatically fallback here, or let the component decide
+      // For now, we'll throw to let the component know distinctively
+      throw error;
+    }
+
+    if (error.code === 'auth/popup-closed-by-user') {
+      console.warn("User closed the popup before finishing sign in.");
+      throw error; // Rethrow so the component can stop the loading state
+    }
+
+    // If popup fails due to COOP policy or other environment issues, fall back to redirect
+    if (error.message.includes('Cross-Origin-Opener-Policy') || error.code === 'auth/network-request-failed') {
+      console.log("COOP policy or network issue detected, falling back to redirect...");
       await signInWithRedirect(auth, provider);
       // The redirect will happen, and the result will be handled when the page loads
       throw new Error('Redirect initiated');

@@ -1,4 +1,4 @@
-import { Box, Card, Grid, Typography } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import { shades } from "../helper/shades";
 import section6Sticks from "../assets/section6Sticks.png";
 import { section6Counts } from "../helper/constant";

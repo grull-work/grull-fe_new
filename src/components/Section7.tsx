@@ -6,7 +6,7 @@ import section7HeroImage from "../assets/section7HeroImage.webp";
 
 
 function Section7() {
-  const { dustyOrange, lavender, black, white, silverTree, racingGreen } =
+  const { dustyOrange, black } =
     shades;
 
   return (
