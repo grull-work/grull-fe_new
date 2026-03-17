@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Button, Typography } from "@mui/material";
-import { MdAddPhotoAlternate, MdOutlineSlowMotionVideo } from "react-icons/md";
+import { MdAddPhotoAlternate, MdOutlineSlowMotionVideo, MdAttachFile, MdCalendarToday } from "react-icons/md";
 import { BsCurrencyDollar, BsPlusLg, BsListUl } from "react-icons/bs";
 import { IoSend } from "react-icons/io5";
 import { RxCrossCircled } from "react-icons/rx";
@@ -25,6 +25,8 @@ const ChatInput = ({
   setDeliverableValue,
   handleSendDeliverable,
   handleSendEditedDeliverable,
+  deliverableTopic = "",
+  setDeliverableTopic = () => { },
   sendMessage,
   fileInputRef,
   videoInputRef,
@@ -58,11 +60,9 @@ const ChatInput = ({
     <div className="chat_Profile_send">
       <div className="chat_Profile_send1">
         <Box sx={{ position: "relative" }} ref={container1Ref}>
-          <i
-            className="fa-solid fa-paperclip"
-            onClick={() => setOpen(!open)}
-            style={{ cursor: "pointer" }}
-          ></i>
+          <Box onClick={() => setOpen(!open)} sx={{ cursor: "pointer", display: "flex", alignItems: "center", padding: "0 10px" }}>
+            <MdAttachFile style={{ fontSize: "22px" }} />
+          </Box>
           <Box
             sx={{
               position: "absolute",
@@ -195,11 +195,9 @@ const ChatInput = ({
 
         <Box sx={{ position: "relative" }} ref={container2Ref}>
           {showCalendar && (
-            <i
-              className="fa-regular fa-calendar"
-              onClick={handleOpenDeliverable}
-              style={{ cursor: "pointer" }}
-            ></i>
+            <Box onClick={handleOpenDeliverable} sx={{ cursor: "pointer", display: "flex", alignItems: "center", padding: "0 10px" }}>
+              <MdCalendarToday style={{ fontSize: "20px" }} />
+            </Box>
           )}
 
           {showDeliverableCountIcon && (
@@ -242,7 +240,7 @@ const ChatInput = ({
                 gap: "20px",
               }}
             >
-              <Typography> Post a Milestone :</Typography>
+              <Typography> Submit Proof of Work :</Typography>
               <RxCrossCircled
                 style={{ fontSize: "20px", cursor: "pointer" }}
                 onClick={handleCloseDeliverableInput}
@@ -258,8 +256,21 @@ const ChatInput = ({
               }}
             >
               <input
+                placeholder="Topic name"
+                type="text"
+                value={deliverableTopic}
+                onChange={(e) => setDeliverableTopic(e.target.value)}
+                style={{
+                  border: "none",
+                  outline: "none",
+                  boxShadow: "0px 0px 4px 1px #00000040",
+                  borderRadius: "8px",
+                  padding: "5px 10px",
+                  width: "200px",
+                }}
+              />
+              <input
                 placeholder="Link here"
-                autoFocus
                 type="text"
                 value={deliverableValue}
                 onChange={(e) => setDeliverableValue(e.target.value)}
