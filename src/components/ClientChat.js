@@ -7,6 +7,7 @@ import {
   IconButton,
   InputBase,
   Typography,
+  Tooltip,
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import Header4 from "./Header4";
@@ -19,6 +20,9 @@ import io from "socket.io-client";
 import ChatSidebar from "./chat/ChatSidebar";
 import MessageBubble from "./chat/MessageBubble";
 import ChatInput from "./chat/ChatInput";
+import { MdListAlt } from "react-icons/md";
+import { RxCross2 } from "react-icons/rx";
+import "../styles/Chat.css";
 
 export default function Clientchat() {
   const accessToken = localStorage.getItem("accessToken");
@@ -31,6 +35,7 @@ export default function Clientchat() {
 
   // Chat Input State
   const [open, setOpen] = useState(false);
+  const [showMilestones, setShowMilestones] = useState(false);
   const [image, setImage] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
 
@@ -400,25 +405,29 @@ export default function Clientchat() {
 
   const handleAcceptSubmission = async (messageId) => {
     try {
-      await chatService.updateMessageStatus({ message_id: messageId, status: "DELIVERABLE_IMAGE_ACCEPTED" });
+      if (isSending) return;
+      setIsSending(true);
 
-      const jobRes = await jobService.getApplicationById(selectedChatInfo.application_id);
-      const job = jobRes.data.job;
-      const deliverableNum = job.completed_deliverable + 1;
-
-      const paymentRes = await chatService.processDeliverable({
-        job_id: job.id,
-        deliverable_number: deliverableNum,
-        action: "ACCEPT",
-        remarks: `Payment for deliverable ${deliverableNum}`
+      const response = await chatService.processDeliverable({
+        message_id: messageId,
+        job_id: selectedChatInfo.job_id
       });
 
-      toast.success(`Deliverable Accepted! Payment of ₹${(paymentRes.data.amount / 100).toFixed(2)} processed.`);
+      if (response.status === 200 || response.data?.status === 'success') {
+        const amount = response.data?.amount || 0;
+        toast.success(`Deliverable Accepted! Payment of ₹${(amount / 100).toFixed(2)} processed.`);
 
-      setMessages(prev => prev.map(msg => msg.id === messageId ? { ...msg, status: "DELIVERABLE_IMAGE_ACCEPTED" } : msg));
-      createnotification("Submission Accepted", `${clientname} accepted submission.`);
-      sendMessageSocket();
-    } catch (err) { toast.error("Failed to accept/pay."); }
+        setMessages(prev => prev.map(msg => msg.id === messageId ? { ...msg, status: "DELIVERABLE_IMAGE_ACCEPTED" } : msg));
+        createnotification("Submission Accepted", `${clientname} accepted submission.`);
+        sendMessageSocket();
+      }
+    } catch (err) {
+      console.error("Accept error:", err);
+      const errMsg = err.response?.data?.detail || err.message || "Unknown error";
+      toast.error(`Failed to accept and pay: ${errMsg}`);
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const handleRejectSubmission = async (messageId) => {
@@ -695,7 +704,7 @@ export default function Clientchat() {
           />
         </Box>
 
-        <Box sx={{ flex: 1, display: { xs: selectedChat ? "flex" : "none", lg: "flex" }, flexDirection: "column", height: "100%", backgroundColor: '#fff' }}>
+        <Box sx={{ flex: 1, display: { xs: selectedChat ? "flex" : "none", lg: "flex" }, flexDirection: "column", height: "100%", position: "relative", backgroundColor: '#fff' }}>
           {selectedChat ? (
             <>
               <Box sx={{ padding: "10px 20px", borderBottom: "1px solid #eee", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -711,11 +720,59 @@ export default function Clientchat() {
                   </Box>
                 </Box>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <div onClick={() => setSelectedChat(null)} style={{ cursor: 'pointer' }}>
+                  <Tooltip title="View Milestones">
+                    <IconButton onClick={() => setShowMilestones(!showMilestones)}>
+                      <MdListAlt style={{ color: "#ED8335", fontSize: "24px" }} />
+                    </IconButton>
+                  </Tooltip>
+                  <div onClick={() => setSelectedChat(null)} style={{ cursor: 'pointer', padding: '10px' }}>
                     <i className="fa-solid fa-xmark"></i>
                   </div>
                 </Box>
               </Box>
+
+              {showMilestones && (
+                <Box className="milestones-popup">
+                  <Box className="milestones-header">
+                    <Typography variant="h6">Project Milestones</Typography>
+                    <IconButton size="small" onClick={() => setShowMilestones(false)}>
+                      <RxCross2 />
+                    </IconButton>
+                  </Box>
+                  <Box className="milestones-list">
+                    {messages.filter(m => m.status === "PROJECT_PART_DETAIL_ACCEPTED").length === 0 ? (
+                      <Typography sx={{ color: "#999", textAlign: "center", py: 4, fontSize: "14px" }}>
+                        No accepted milestones yet.
+                      </Typography>
+                    ) : (
+                      messages
+                        .filter(m => m.status === "PROJECT_PART_DETAIL_ACCEPTED")
+                        .map((m, idx) => {
+                          const isCompleted = messages.some(dm => dm.status === "DELIVERABLE_IMAGE_ACCEPTED" && dm.deadline === m.message);
+                          const isSubmitted = !isCompleted && messages.some(dm => dm.status === "DELIVERABLE_IMAGE" && dm.deadline === m.message);
+                          const statusText = isCompleted ? 'Completed' : isSubmitted ? 'Submitted' : 'Pending';
+                          const statusClass = isCompleted ? 'status-completed' : isSubmitted ? 'status-submitted' : 'status-pending';
+
+                          return (
+                            <Box key={idx} className={`milestone-item ${isCompleted ? 'milestone-done' : ''}`}>
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <Typography className="milestone-topic">
+                                  {m.message}
+                                </Typography>
+                                <span className={`milestone-status ${statusClass}`}>
+                                  {statusText}
+                                </span>
+                              </Box>
+                              <Typography className="milestone-deadline">
+                                📅 Deadline: {m.deadline}
+                              </Typography>
+                            </Box>
+                          );
+                        })
+                    )}
+                  </Box>
+                </Box>
+              )}
 
               <Box
                 sx={{ flex: 1, overflowY: "auto", padding: 2, position: 'relative' }}
@@ -818,7 +875,7 @@ export default function Clientchat() {
                     container1Ref={container1}
                     container2Ref={container2}
                     container3Ref={container3}
-                    showCalendar={true} // Client can always see/add deliverables/milestones?
+                    showCalendar={false}
                     showPriceIcon={!messages.some(m => m.status === "NEGOTIATION_ACCEPTED")}
                   />
                   <InputBase

@@ -7,6 +7,7 @@ import {
   IconButton,
   InputBase,
   Typography,
+  Tooltip,
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import Header3 from "./Header3";
@@ -17,6 +18,9 @@ import io from "socket.io-client";
 import ChatSidebar from "./chat/ChatSidebar";
 import MessageBubble from "./chat/MessageBubble";
 import ChatInput from "./chat/ChatInput";
+import { MdListAlt } from "react-icons/md";
+import { RxCross2 } from "react-icons/rx";
+import "../styles/Chat.css";
 
 export default function Freelancerchat() {
   const [clients, setClients] = useState([]);
@@ -28,6 +32,7 @@ export default function Freelancerchat() {
 
   // Chat Input State
   const [open, setOpen] = useState(false);
+  const [showMilestones, setShowMilestones] = useState(false);
   const [image, setImage] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
 
@@ -42,6 +47,7 @@ export default function Freelancerchat() {
   // Deliverable State
   const [deliverableInputOpen, setDeliverableInputOpen] = useState(false);
   const [deliverableValue, setDeliverableValue] = useState("");
+  const [deliverableTopic, setDeliverableTopic] = useState("");
 
   // Chat Info State
   const [freelancerphotoUrl, setFreelancerPhotoUrl] = useState(null);
@@ -63,6 +69,7 @@ export default function Freelancerchat() {
   const [hasMore, setHasMore] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   // Deliverable Payments (State kept but logic simplified for now)
   const [deliverablePayments, setDeliverablePayments] = useState([]);
@@ -148,6 +155,7 @@ export default function Freelancerchat() {
     if (user) {
       setfreelancername(user.full_name);
       setFreelancerPhotoUrl(user.photo_url);
+      setCurrentUserId(user.id);
     }
   }, []);
 
@@ -441,8 +449,8 @@ export default function Freelancerchat() {
       message: deliverableValue,
       sent_by: selectedChatInfo.freelancer_id,
       chat_id: selectedChatInfo.id,
-      status: "DELIVERABLES",
-      deadline: ""
+      status: "DELIVERABLE_IMAGE",
+      deadline: deliverableTopic
     };
     try {
       const res = await chatService.sendMessage(payload);
@@ -453,9 +461,10 @@ export default function Freelancerchat() {
           return [...prev.slice(-99), { ...payload, id: msgData.id, created_at: msgData.created_at }];
         });
       }
-      createnotification("Deliverable Submitted", `${freelancername} submitted a deliverable.`);
+      createnotification("Proof of Work Submitted", `${freelancername} submitted proof of work.`);
       setDeliverableInputOpen(false);
       setDeliverableValue("");
+      setDeliverableTopic("");
       sendMessageSocket();
       updateSidebarLocally(selectedChatInfo.id);
     } catch (err) { toast.error("Failed to submit deliverable"); }
@@ -625,7 +634,7 @@ export default function Freelancerchat() {
           />
         </Box>
 
-        <Box sx={{ flex: 1, display: { xs: selectedChat ? "flex" : "none", lg: "flex" }, flexDirection: "column", height: "100%", backgroundColor: '#fff' }}>
+        <Box sx={{ flex: 1, display: { xs: selectedChat ? "flex" : "none", lg: "flex" }, flexDirection: "column", height: "100%", backgroundColor: '#fff', position: "relative" }}>
           {selectedChat ? (
             <>
               <Box sx={{ padding: "10px 20px", borderBottom: "1px solid #eee", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -641,12 +650,59 @@ export default function Freelancerchat() {
                   </Box>
                 </Box>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  {/* <IconButton><MdCall /></IconButton>  Example placeholders */}
-                  <div onClick={() => setSelectedChat(null)} style={{ cursor: 'pointer' }}>
+                  <Tooltip title="View Milestones">
+                    <IconButton onClick={() => setShowMilestones(!showMilestones)}>
+                      <MdListAlt style={{ color: "#B27EE3", fontSize: "24px" }} />
+                    </IconButton>
+                  </Tooltip>
+                  <div onClick={() => setSelectedChat(null)} style={{ cursor: 'pointer', padding: '10px' }}>
                     <i className="fa-solid fa-xmark"></i> {/* Close icon for mobile primarily */}
                   </div>
                 </Box>
               </Box>
+
+              {showMilestones && (
+                <Box className="milestones-popup">
+                  <Box className="milestones-header">
+                    <Typography variant="h6">Project Milestones</Typography>
+                    <IconButton size="small" onClick={() => setShowMilestones(false)}>
+                      <RxCross2 />
+                    </IconButton>
+                  </Box>
+                  <Box className="milestones-list">
+                    {messages.filter(m => m.status === "PROJECT_PART_DETAIL_ACCEPTED").length === 0 ? (
+                      <Typography sx={{ color: "#999", textAlign: "center", py: 4, fontSize: "14px" }}>
+                        No accepted milestones yet.
+                      </Typography>
+                    ) : (
+                      messages
+                        .filter(m => m.status === "PROJECT_PART_DETAIL_ACCEPTED")
+                        .map((m, idx) => {
+                          const isCompleted = messages.some(dm => dm.status === "DELIVERABLE_IMAGE_ACCEPTED" && dm.deadline === m.message);
+                          const isSubmitted = !isCompleted && messages.some(dm => dm.status === "DELIVERABLE_IMAGE" && dm.deadline === m.message);
+                          const statusText = isCompleted ? 'Completed' : isSubmitted ? 'Submitted' : 'Pending';
+                          const statusClass = isCompleted ? 'status-completed' : isSubmitted ? 'status-submitted' : 'status-pending';
+
+                          return (
+                            <Box key={idx} className={`milestone-item ${isCompleted ? 'milestone-done' : ''}`}>
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <Typography className="milestone-topic">
+                                  {m.message}
+                                </Typography>
+                                <span className={`milestone-status ${statusClass}`}>
+                                  {statusText}
+                                </span>
+                              </Box>
+                              <Typography className="milestone-deadline">
+                                📅 Deadline: {m.deadline}
+                              </Typography>
+                            </Box>
+                          );
+                        })
+                    )}
+                  </Box>
+                </Box>
+              )}
 
               <Box
                 sx={{ flex: 1, overflowY: "auto", padding: 2, position: 'relative' }}
@@ -718,12 +774,18 @@ export default function Freelancerchat() {
                     handleCloseDeliverableInput={() => { setDeliverableInputOpen(false); setDeliverableValue(""); }}
                     deliverableValue={deliverableValue}
                     setDeliverableValue={setDeliverableValue}
+                    deliverableTopic={deliverableTopic}
+                    setDeliverableTopic={setDeliverableTopic}
                     handleSendDeliverable={handleSendDeliverable}
                     sendMessage={sendMessage}
                     container1Ref={container1}
                     container2Ref={container2}
                     container3Ref={container3}
-                    showCalendar={messages.some(msg => msg.status === "DELIVERABLES_ACCEPTED")}
+                    handleSendDeliverableCount={handleSendDeliverableCount}
+                    showCalendar={
+                        currentUserId === selectedChatInfo?.freelancer_id && 
+                        messages.some(msg => msg.status === "DELIVERABLES_ACCEPTED" || msg.status === "PROJECT_PART_DETAIL_ACCEPTED")
+                    }
                     showPriceIcon={!messages.some(msg => msg.status === "NEGOTIATION_ACCEPTED")}
                     priceIconDisabled={messages.some(msg => msg.status === "NEGOTIATION_PENDING")}
                     showDeliverableCountIcon={false}

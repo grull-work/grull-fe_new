@@ -27,7 +27,9 @@ const MessageBubble = ({
     "NO_OF_DELIVERABLES_ACCEPTED",
     "NO_OF_DELIVERABLES_REJECTED",
     "PROJECT_PART_DETAIL_ACCEPTED",
-    "PROJECT_PART_DETAIL_REJECTED"
+    "PROJECT_PART_DETAIL_REJECTED",
+    "DELIVERABLE_IMAGE_ACCEPTED",
+    "DELIVERABLE_IMAGE_REJECTED"
   ].includes(message.status);
 
   const renderSystemStatus = () => {
@@ -72,6 +74,11 @@ const MessageBubble = ({
       text = isSender ? "Other party accepted the part detail" : "You accepted the part detail";
     } else if (message.status === "PROJECT_PART_DETAIL_REJECTED") {
       text = isSender ? "Other party rejected the part detail" : "You rejected the part detail";
+      bgColor = "#fff1f0"; borderColor = "#ffa39e"; textColor = "#cf1322";
+    } else if (message.status === "DELIVERABLE_IMAGE_ACCEPTED") {
+      text = isSender ? "Employer accepted your submission" : "You accepted the submission";
+    } else if (message.status === "DELIVERABLE_IMAGE_REJECTED") {
+      text = isSender ? "Employer rejected your submission" : "You rejected the submission";
       bgColor = "#fff1f0"; borderColor = "#ffa39e"; textColor = "#cf1322";
     }
 
@@ -193,6 +200,11 @@ const MessageBubble = ({
                     {message.message}
                   </a>
                 </Box>
+                {message.deadline && (
+                  <Typography variant="caption" sx={{ color: "#888", textAlign: "center", mt: 0.5, fontStyle: "italic" }}>
+                    Topic: {message.deadline}
+                  </Typography>
+                )}
 
                 <Box
                   sx={{
