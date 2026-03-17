@@ -5,6 +5,7 @@ import axios from 'axios';
 import Header3 from './Header3';
 import { Button, TextField, MenuItem, Box, Typography } from '@mui/material';
 import { FaArrowUp } from "react-icons/fa6";
+import toast from 'react-hot-toast';
 import BAPI from '../helper/variable'
 const ApplyProposal = () => {
     const accessToken = localStorage.getItem('accessToken');
@@ -79,12 +80,17 @@ const ApplyProposal = () => {
                   },
               });
               if (response.status===200) {
-                //   console.log('Applied Proposal successfully');
+                  toast.success('Applied Proposal successfully');
                   navigate('/managejobs/applied');
               }
           }
           catch (error) {
             console.error('Error occurred:', error);
+            if (error.response && error.response.data && error.response.data.detail) {
+                toast.error(error.response.data.detail);
+            } else {
+                toast.error('An error occurred while applying.');
+            }
         }
     }
 

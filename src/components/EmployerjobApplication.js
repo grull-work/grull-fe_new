@@ -275,12 +275,12 @@ const filteredFreelancers = allFreelancers
 
         <div className='browseFreelancer-box'>
         {((allFreelancers.length === 0) || 
-    (allFreelancers?.filter((application) => ['PENDING'].includes(application.status)).length === 0)) ? (
+    (allFreelancers?.filter((application) => ['PENDING', 'ACCEPTED'].includes(application.status)).length === 0)) ? (
     <>
       <Typography sx={{ fontSize: '18px', padding: '20px', textAlign: 'center' }}>No applications found.</Typography>
     </>
   ) : (
-    filteredFreelancers?.filter((application) => ['PENDING'].includes(application.status)).map((freelancer, indx) => (
+    filteredFreelancers?.filter((application) => ['PENDING', 'ACCEPTED'].includes(application.status)).map((freelancer, indx) => (
       <Box key={indx}>
         <Box sx={{ padding: { sm: '30px', xs: '18px 16px' } }}>
           <Box style={{ display: 'flex', flexDirection: 'column' }}>

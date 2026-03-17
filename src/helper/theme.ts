@@ -26,6 +26,7 @@ declare module "@mui/material/Typography" {
     font_18_500: true;
     font_12_900: true;
     font_12_800: true;
+    font_12_700: true;
     font_12_600: true;
     font_12_500: true;
     font_10_500: true;
@@ -57,10 +58,11 @@ interface ExtendedTypographyOptions extends TypographyVariantsOptions {
   font_24_800: React.CSSProperties;
   font_24_700: React.CSSProperties;
   font_24_600: React.CSSProperties;
-  font_24_500: React.CSSProperties;
-  font_20_700: React.CSSProperties;
-  font_20_600: React.CSSProperties;
-  font_20_500: React.CSSProperties;
+    font_24_500: React.CSSProperties;
+    font_20_700: React.CSSProperties;
+    font_20_600: React.CSSProperties;
+    font_20_500: React.CSSProperties;
+    font_12_700: React.CSSProperties;
   font_20_400: React.CSSProperties;
   font_18_800: React.CSSProperties;
   font_18_600: React.CSSProperties;
@@ -240,6 +242,11 @@ export const grullCustomTheme = createTheme({
       lineHeight: "1rem",
       display: "block",
       margin: "4px 0",
+    },
+    font_12_700: {
+      fontWeight: 700,
+      fontSize: "0.75rem",
+      lineHeight: "1rem",
     },
     font_12_600: {
       fontWeight: 600,

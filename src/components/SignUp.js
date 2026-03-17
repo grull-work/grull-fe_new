@@ -39,7 +39,7 @@ const SignUp = () => {
                 email: data.email,
                 password: data.uid, // Using Firebase UID as password
                 first_name: data.displayName?.split(' ')[0] || 'User',
-                last_name: data.displayName?.split(' ').slice(1).join(' ') || 'Account',
+                last_name: data.displayName?.split(' ').slice(1).join(' ') || '',
                 list_as_freelancer: userType === 'freelancer' ? true : false
             };
 

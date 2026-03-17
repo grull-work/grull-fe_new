@@ -246,7 +246,7 @@ function Section18() {
                       }}
                       checked={data.helpOption === "portfolio"}
                       value="portfolio"
-                      onClick={updateHandleOption}
+                      onChange={updateHandleOption}
                     />
                     <Typography
                       sx={{
@@ -270,7 +270,7 @@ function Section18() {
                       }}
                       checked={data.helpOption === "course"}
                       value="course"
-                      onClick={updateHandleOption}
+                      onChange={updateHandleOption}
                     />
                     <Typography
                       sx={{
@@ -294,7 +294,7 @@ function Section18() {
                       }}
                       value="jobPosting"
                       checked={data.helpOption === "jobPosting"}
-                      onClick={updateHandleOption}
+                      onChange={updateHandleOption}
                     />
                     <Typography
                       sx={{
@@ -318,7 +318,7 @@ function Section18() {
                         width: isDesktop ? "20px" : "8px",
                         borderRadius: "50%",
                       }}
-                      onClick={updateHandleOption}
+                      onChange={updateHandleOption}
                     />
                     <Typography
                       sx={{
@@ -362,7 +362,7 @@ function Section18() {
                 width: { xs: "120px", md: "200px" },
                 margin: { xs: "12px 0", md: "" },
                 padding: { xs: "12px 0", md: "16px 0" },
-                cursor:'pointer'
+                cursor: 'pointer'
               }}
               onClick={handleSubmit}
             >

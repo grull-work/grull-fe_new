@@ -71,7 +71,7 @@ const Login = () => {
           email: data.email,
           password: data.uid,
           first_name: data.displayName?.split(' ')[0] || 'User',
-          last_name: data.displayName?.split(' ').slice(1).join(' ') || 'Account',
+          last_name: data.displayName?.split(' ').slice(1).join(' ') || '',
           list_as_freelancer: false // Default to client for Login page flux, or ask user? Defaulting to Client for safety.
         };
 

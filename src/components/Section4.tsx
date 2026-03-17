@@ -9,26 +9,15 @@ import section4ArrowMobile1 from "../assets/section4ArrowMobile1.png";
 import section4ArrowMobile2 from "../assets/section4ArrowMobile2.svg";
 import * as animationData from "../jsonAnimations/section4Animation.json";
 import * as animationData2 from "../jsonAnimations/section4Animation2.json";
-import section4LeftArrow  from "../assets/section4LeftArrow.png"
+import section4LeftArrow from "../assets/section4LeftArrow.png"
 import useScrollToContactUsHook from "../customHooks/useScrollToContactUsHook";
 import { useNavigate } from "react-router-dom";
 
 function Section4() {
   const { lavender, royalBlue } = shades;
-  const scrollToSection = useScrollToContactUsHook();
   const isDesktop = useMediaQuery("(min-width:600px)");
 
-  const defaultOptions1 = {
-    loop: true,
-    autoplay: true,
-    animationData: animationData,
-  };
-  const defaultOptions2 = {
-    loop: true,
-    autoplay: true,
-    animationData: animationData2,
-  };
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
   return (
     <Grid sx={{ minHeight: "100vh", width: "100vw" }}>
@@ -37,7 +26,7 @@ function Section4() {
           display: "grid",
           gridTemplateColumns: { xs: "1fr", md: "5fr 5fr" },
           position: "relative",
-          marginLeft:'24px'
+          marginLeft: '24px'
         }}
       >
         <Box
@@ -124,7 +113,7 @@ function Section4() {
               height: "140px",
               justifyContent: "space-between",
               alignItems: "flex-end",
-              
+
             }}
           >
             <Typography
@@ -135,17 +124,17 @@ function Section4() {
                 width: "250px",
                 background: lavender,
                 textAlign: "center",
-                cursor:'pointer',
-                position:'absolute',
-                bottom:'-20px',
-                left:0,
+                cursor: 'pointer',
+                position: 'absolute',
+                bottom: '-20px',
+                left: 0,
 
               }}
-              onClick={()=>navigate("/home")}
+              onClick={() => navigate("/home")}
             >
               Explore Now
             </Typography>
-            <Box style={{borderBottom:'1px solid black',flex:1,marginLeft:'270px'}}></Box>
+            <Box style={{ borderBottom: '1px solid black', flex: 1, marginLeft: '270px' }}></Box>
           </Box>
         </Box>
         <Box
@@ -193,9 +182,9 @@ function Section4() {
                 textAlign: "center",
                 margin: "12px 0 !important",
                 display: "block",
-                cursor:'pointer'
+                cursor: 'pointer'
               }}
-              onClick={()=>navigate("/home")}
+              onClick={() => navigate("/home")}
             >
               Explore Now
             </Box>
@@ -255,9 +244,9 @@ function Section4() {
                 padding: "12px 0",
                 margin: "auto !important",
                 display: { xs: "block", md: "none" },
-                cursor:'pointer'
+                cursor: 'pointer'
               }}
-              onClick={()=>navigate("/home")} >
+              onClick={() => navigate("/home")} >
               Start Your Journey
             </Box>
           </Box>
@@ -327,9 +316,9 @@ function Section4() {
                 padding: "12px 0",
                 marginTop: "48px",
                 display: { xs: "none", md: "block" },
-                cursor:'pointer'
+                cursor: 'pointer'
               }}
-              onClick={()=>navigate("/home")} 
+              onClick={() => navigate("/home")}
             >
               Start Your Journey
             </Box>
