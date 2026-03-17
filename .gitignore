@@ -19,9 +19,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Markdown files (except README.md, FEATURES.md and MARKETING_FEATURES.md)
+# Markdown files (except README.md, FEATURES.md, MARKETING_FEATURES.md and TECH_STACK_AND_SERVICES.md)
 *.md
 !README.md
 !FEATURES.md
 !MARKETING_FEATURES.md
+!TECH_STACK_AND_SERVICES.md
 desktop.ini
