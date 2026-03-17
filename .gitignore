@@ -19,7 +19,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Markdown files (except README.md)
+# Markdown files (except README.md and FEATURES.md)
 *.md
 !README.md
+!FEATURES.md
 desktop.ini
