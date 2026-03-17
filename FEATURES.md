@@ -1,32 +1,46 @@
-# Grull Frontend - Detailed Features
+# Grull Frontend - Detailed Component & UI Specification
 
-This document outlines the frontend features and user experience implemented in the Grull React application.
+This document provides a detailed breakdown of the features and UI logic implemented in the Grull React application.
 
-## 1. User Experience & UI
-- **Modern Dashboard**: Intuitive interfaces for both clients and freelancers to manage their activities.
-- **Responsive Design**: Built with Material UI (MUI) v7 for a consistent experience across desktop and mobile.
-- **Interactive Feedback**: Real-time notifications (toasts) and visual status chips in chat.
+---
 
-## 2. Dynamic Chat Interface
-- **State-Aware Bubbles**: Message bubbles that change appearance and actions based on the message status (e.g., Pending, Accepted).
-- **Negotiation Tools**: Dedicated UI for proposing and accepting price changes directly within the chat.
-- **Role-Restricted Tools**: Dynamic visibility of tools (like the Plus icon for clients or Calendar for freelancers) based on user roles.
+## 1. Dynamic Chat & Communication Engine
+### Message Context Awareness
+- **Status Chips**: The `MessageBubble.js` component dynamically renders status indicators (e.g., "Accepted", "Pending", "Rejected") based on the message ID and its database status.
+- **Action-Linked Bubbles**: Specific message types (like `NEGOTIATION_PENDING`) render action buttons (Accept/Reject) only for the relevant user.
+- **Hybrid Layout**: Centered system messages (e.g., "Job is now Ongoing") are mixed with left/right aligned user bubbles for better readability.
 
-## 3. Milestone & Project Management
-- **Milestone Tracker**: A dedicated header-based popup to view all project parts.
-- **Auto-Progress**: Visual feedback (strike-through) when a project part is submitted and accepted.
-- **Project Part Definition**: Guided workflow for clients to define specific topics and deadlines for a project.
+### Real-Time Signal Handling
+- **Socket.io Integration**: Uses `socket.io-client` for zero-latency message synchronization.
+- **Live UI Updates**: Component states (`setMessages`) are updated immediately upon receiving a socket event, preventing the need for polling.
 
-## 4. Job Marketplace UI
-- **Browse & Discovery**: Powerful browsing interface to find and filter relevant jobs.
-- **Detailed Job Pages**: Comprehensive views of job requirements, budgets, and applicant counts.
-- **Application Workflow**: Step-by-step proposal submission for freelancers.
+## 2. Integrated Milestone Management
+- **Milestones Tracker**: A top-right popup list that tracks all "Phase 2" project parts.
+- **Visual Progress**: Automatically applies `text-decoration: line-through` and `opacity: 0.6` to completed topics.
+- **Smart Tooltip**: Real-time feedback in the chat header showing current progress (e.g., "2/5 Deliverables Done").
 
-## 5. Account & Finance Dashboard
-- **Profile Customization**: Visual editor for user profiles, skills, and company details.
-- **Wallet Overview**: Real-time balance display and transaction history.
-- **Account Security**: Secure login and registration flows with error handling.
+## 3. Role-Based Interaction Security
+- **Dynamic Toolbar Visibility**:
+    - **Employer**: Sees the "Plus" (+) icon to initiate project part definitions.
+    - **Freelancer**: Sees the "Calendar/Upload" icon to submit proof of work.
+- **URL-Level Protection**: `Freelancerchat.js` and `ClientChat.js` perform secondary ID verification to ensure users cannot spoof roles by navigating to direct routes.
 
-## 6. Real-Time Capabilities
-- **Live Updates**: Instant message reception and status changes without page refreshes via Socket.io.
-- **Online Presence**: (Planned) Visual indicators for user availability.
+## 4. Job Dashboard & Marketplace
+- **Fluid browsing**: Responsive grid of job cards with category-specific filtering.
+- **Application Portal**: Multi-field forms for freelancers to specify rates and provide detailed proposals.
+- **Employer Control Panel**: Consolidated view of all applicants with one-click "Accept Price" functionality.
+
+## 5. Financial Dashboard (Wallet UI)
+- **Visual Wallet**: Clean, card-based interface showing current balance.
+- **Transaction History**: List of recent inbound/outbound transfers with clear descriptions (e.g., "Payment from 25.ghost.3").
+- **Payment Integration**: Razorpay-triggered modal for secure balance recharging.
+
+## 6. Modern Tech Stack & Styling
+- **MUI v7 Theming**: Custom-themed Material UI components for a premium, consistent design language.
+- **Emotion CSS**: Scoped styling using `@emotion/styled` for component-specific isolation.
+- **Animate.css**: Subtle micro-animations on modal appearances and state changes for a polished feel.
+
+## 7. State Management & Navigation
+- **React Router v7**: Declarative routing with protected paths and dynamic parameter handling (e.g., `/jobdetails/:jobId`).
+- **Axios Interceptors**: Global handling of JWT tokens and error responses to ensure seamless session persistence.
+- **React Hot Toast**: Real-time accessible notifications for successful actions and error feedback.
