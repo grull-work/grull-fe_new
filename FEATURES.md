@@ -30,7 +30,9 @@ This document provides a detailed breakdown of the features and UI logic impleme
 - **Application Portal**: Multi-field forms for freelancers to specify rates and provide detailed proposals.
 - **Employer Control Panel**: Consolidated view of all applicants with one-click "Accept Price" functionality.
 
-## 5. Financial Dashboard (Wallet UI)
+## 5. Account & Finance Dashboard
+- **Google Social Login**: Seamless one-click authentication powered by Firebase.
+- **Profile Customization**: Visual editor for user profiles, skills, and company details.
 - **Visual Wallet**: Clean, card-based interface showing current balance.
 - **Transaction History**: List of recent inbound/outbound transfers with clear descriptions (e.g., "Payment from 25.ghost.3").
 - **Payment Integration**: Razorpay-triggered modal for secure balance recharging.

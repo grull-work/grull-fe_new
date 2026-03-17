@@ -50,7 +50,7 @@ const Start = () => {
         <div className='two'>
             <h5 style={{fontWeight:'normal'}}>
             Already have an account?{' '}
-            <a style={{ color: '#b27ee3', textDecoration: 'none',fontWeight:'700',cursor:'pointer' }} onClick={handleLoginClick1}>
+            <a href="/login" style={{ color: '#b27ee3', textDecoration: 'none',fontWeight:'700',cursor:'pointer' }} onClick={(e) => { e.preventDefault(); handleLoginClick1(); }}>
               Log In
             </a>
           </h5>

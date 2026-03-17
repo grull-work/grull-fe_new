@@ -81,7 +81,6 @@ const ChatSidebar = ({
             const displayName = `${firstName} ${lastName}`.trim();
             const profileName = displayName;
 
-            const location = chat.location;
 
             return (
               <React.Fragment key={indx}>

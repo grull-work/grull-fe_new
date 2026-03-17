@@ -314,7 +314,7 @@ const Login = () => {
             <button className='create-account-button' onClick={handleLoginClick}>Log In</button>
             <h5 style={{ fontWeight: 'normal', color: '#656565', fontSize: '16px' }}>
               New to Grull?{' '}
-              <a style={{ color: '#b27ee3', textDecoration: 'none', fontWeight: '700', cursor: 'pointer' }} onClick={() => handleSignupClick()}>
+              <a href="/home" style={{ color: '#b27ee3', textDecoration: 'none', fontWeight: '700', cursor: 'pointer' }} onClick={(e) => { e.preventDefault(); handleSignupClick(); }}>
                 Sign Up
               </a>
             </h5>
