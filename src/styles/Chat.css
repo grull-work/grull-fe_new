@@ -113,10 +113,9 @@
 .chat_Profile_send {
     display: flex;
     flex-direction: row;
-    padding: 30px 20px 15px;
-    margin: auto;
-    justify-content: space-between;
-    width: 100%;
+    padding: 0 5px;
+    margin: 0;
+    width: auto;
     align-items: center;
 }
 
@@ -216,4 +215,103 @@
         margin: 5px 10px;
         cursor: pointer;
     }
+}
+
+.milestones-popup {
+    position: absolute;
+    top: 65px;
+    right: 20px;
+    background: white;
+    box-shadow: 0px 8px 24px rgba(0,0,0,0.15);
+    border-radius: 16px;
+    width: 320px;
+    z-index: 9999;
+    padding: 20px;
+    border: 1px solid #f0f0f0;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.milestones-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #f8f8f8;
+    padding-bottom: 12px;
+    margin-bottom: 15px;
+}
+
+.milestones-header h6 {
+    font-weight: 800;
+    font-size: 18px;
+    color: #1a1a1a;
+}
+
+.milestones-list {
+    overflow-y: auto;
+    flex: 1;
+}
+
+.milestone-item {
+    padding: 12px;
+    border-radius: 12px;
+    border-bottom: 1px solid #f5f5f5;
+    transition: background 0.2s;
+    margin-bottom: 5px;
+}
+
+.milestone-item:hover {
+    background: #fafafa;
+}
+
+.milestone-topic {
+    font-weight: 700;
+    font-size: 15px;
+    color: #333;
+    display: block;
+}
+
+.milestone-deadline {
+    font-size: 12px;
+    color: #777;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.milestone-done {
+    opacity: 0.6;
+}
+
+.milestone-done .milestone-topic {
+    text-decoration: line-through;
+    color: #999;
+}
+
+.milestone-status {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 8px;
+    display: inline-block;
+}
+
+.status-pending {
+    background: #fff4e5;
+    color: #ed8335;
+}
+
+.status-submitted {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.status-completed {
+    background: #e8f5e9;
+    color: #2e7d32;
 }
